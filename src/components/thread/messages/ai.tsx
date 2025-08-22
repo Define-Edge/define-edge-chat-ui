@@ -1,19 +1,19 @@
-import { parsePartialJson } from "@langchain/core/output_parsers";
-import { useStreamContext } from "@/providers/Stream";
-import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { getContentString } from "../utils";
-import { BranchSwitcher, CommandBar } from "./shared";
-import { MarkdownText } from "../markdown-text";
-import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
-import { cn } from "@/lib/utils";
-import { ToolCalls, ToolResult } from "./tool-calls";
-import { MessageContentComplex } from "@langchain/core/messages";
-import { Fragment } from "react/jsx-runtime";
+import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
+import { cn } from "@/lib/utils";
+import { useStreamContext } from "@/providers/Stream";
+import { MessageContentComplex } from "@langchain/core/messages";
+import { parsePartialJson } from "@langchain/core/output_parsers";
+import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
+import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
+import { Fragment } from "react/jsx-runtime";
 import { ThreadView } from "../agent-inbox";
-import { useQueryState, parseAsBoolean } from "nuqs";
-import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import { MarkdownText } from "../markdown-text";
+import { getContentString } from "../utils";
+import { GenericInterruptView } from "./generic-interrupt";
+import { BranchSwitcher, CommandBar } from "./shared";
+import { ToolCalls, ToolResult } from "./tool-calls";
 
 function CustomComponent({
   message,
@@ -104,10 +104,7 @@ export function AssistantMessage({
 }) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
-  const [hideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(false),
-  );
+  const [hideToolCalls] = useHideToolCalls()
 
   const thread = useStreamContext();
   const isLastMessage =

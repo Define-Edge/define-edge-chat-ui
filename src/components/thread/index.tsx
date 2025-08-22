@@ -1,51 +1,51 @@
-import { v4 as uuidv4 } from "uuid";
-import { ReactNode, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { useStreamContext } from "@/providers/Stream";
-import { useState, FormEvent } from "react";
-import { Button } from "../ui/button";
-import { Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
-import { HumanMessage } from "./messages/human";
+import appConfig from "@/configs/app.config";
+import { useFileUpload } from "@/hooks/use-file-upload";
+// import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
-import { LangGraphLogoSVG } from "../icons/langgraph";
-import { TooltipIconButton } from "./tooltip-icon-button";
+import { cn } from "@/lib/utils";
+import { useStreamContext } from "@/providers/Stream";
+import { Checkpoint, Message } from "@langchain/langgraph-sdk";
+import { motion } from "framer-motion";
 import {
   ArrowDown,
   LoaderCircle,
-  PanelRightOpen,
   PanelRightClose,
-  SquarePen,
-  XIcon,
+  PanelRightOpen,
   Plus,
-  CircleX,
+  SquarePen,
+  XIcon
 } from "lucide-react";
-import { useQueryState, parseAsBoolean } from "nuqs";
-import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
-import ThreadHistory from "./history";
+import { parseAsBoolean, useQueryState } from "nuqs";
+import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
+import { v4 as uuidv4 } from "uuid";
+import { GitHubSVG } from "../icons/github";
+import { LangGraphLogoSVG } from "../icons/langgraph";
+import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-import { GitHubSVG } from "../icons/github";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
-  useArtifactOpen,
   ArtifactContent,
   ArtifactTitle,
   useArtifactContext,
+  useArtifactOpen,
 } from "./artifact";
+import ThreadHistory from "./history";
+import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
+import { HumanMessage } from "./messages/human";
+import { TooltipIconButton } from "./tooltip-icon-button";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -121,10 +121,7 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
-  const [hideToolCalls, setHideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(false),
-  );
+  // const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
   const {
     contentBlocks,
@@ -362,15 +359,15 @@ export function Thread() {
                     height={32}
                   />
                   <span className="text-xl font-semibold tracking-tight">
-                    Agent Chat
+                    {appConfig.appName}
                   </span>
                 </motion.button>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <OpenGitHubRepo />
-                </div>
+                </div> */}
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
@@ -433,9 +430,9 @@ export function Thread() {
                 <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
                   {!chatStarted && (
                     <div className="flex items-center gap-3">
-                      <LangGraphLogoSVG className="h-8 flex-shrink-0" />
+                      {/* <LangGraphLogoSVG className="h-8 flex-shrink-0" /> */}
                       <h1 className="text-2xl font-semibold tracking-tight">
-                        Agent Chat
+                        {appConfig.appName}
                       </h1>
                     </div>
                   )}
@@ -481,7 +478,7 @@ export function Thread() {
                       />
 
                       <div className="flex items-center gap-6 p-2 pt-4">
-                        <div>
+                        {/* <div>
                           <div className="flex items-center space-x-2">
                             <Switch
                               id="render-tool-calls"
@@ -495,7 +492,7 @@ export function Thread() {
                               Hide Tool Calls
                             </Label>
                           </div>
-                        </div>
+                        </div> */}
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
@@ -542,20 +539,22 @@ export function Thread() {
             />
           </StickToBottom>
         </motion.div>
-        <div className="relative flex flex-col border-l">
-          <div className="absolute inset-0 flex min-w-[30vw] flex-col">
-            <div className="grid grid-cols-[1fr_auto] border-b p-4">
-              <ArtifactTitle className="truncate overflow-hidden" />
-              <button
-                onClick={closeArtifact}
-                className="cursor-pointer"
-              >
-                <XIcon className="size-5" />
-              </button>
+        {artifactOpen && (
+          <div className="relative flex flex-col border-l">
+            <div className="absolute inset-0 flex min-w-[30vw] flex-col">
+              <div className="grid grid-cols-[1fr_auto] border-b p-4">
+                <ArtifactTitle className="truncate overflow-hidden" />
+                <button
+                  onClick={closeArtifact}
+                  className="cursor-pointer"
+                >
+                  <XIcon className="size-5" />
+                </button>
+              </div>
+              <ArtifactContent className="relative flex-grow" />
             </div>
-            <ArtifactContent className="relative flex-grow" />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

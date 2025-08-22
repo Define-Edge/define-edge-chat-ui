@@ -1,29 +1,30 @@
+import { LangGraphLogoSVG } from "@/components/icons/langgraph";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
+import { useApiUrl, useAssistantId } from "@/hooks/useDefaultApiValues";
+import { getApiKey } from "@/lib/api-key";
+import { type Message } from "@langchain/langgraph-sdk";
+import { useStream } from "@langchain/langgraph-sdk/react";
+import {
+  isRemoveUIMessage,
+  isUIMessage,
+  uiMessageReducer,
+  type RemoveUIMessage,
+  type UIMessage,
+} from "@langchain/langgraph-sdk/react-ui";
+import { ArrowRight } from "lucide-react";
+import { useQueryState } from "nuqs";
 import React, {
   createContext,
-  useContext,
   ReactNode,
-  useState,
+  useContext,
   useEffect,
+  useState,
 } from "react";
-import { useStream } from "@langchain/langgraph-sdk/react";
-import { type Message } from "@langchain/langgraph-sdk";
-import {
-  uiMessageReducer,
-  isUIMessage,
-  isRemoveUIMessage,
-  type UIMessage,
-  type RemoveUIMessage,
-} from "@langchain/langgraph-sdk/react-ui";
-import { useQueryState } from "nuqs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { LangGraphLogoSVG } from "@/components/icons/langgraph";
-import { Label } from "@/components/ui/label";
-import { ArrowRight } from "lucide-react";
-import { PasswordInput } from "@/components/ui/password-input";
-import { getApiKey } from "@/lib/api-key";
-import { useThreads } from "./Thread";
 import { toast } from "sonner";
+import { useThreads } from "./Thread";
 
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
 
@@ -138,12 +139,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     process.env.NEXT_PUBLIC_ASSISTANT_ID;
 
   // Use URL params with env var fallbacks
-  const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
-    defaultValue: envApiUrl || "",
-  });
-  const [assistantId, setAssistantId] = useQueryState("assistantId", {
-    defaultValue: envAssistantId || "",
-  });
+  const [apiUrl, setApiUrl] = useApiUrl()
+  const [assistantId, setAssistantId] = useAssistantId()
 
   // For API key, use localStorage with env var fallback
   const [apiKey, _setApiKey] = useState(() => {

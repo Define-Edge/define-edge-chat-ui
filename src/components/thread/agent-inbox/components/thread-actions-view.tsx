@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { ThreadIdCopyable } from "./thread-id";
-import { InboxItemInput } from "./inbox-item-input";
-import useInterruptedActions from "../hooks/use-interrupted-actions";
+import { useApiUrl } from "@/hooks/useDefaultApiValues";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { useQueryState } from "nuqs";
-import { constructOpenInStudioURL } from "../utils";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
+import { useQueryState } from "nuqs";
+import { toast } from "sonner";
+import useInterruptedActions from "../hooks/use-interrupted-actions";
+import { constructOpenInStudioURL } from "../utils";
+import { InboxItemInput } from "./inbox-item-input";
+import { ThreadIdCopyable } from "./thread-id";
 
 interface ThreadActionsViewProps {
   interrupt: HumanInterrupt;
@@ -81,7 +82,7 @@ export function ThreadActionsView({
   } = useInterruptedActions({
     interrupt,
   });
-  const [apiUrl] = useQueryState("apiUrl");
+  const [apiUrl] = useApiUrl()
 
   const handleOpenInStudio = () => {
     if (!apiUrl) {
