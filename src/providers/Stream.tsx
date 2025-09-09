@@ -144,7 +144,9 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
 
   // For API key, use localStorage with env var fallback
   const [apiKey, _setApiKey] = useState(() => {
-    const storedKey = getApiKey();
+    console.log(process.env.LANGSMITH_API_KEY);
+    
+    const storedKey = getApiKey() || process.env.LANGSMITH_API_KEY;
     return storedKey || "";
   });
 

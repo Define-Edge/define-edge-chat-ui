@@ -1,6 +1,6 @@
 import appConfig from "@/configs/app.config";
 import { useFileUpload } from "@/hooks/use-file-upload";
-// import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
+import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   DO_NOT_RENDER_ID_PREFIX,
@@ -121,7 +121,7 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
-  // const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
+  const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
   const {
     contentBlocks,
@@ -478,7 +478,7 @@ export function Thread() {
                       />
 
                       <div className="flex items-center gap-6 p-2 pt-4">
-                        {/* <div>
+                        <div>
                           <div className="flex items-center space-x-2">
                             <Switch
                               id="render-tool-calls"
@@ -492,7 +492,7 @@ export function Thread() {
                               Hide Tool Calls
                             </Label>
                           </div>
-                        </div> */}
+                        </div>
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
