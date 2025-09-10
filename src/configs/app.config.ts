@@ -1,5 +1,5 @@
 const appConfig = {
-    appName: "Define Edge GPT",
+    appName: "Definedge GPT",
 }
 
 export default appConfig
