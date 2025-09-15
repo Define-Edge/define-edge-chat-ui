@@ -31,9 +31,9 @@ export function ToolCalls({
   toolCalls: AIMessage["tool_calls"];
   handleRegenerate: () => void;
 }) {
+  const stream = useStreamContext();
   if (!toolCalls || toolCalls.length === 0) return null;
 
-  const stream = useStreamContext();
   const messages = stream.messages;
 
   const allToolCallMessages = messages.filter(m => m.type === "tool")
