@@ -68,7 +68,7 @@ export function ToolCalls({
         return (
           <Tool key={toolCallId} >
             <ToolHeader
-              type={`tool-${tc.name}`}
+              type={tc.name}
               state={toolMsg?.status ? toolStateToStatusMap[toolMsg.status] : "input-streaming"}
             />
             <ToolContent>

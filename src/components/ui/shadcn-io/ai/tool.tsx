@@ -21,7 +21,7 @@ import { ToolMessage } from '@langchain/langgraph-sdk';
 
 // Manual type definitions extracted from AI SDK
 export type ToolState = 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
-type ToolType = `tool-${string}`;
+type ToolType = string
 
 export type ToolProps = ComponentProps<typeof Collapsible>;
 

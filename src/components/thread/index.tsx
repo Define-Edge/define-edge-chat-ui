@@ -1,3 +1,11 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import appConfig from "@/configs/app.config";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
@@ -13,19 +21,20 @@ import { motion } from "framer-motion";
 import {
   ArrowDown,
   LoaderCircle,
+  MoreVertical,
   PanelRightClose,
   PanelRightOpen,
   Plus,
   SquarePen,
   XIcon
 } from "lucide-react";
+import Image from "next/image";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { v4 as uuidv4 } from "uuid";
 import { GitHubSVG } from "../icons/github";
-import { LangGraphLogoSVG } from "../icons/langgraph";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
@@ -46,7 +55,6 @@ import ThreadHistory from "./history";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import { TooltipIconButton } from "./tooltip-icon-button";
-import Image from "next/image";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -479,24 +487,58 @@ export function Thread() {
                       />
 
                       <div className="flex items-center gap-6 p-2 pt-4">
-                        <div className="hidden md:block">
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="render-tool-calls"
-                              checked={hideToolCalls ?? false}
-                              onCheckedChange={setHideToolCalls}
-                            />
-                            <Label
-                              htmlFor="render-tool-calls"
-                              className="text-sm text-gray-600"
-                            >
-                              Hide Tool Calls
-                            </Label>
-                          </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="md:hidden" asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreVertical />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem asChild>
+                              <div className="flex items-center space-x-2">
+                                <Switch
+                                  id="render-tool-calls"
+                                  checked={hideToolCalls ?? false}
+                                  onCheckedChange={setHideToolCalls}
+                                />
+                                <Label
+                                  htmlFor="render-tool-calls"
+                                  className="text-sm text-gray-600"
+                                >
+                                  Hide Tool Calls
+                                </Label>
+                              </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Label
+                                htmlFor="file-input"
+                                className="flex cursor-pointer items-center gap-2"
+                              >
+                                <Plus className="size-5 text-gray-600" />
+                                <span className="text-sm text-gray-600">
+                                  Upload PDF or Image
+                                </span>
+                              </Label>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <div className="hidden md:flex items-center space-x-2">
+                          <Switch
+                            id="render-tool-calls"
+                            checked={hideToolCalls ?? false}
+                            onCheckedChange={setHideToolCalls}
+                          />
+                          <Label
+                            htmlFor="render-tool-calls"
+                            className="text-sm text-gray-600"
+                          >
+                            Hide Tool Calls
+                          </Label>
                         </div>
                         <Label
                           htmlFor="file-input"
-                          className="flex cursor-pointer items-center gap-2"
+                          className="hidden md:flex cursor-pointer items-center gap-2"
                         >
                           <Plus className="size-5 text-gray-600" />
                           <span className="text-sm text-gray-600">
