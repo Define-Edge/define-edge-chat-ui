@@ -13,7 +13,8 @@ import { MarkdownText } from "../markdown-text";
 import { getContentString } from "../utils";
 import { GenericInterruptView } from "./generic-interrupt";
 import { BranchSwitcher, CommandBar } from "./shared";
-import { ToolCalls, ToolResult } from "./tool-calls";
+import { ToolCalls } from "./tool-calls";
+
 
 function CustomComponent({
   message,
@@ -85,8 +86,8 @@ function Interrupt({
           <ThreadView interrupt={interruptValue} />
         )}
       {interruptValue &&
-      !isAgentInboxInterruptSchema(interruptValue) &&
-      (isLastMessage || hasNoAIOrToolMessages) ? (
+        !isAgentInboxInterruptSchema(interruptValue) &&
+        (isLastMessage || hasNoAIOrToolMessages) ? (
         <GenericInterruptView interrupt={interruptValue} />
       ) : null}
     </>
@@ -133,7 +134,7 @@ export function AssistantMessage({
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
   const isToolResult = message?.type === "tool";
 
-  if (isToolResult && hideToolCalls) {
+  if (isToolResult) {
     return null;
   }
 
@@ -141,72 +142,63 @@ export function AssistantMessage({
     return null;
   }
 
+  if (hasToolCalls && !hideToolCalls) {
+    return <>
+      {(hasToolCalls && toolCallsHaveContents && (
+        <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+      )) ||
+        (hasAnthropicToolCalls && (
+          <ToolCalls toolCalls={anthropicStreamedToolCalls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+        )) ||
+        (hasToolCalls && (
+          <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+        ))}
+    </>
+  }
+
   return (
-    <div className="group mr-auto flex items-start gap-2">
-      <div className="flex flex-col gap-2">
-        {isToolResult ? (
-          <>
-            <ToolResult message={message} />
-            <Interrupt
-              interruptValue={threadInterrupt?.value}
-              isLastMessage={isLastMessage}
-              hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-            />
-          </>
-        ) : (
-          <>
-            {contentString.length > 0 && (
-              <div className="py-1">
-                <MarkdownText>{contentString}</MarkdownText>
-              </div>
-            )}
+    <div className="group mr-auto flex items-start">
+      <div className="flex flex-col">
 
-            {!hideToolCalls && (
-              <>
-                {(hasToolCalls && toolCallsHaveContents && (
-                  <ToolCalls toolCalls={message.tool_calls} />
-                )) ||
-                  (hasAnthropicToolCalls && (
-                    <ToolCalls toolCalls={anthropicStreamedToolCalls} />
-                  )) ||
-                  (hasToolCalls && (
-                    <ToolCalls toolCalls={message.tool_calls} />
-                  ))}
-              </>
-            )}
-
-            {message && (
-              <CustomComponent
-                message={message}
-                thread={thread}
-              />
-            )}
-            <Interrupt
-              interruptValue={threadInterrupt?.value}
-              isLastMessage={isLastMessage}
-              hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-            />
-            <div
-              className={cn(
-                "mr-auto flex items-center gap-2 transition-opacity",
-                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
-              )}
-            >
-              <BranchSwitcher
-                branch={meta?.branch}
-                branchOptions={meta?.branchOptions}
-                onSelect={(branch) => thread.setBranch(branch)}
-                isLoading={isLoading}
-              />
-              <CommandBar
-                content={contentString}
-                isLoading={isLoading}
-                isAiMessage={true}
-                handleRegenerate={() => handleRegenerate(parentCheckpoint)}
-              />
-            </div>
-          </>
+        {contentString.length > 0 && (
+          <div className="py-1">
+            <MarkdownText>{contentString}</MarkdownText>
+          </div>
         )}
+
+        {message && (
+          <CustomComponent
+            message={message}
+            thread={thread}
+          />
+        )}
+        <Interrupt
+          interruptValue={threadInterrupt?.value}
+          isLastMessage={isLastMessage}
+          hasNoAIOrToolMessages={hasNoAIOrToolMessages}
+        />
+        {!hasToolCalls && !!contentString &&
+          <div
+            className={cn(
+              "mr-auto flex items-center gap-2 transition-opacity",
+              "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+            )}
+          >
+            <BranchSwitcher
+              branch={meta?.branch}
+              branchOptions={meta?.branchOptions}
+              onSelect={(branch) => thread.setBranch(branch)}
+              isLoading={isLoading}
+            />
+            <CommandBar
+              content={contentString}
+              isLoading={isLoading}
+              isAiMessage={true}
+              handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+            />
+          </div>
+        }
+
       </div>
     </div>
   );

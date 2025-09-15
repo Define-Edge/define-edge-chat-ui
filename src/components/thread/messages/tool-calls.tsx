@@ -1,64 +1,89 @@
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+  ToolState,
+} from "@/components/ui/shadcn-io/ai/tool";
+import { cn } from "@/lib/utils";
+import { useStreamContext } from "@/providers/Stream";
 import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { CommandBar } from "./shared";
+
 
 function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
 
+const toolStateToStatusMap: Record<NonNullable<ToolMessage["status"]>, ToolState> = {
+  error: "output-error",
+  success: "output-available",
+}
+
 export function ToolCalls({
   toolCalls,
+  handleRegenerate,
 }: {
   toolCalls: AIMessage["tool_calls"];
+  handleRegenerate: () => void;
 }) {
   if (!toolCalls || toolCalls.length === 0) return null;
 
+  const stream = useStreamContext();
+  const messages = stream.messages;
+
+  const allToolCallMessages = messages.filter(m => m.type === "tool")
+
   return (
-    <div className="mx-auto grid chat-container grid-rows-[1fr_auto] gap-2">
+    <div className={cn("chat-container flex flex-col grow", toolCalls.length > 1 && "gap-4")}>
       {toolCalls.map((tc, idx) => {
         const args = tc.args as Record<string, any>;
         const hasArgs = Object.keys(args).length > 0;
+        const toolCallId = tc.id;
+        const toolMsg = allToolCallMessages.find(m => m.tool_call_id === toolCallId);
+
+        let parsedContent: any;
+        let isJsonContent = false;
+        let contentToCopy: string = "";
+
+
+
+        try {
+          if (toolMsg && typeof toolMsg.content === "string") {
+            parsedContent = JSON.parse(toolMsg.content);
+            contentToCopy = JSON.stringify(parsedContent, null, 2);
+            isJsonContent = isComplexValue(parsedContent);
+          }
+        } catch {
+          // Content is not JSON, use as is
+          parsedContent = toolMsg?.content;
+          if (typeof toolMsg?.content === "string") {
+            contentToCopy = toolMsg?.content;
+          }
+        }
         return (
-          <div
-            key={idx}
-            className="overflow-hidden rounded-lg border border-gray-200"
-          >
-            <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
-              <h3 className="font-medium text-gray-900">
-                {tc.name}
-                {tc.id && (
-                  <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-                    {tc.id}
-                  </code>
-                )}
-              </h3>
-            </div>
-            {hasArgs ? (
-              <table className="min-w-full divide-y divide-gray-200">
-                <tbody className="divide-y divide-gray-200">
-                  {Object.entries(args).map(([key, value], argIdx) => (
-                    <tr key={argIdx}>
-                      <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
-                        {key}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
-                        {isComplexValue(value) ? (
-                          <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm break-all">
-                            {JSON.stringify(value, null, 2)}
-                          </code>
-                        ) : (
-                          String(value)
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <code className="block p-3 text-sm">{"{}"}</code>
-            )}
-          </div>
+          <Tool key={toolCallId} >
+            <ToolHeader
+              type={`tool-${tc.name}`}
+              state={toolMsg?.status ? toolStateToStatusMap[toolMsg.status] : "input-streaming"}
+            />
+            <ToolContent>
+              <ToolInput input={hasArgs ? args : {}} />
+              <ToolOutput message={toolMsg} />
+              <div className="p-4 pt-2 flex justify-end">
+                <CommandBar
+                  content={contentToCopy}
+                  isLoading={false}
+                  isAiMessage={true}
+                  handleRegenerate={() => handleRegenerate()}
+                />
+              </div>
+            </ToolContent>
+          </Tool>
         );
       })}
     </div>
@@ -174,16 +199,16 @@ export function ToolResult({ message }: { message: ToolMessage }) {
             (isJsonContent &&
               Array.isArray(parsedContent) &&
               parsedContent.length > 5)) && (
-            <motion.button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex w-full cursor-pointer items-center justify-center border-t-[1px] border-gray-200 py-2 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
-              initial={{ scale: 1 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {isExpanded ? <ChevronUp /> : <ChevronDown />}
-            </motion.button>
-          )}
+              <motion.button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex w-full cursor-pointer items-center justify-center border-t-[1px] border-gray-200 py-2 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {isExpanded ? <ChevronUp /> : <ChevronDown />}
+              </motion.button>
+            )}
         </motion.div>
       </div>
     </div>

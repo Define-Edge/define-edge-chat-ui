@@ -17,16 +17,17 @@ import {
 } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 import { CodeBlock } from './code-block';
+import { ToolMessage } from '@langchain/langgraph-sdk';
 
 // Manual type definitions extracted from AI SDK
-type ToolState = 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
+export type ToolState = 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
 type ToolType = `tool-${string}`;
 
 export type ToolProps = ComponentProps<typeof Collapsible>;
 
 export const Tool = ({ className, ...props }: ToolProps) => (
   <Collapsible
-    className={cn('not-prose mb-4 w-full rounded-md border', className)}
+    className={cn('rounded-md border', className)}
     {...props}
   />
 );
@@ -53,7 +54,7 @@ const getStatusBadge = (status: ToolState) => {
   } as const;
 
   return (
-    <Badge className="rounded-full text-xs" variant="secondary">
+    <Badge className="rounded-full text-xs flex gap-1" variant="secondary">
       {icons[status]}
       {labels[status]}
     </Badge>
@@ -110,35 +111,58 @@ export const ToolInput = ({ className, input, ...props }: ToolInputProps) => (
 );
 
 export type ToolOutputProps = ComponentProps<'div'> & {
-  output: ReactNode;
-  errorText: string | undefined;
+
+  message?: ToolMessage;
 };
+
+function isComplexValue(value: any): boolean {
+  return Array.isArray(value) || (typeof value === "object" && value !== null);
+}
+
 
 export const ToolOutput = ({
   className,
-  output,
-  errorText,
+
+  message,
   ...props
 }: ToolOutputProps) => {
-  if (!(output || errorText)) {
+
+  if (!message) {
     return null;
+  }
+
+  let parsedContent: any;
+  let isJsonContent = false;
+
+  try {
+    if (typeof message.content === "string") {
+      parsedContent = JSON.parse(message.content);
+      isJsonContent = isComplexValue(parsedContent);
+    }
+  } catch {
+    // Content is not JSON, use as is
+    parsedContent = message.content;
   }
 
   return (
     <div className={cn('space-y-2 p-4', className)} {...props}>
       <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-        {errorText ? 'Error' : 'Result'}
+        {message.status === 'error' ? 'Error' : 'Result'}
       </h4>
       <div
         className={cn(
           'overflow-x-auto rounded-md text-xs [&_table]:w-full',
-          errorText
+          message.status === 'error'
             ? 'bg-destructive/10 text-destructive'
             : 'bg-muted/50 text-foreground'
         )}
       >
-        {errorText && <div>{errorText}</div>}
-        {output && <div>{output}</div>}
+        {isJsonContent ? (
+          <div className="rounded-md bg-muted/50">
+            <CodeBlock code={JSON.stringify(parsedContent, null, 2)} language="json" />
+          </div>) : (
+          <CodeBlock code={typeof message?.content === "string" ? message.content : ""} language="json" />
+        )}
       </div>
     </div>
   );
