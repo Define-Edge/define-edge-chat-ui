@@ -137,6 +137,10 @@ export function AssistantMessage({
     return null;
   }
 
+  if (hideToolCalls && hasToolCalls) {
+    return null;
+  }
+
   return (
     <div className="group mr-auto flex items-start gap-2">
       <div className="flex flex-col gap-2">

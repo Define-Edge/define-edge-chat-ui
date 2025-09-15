@@ -149,3 +149,13 @@
     box-shadow: inset 9px 0 6px -1px rgb(0 0 0 / 0.02);
   }
 }
+
+@layer components {
+  .chat-container {
+    max-width: calc(100dvw - 2rem);
+
+    @media (width >=48rem) {
+      max-width: var(--container-3xl);
+    }
+  }
+}

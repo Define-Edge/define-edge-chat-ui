@@ -151,14 +151,18 @@ const defaultComponents: any = {
       {...props}
     />
   ),
-  table: ({ className, ...props }: { className?: string }) => (
-    <table
-      className={cn(
-        "my-5 w-full border-separate border-spacing-0 overflow-y-auto",
-        className,
-      )}
-      {...props}
-    />
+  table: ({ className, children, ...props }: { className?: string, children: React.ReactNode }) => (
+    <div className="chat-container overflow-auto">
+      <table
+        className={cn(
+          "my-4 border-separate border-spacing-0",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
   ),
   th: ({ className, ...props }: { className?: string }) => (
     <th
@@ -245,9 +249,9 @@ const defaultComponents: any = {
 
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
   return (
-    <div className="markdown-content">
+    <div className="markdown-content chat-container overflow-hidden">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
+        remarkPlugins={[remarkGfm, [remarkMath, { singleDollarTextMath: false }]]}
         rehypePlugins={[rehypeKatex]}
         components={defaultComponents}
       >
