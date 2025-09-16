@@ -39,7 +39,7 @@ export function ToolCalls({
   const allToolCallMessages = messages.filter(m => m.type === "tool")
 
   return (
-    <div className={cn("chat-container flex flex-col grow", toolCalls.length > 1 && "gap-4")}>
+    <div className={cn("chat-container flex flex-col", toolCalls.length > 1 && "gap-4")}>
       {toolCalls.map((tc, idx) => {
         const args = tc.args as Record<string, any>;
         const hasArgs = Object.keys(args).length > 0;
