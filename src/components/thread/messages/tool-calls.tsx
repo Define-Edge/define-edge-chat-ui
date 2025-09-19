@@ -34,6 +34,7 @@ export function ToolCalls({
   const stream = useStreamContext();
   if (!toolCalls || toolCalls.length === 0) return null;
 
+
   const messages = stream.messages;
 
   const allToolCallMessages = messages.filter(m => m.type === "tool")
@@ -49,6 +50,9 @@ export function ToolCalls({
         let parsedContent: any;
         let isJsonContent = false;
         let contentToCopy: string = "";
+
+        if (!toolMsg)
+          return null;
 
 
 
