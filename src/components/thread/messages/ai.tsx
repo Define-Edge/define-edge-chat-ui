@@ -14,6 +14,7 @@ import { getContentString } from "../utils";
 import { GenericInterruptView } from "./generic-interrupt";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { ToolCalls } from "./tool-calls";
+import ClientComponentsRegistry from "./client-components/registry";
 
 
 function CustomComponent({
@@ -38,6 +39,8 @@ function CustomComponent({
           stream={thread}
           message={customComponent}
           meta={{ ui: customComponent, artifact }}
+          // @ts-ignore
+          components={ClientComponentsRegistry}
         />
       ))}
     </Fragment>
@@ -108,6 +111,7 @@ export function AssistantMessage({
   const [hideToolCalls] = useHideToolCalls()
 
   const thread = useStreamContext();
+  console.log(thread);
   const isLastMessage =
     thread.messages[thread.messages.length - 1].id === message?.id;
   const hasNoAIOrToolMessages = !thread.messages.find(
