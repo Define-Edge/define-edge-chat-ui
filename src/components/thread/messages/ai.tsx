@@ -39,7 +39,6 @@ function CustomComponent({
           stream={thread}
           message={customComponent}
           meta={{ ui: customComponent, artifact }}
-          // @ts-ignore
           components={ClientComponentsRegistry}
         />
       ))}

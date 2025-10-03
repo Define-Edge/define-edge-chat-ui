@@ -48,7 +48,6 @@ export function ToolCalls({
         const toolMsg = allToolCallMessages.find(m => m.tool_call_id === toolCallId);
 
         let parsedContent: any;
-        let isJsonContent = false;
         let contentToCopy: string = "";
 
         if (!toolMsg)
@@ -60,7 +59,6 @@ export function ToolCalls({
           if (toolMsg && typeof toolMsg.content === "string") {
             parsedContent = JSON.parse(toolMsg.content);
             contentToCopy = JSON.stringify(parsedContent, null, 2);
-            isJsonContent = isComplexValue(parsedContent);
           }
         } catch {
           // Content is not JSON, use as is

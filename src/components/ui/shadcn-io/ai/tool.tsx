@@ -7,6 +7,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { ToolMessage } from '@langchain/langgraph-sdk';
 import {
   CheckCircleIcon,
   ChevronDownIcon,
@@ -15,9 +16,8 @@ import {
   WrenchIcon,
   XCircleIcon,
 } from 'lucide-react';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps } from 'react';
 import { CodeBlock } from './code-block';
-import { ToolMessage } from '@langchain/langgraph-sdk';
 
 // Manual type definitions extracted from AI SDK
 export type ToolState = 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
