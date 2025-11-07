@@ -1,3 +1,4 @@
+import { CitationProvider } from "@/hooks/use-citation";
 import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { cn } from "@/lib/utils";
@@ -9,12 +10,13 @@ import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { Fragment } from "react/jsx-runtime";
 import { ThreadView } from "../agent-inbox";
 import { useArtifact } from "../artifact";
+import { CitationsList } from "../citations-list";
 import { MarkdownText } from "../markdown-text";
 import { getContentString } from "../utils";
+import ClientComponentsRegistry from "./client-components/registry";
 import { GenericInterruptView } from "./generic-interrupt";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { ToolCalls } from "./tool-calls";
-import ClientComponentsRegistry from "./client-components/registry";
 
 
 function CustomComponent({
@@ -160,50 +162,53 @@ export function AssistantMessage({
   }
 
   return (
-    <div className="group mr-auto flex items-start">
-      <div className="flex flex-col">
+    <CitationProvider>
+      <div className="group mr-auto flex items-start">
+        <div className="flex flex-col">
 
-        {contentString.length > 0 && (
-          <div className="py-1">
-            <MarkdownText>{contentString}</MarkdownText>
-          </div>
-        )}
+          {contentString.length > 0 && (
+            <div className="py-1">
+              <MarkdownText>{contentString}</MarkdownText>
+              <CitationsList content={contentString} />
+            </div>
+          )}
 
-        {message && (
-          <CustomComponent
-            message={message}
-            thread={thread}
+          {message && (
+            <CustomComponent
+              message={message}
+              thread={thread}
+            />
+          )}
+          <Interrupt
+            interruptValue={threadInterrupt?.value}
+            isLastMessage={isLastMessage}
+            hasNoAIOrToolMessages={hasNoAIOrToolMessages}
           />
-        )}
-        <Interrupt
-          interruptValue={threadInterrupt?.value}
-          isLastMessage={isLastMessage}
-          hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-        />
-        {!hasToolCalls && !!contentString &&
-          <div
-            className={cn(
-              "mr-auto flex items-center gap-2 transition-opacity",
-              "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
-            )}
-          >
-            <BranchSwitcher
-              branch={meta?.branch}
-              branchOptions={meta?.branchOptions}
-              onSelect={(branch) => thread.setBranch(branch)}
-              isLoading={isLoading}
-            />
-            <CommandBar
-              content={contentString}
-              isLoading={isLoading}
-              isAiMessage={true}
-              handleRegenerate={() => handleRegenerate(parentCheckpoint)}
-            />
-          </div>
-        }
+          {!hasToolCalls && !!contentString &&
+            <div
+              className={cn(
+                "mr-auto flex items-center gap-2 transition-opacity",
+                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+              )}
+            >
+              <BranchSwitcher
+                branch={meta?.branch}
+                branchOptions={meta?.branchOptions}
+                onSelect={(branch) => thread.setBranch(branch)}
+                isLoading={isLoading}
+              />
+              <CommandBar
+                content={contentString}
+                isLoading={isLoading}
+                isAiMessage={true}
+                handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+              />
+            </div>
+          }
 
+        </div>
       </div>
-    </div>
+    </CitationProvider>
   );
 }
 

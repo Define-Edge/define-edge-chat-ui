@@ -2,16 +2,19 @@
 
 import "./markdown-styles.css";
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeKatex from "rehype-katex";
-import remarkMath from "remark-math";
-import { FC, memo, useState } from "react";
-import { CheckIcon, CopyIcon } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
+import { CheckIcon, CopyIcon } from "lucide-react";
+import { FC, memo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 
 import { TooltipIconButton } from "@/components/thread/tooltip-icon-button";
+import { useCitation } from "@/hooks/use-citation";
 import { cn } from "@/lib/utils";
+import { CitationData } from "@/types/citation";
 
 import "katex/dist/katex.min.css";
 
@@ -57,6 +60,52 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
         {isCopied && <CheckIcon />}
       </TooltipIconButton>
     </div>
+  );
+};
+
+const CitationButton: FC<{
+  className?: string;
+  children: React.ReactNode;
+  [key: string]: any;
+}> = ({ className, children, ...props }) => {
+  const { openCitation } = useCitation();
+
+  const filename = props["data-filename"] || "";
+  const ticker = props["data-ticker"] || "";
+  const category = props["data-category"] || "";
+
+  const handleClick = () => {
+    try {
+      // Parse citation data from data attributes
+      const citationData: CitationData = {
+        citationId: props["data-citation-id"] || "",
+        ticker,
+        page: parseInt(props["data-page"] || "1", 10),
+        filename,
+        fincode: props["data-fincode"] || "",
+        category,
+        documentDate: props["data-document-date"] || "",
+        bbox: props["data-bbox"] ? JSON.parse(props["data-bbox"]) : null,
+        headings: props["data-headings"] ? JSON.parse(props["data-headings"]) : [],
+      };
+
+      openCitation(citationData);
+    } catch (error) {
+      console.error("Failed to parse citation data:", error);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className={cn(
+        "inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium",
+        "transition-colors duration-150",
+        className,
+      )}
+    >
+      {children}
+    </button>
   );
 };
 
@@ -245,6 +294,37 @@ const defaultComponents: any = {
       </code>
     );
   },
+  button: ({
+    className,
+    children,
+    ...props
+  }: {
+    className?: string;
+    children: React.ReactNode;
+    [key: string]: any;
+  }) => {
+    // Check if this is a citation button
+    if (className?.includes("citation-btn")) {
+      return (
+        <CitationButton
+          className={className}
+          {...props}
+        >
+          {children}
+        </CitationButton>
+      );
+    }
+
+    // Regular button
+    return (
+      <button
+        className={cn("rounded px-2 py-1", className)}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  },
 };
 
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
@@ -252,7 +332,7 @@ const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
     <div className="markdown-content chat-container overflow-hidden">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, [remarkMath, { singleDollarTextMath: false }]]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[rehypeRaw, rehypeKatex]}
         components={defaultComponents}
       >
         {children}
