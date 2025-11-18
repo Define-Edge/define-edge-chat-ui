@@ -1,14 +1,15 @@
 "use client";
 
+import { CSVDownloadButton } from '@/components/ui/csv-download-button';
+import {
+    useExistingScannerResults,
+    useScannerResults,
+} from '@/hooks/use-scanner-data';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-    useScannerResults,
-    useExistingScannerResults,
-} from '@/hooks/use-scanner-data';
 import { ScannerFilters, type ScannerFilterFormValues } from './scanner-filters';
-import { ScannerPagination } from './scanner-pagination';
 import { ScannerGrid } from './scanner-grid';
+import { ScannerPagination } from './scanner-pagination';
 
 import type { ScannerResultsResponse } from '@/types/definedge-scanner';
 
@@ -160,10 +161,17 @@ export default function ScannerResults({
                             </span>
                         )}
                     </h4>
-                    <p className="text-sm text-muted-foreground">
-                        {totalElements} {totalElements === 1 ? 'result' : 'results'}
-                        {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
-                    </p>
+                    <div className="flex items-center gap-3">
+                        <p className="text-sm text-muted-foreground">
+                            {totalElements} {totalElements === 1 ? 'result' : 'results'}
+                            {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+                        </p>
+                        <CSVDownloadButton
+                            data={rowData}
+                            filename={scanner_id ? `scanner-results-${scanner_id}` : 'scanner-results'}
+                            disabled={isLoading || !!error}
+                        />
+                    </div>
                 </div>
 
                 {/* Show user query only if scanner_type is not "saved" */}
