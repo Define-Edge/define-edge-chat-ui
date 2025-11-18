@@ -1,6 +1,7 @@
 import { CitationProvider } from "@/hooks/use-citation";
 import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
+import { isScannerApprovalInterrupt } from "@/lib/scanner-approval-interrupt";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { MessageContentComplex } from "@langchain/core/messages";
@@ -15,6 +16,7 @@ import { MarkdownText } from "../markdown-text";
 import { getContentString } from "../utils";
 import ClientComponentsRegistry from "./client-components/registry";
 import { GenericInterruptView } from "./generic-interrupt";
+import { ScannerApprovalInterruptView } from "./scanner-approval-interrupt";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { ToolCalls } from "./tool-calls";
 
@@ -33,6 +35,8 @@ function CustomComponent({
   );
 
   if (!customComponents?.length) return null;
+
+
   return (
     <Fragment key={message.id}>
       {customComponents.map((customComponent) => (
@@ -89,8 +93,13 @@ function Interrupt({
         (isLastMessage || hasNoAIOrToolMessages) && (
           <ThreadView interrupt={interruptValue} />
         )}
+      {isScannerApprovalInterrupt(interruptValue) &&
+        (isLastMessage || hasNoAIOrToolMessages) && (
+          <ScannerApprovalInterruptView interrupt={interruptValue} />
+        )}
       {interruptValue &&
         !isAgentInboxInterruptSchema(interruptValue) &&
+        !isScannerApprovalInterrupt(interruptValue) &&
         (isLastMessage || hasNoAIOrToolMessages) ? (
         <GenericInterruptView interrupt={interruptValue} />
       ) : null}
@@ -112,7 +121,7 @@ export function AssistantMessage({
   const [hideToolCalls] = useHideToolCalls()
 
   const thread = useStreamContext();
-  console.log(thread);
+
   const isLastMessage =
     thread.messages[thread.messages.length - 1].id === message?.id;
   const hasNoAIOrToolMessages = !thread.messages.find(
@@ -144,7 +153,11 @@ export function AssistantMessage({
   }
 
   if (hideToolCalls && hasToolCalls) {
-    return null;
+    return <Interrupt
+      interruptValue={threadInterrupt?.value}
+      isLastMessage={isLastMessage}
+      hasNoAIOrToolMessages={hasNoAIOrToolMessages}
+    />;
   }
 
   if (hasToolCalls && !hideToolCalls) {
@@ -158,13 +171,18 @@ export function AssistantMessage({
         (hasToolCalls && (
           <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
         ))}
+      <Interrupt
+        interruptValue={threadInterrupt?.value}
+        isLastMessage={isLastMessage}
+        hasNoAIOrToolMessages={hasNoAIOrToolMessages}
+      />
     </>
   }
 
   return (
     <CitationProvider>
-      <div className="group mr-auto flex items-start">
-        <div className="flex flex-col">
+      <div className="group mr-auto flex items-start w-full">
+        <div className="flex flex-col w-full">
 
           {contentString.length > 0 && (
             <div className="py-1">
