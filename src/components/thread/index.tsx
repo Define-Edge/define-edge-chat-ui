@@ -419,7 +419,7 @@ export function Thread() {
                       handleRegenerate={handleRegenerate}
                     />
                   )}
-                  {isLoading && !firstTokenReceived && (
+                  {isLoading && (
                     <AssistantMessageLoading />
                   )}
                 </>
