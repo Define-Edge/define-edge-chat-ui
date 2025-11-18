@@ -42,10 +42,10 @@ export const escapeCsvValue = (value: any): string => {
 export const convertToCSV = (data: Record<string, any>[]): string => {
     if (!data || data.length === 0) return '';
 
-    // Extract all unique column keys from the data
+    // Extract all unique column keys from the data, excluding columns with "code" in the name
     const allKeys = Array.from(
         new Set(data.flatMap(row => Object.keys(row)))
-    );
+    ).filter(key => !key.toLowerCase().includes('code'));
 
     // Create header row with formatted column names
     const headers = allKeys.map(key => formatColumnHeader(key));

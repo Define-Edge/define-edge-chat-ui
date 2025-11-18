@@ -38,15 +38,17 @@ export function ScannerGrid({ rowData, isLoading = false }: ScannerGridProps) {
         if (!rowData || rowData.length === 0) return [];
 
         const firstRow = rowData[0];
-        return Object.keys(firstRow).map((key) => ({
-            colId: key,
-            headerName: formatColumnHeader(key),
-            valueGetter: (params: any) => params.data?.[key],
-            sortable: true,
-            filter: true,
-            resizable: true,
-            minWidth: 150,
-        }));
+        return Object.keys(firstRow)
+            .filter((key) => !key.toLowerCase().includes('code'))
+            .map((key) => ({
+                colId: key,
+                headerName: formatColumnHeader(key),
+                valueGetter: (params: any) => params.data?.[key],
+                sortable: true,
+                filter: true,
+                resizable: true,
+                minWidth: 150,
+            }));
     }, [rowData]);
 
     const onGridReady = (params: any) => {
