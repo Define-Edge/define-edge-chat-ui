@@ -1,6 +1,5 @@
 "use client";
 
-import { CSVDownloadButton } from '@/components/ui/csv-download-button';
 import {
     useExistingScannerResults,
     useScannerResults,
@@ -10,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { ScannerFilters, type ScannerFilterFormValues } from './scanner-filters';
 import { ScannerGrid } from './scanner-grid';
 import { ScannerPagination } from './scanner-pagination';
+import { ScannerCSVDownloadButton } from './scanner-csv-download-button';
 
 import type { ScannerResultsResponse } from '@/types/definedge-scanner';
 
@@ -77,6 +77,22 @@ export default function ScannerResults({
         };
     }, [formValues]);
 
+    // Query params for CSV download (without pagination)
+    const csvQueryParams = useMemo(() => {
+        const sort = formValues.sortRatio
+            ? `${formValues.sortRatio},${formValues.sortDirection}`
+            : undefined;
+
+        return {
+            searchQuery: initialResults?.userActualQuery || '',
+            segment: formValues.segment,
+            group: formValues.group || undefined,
+            groupType: "predefined" as const,
+            showOnlyLatestQuarterData: "0" as const,
+            sort,
+        };
+    }, [formValues, initialResults?.userActualQuery]);
+
     // Determine scanner type and fetch appropriate data
     const isExistingScanner = Boolean(scanner_type === 'saved' && scanner_id);
 
@@ -95,8 +111,8 @@ export default function ScannerResults({
         isLoading: searchLoading,
         error: searchError,
     } = useScannerResults(
-        { searchQuery: initialResults?.searchQuery || '', ...queryParams },
-        !isExistingScanner && !!initialResults?.searchQuery && filtersChanged, // Only fetch if filters changed
+        { searchQuery: initialResults?.userActualQuery || '', ...queryParams },
+        !isExistingScanner && !!initialResults?.userActualQuery && filtersChanged, // Only fetch if filters changed
         filtersChanged ? undefined : initialResults // Only use initial data if filters haven't changed
     );
 
@@ -166,10 +182,12 @@ export default function ScannerResults({
                             {totalElements} {totalElements === 1 ? 'result' : 'results'}
                             {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
                         </p>
-                        <CSVDownloadButton
-                            data={rowData}
+                        <ScannerCSVDownloadButton
                             filename={scanner_id ? `scanner-results-${scanner_id}` : 'scanner-results'}
                             disabled={isLoading || !!error}
+                            scannerId={scanner_id}
+                            queryParams={csvQueryParams}
+                            totalElements={totalElements}
                         />
                     </div>
                 </div>

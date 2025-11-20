@@ -1,5 +1,5 @@
 import Sources from "./sources";
-import ScannerResults from "./scanner-results";
+import { ScannerResults } from "./scanner-results";
 
 const ClientComponentsRegistry = {
     "sources": Sources,

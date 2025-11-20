@@ -1,21 +1,19 @@
-import { Download } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { Button, type ButtonProps } from './button';
-import { downloadCSV, generateCsvFilename } from '@/lib/csv-utils';
 
 export type CSVDownloadButtonProps = {
     /**
-     * The data to be exported as CSV
+     * Handler function called when the download button is clicked
      */
-    data: Record<string, any>[];
-    /**
-     * The filename for the downloaded CSV file (without .csv extension)
-     * Can be a string or a function that returns a string
-     */
-    filename: string | (() => string);
+    onDownload: () => void;
     /**
      * Whether the button should be disabled
      */
     disabled?: boolean;
+    /**
+     * Whether the button is in a loading state
+     */
+    isLoading?: boolean;
     /**
      * Button variant (defaults to "outline")
      */
@@ -35,38 +33,31 @@ export type CSVDownloadButtonProps = {
 };
 
 /**
- * A reusable button component for downloading data as CSV
+ * A reusable button component for downloading CSV files
  */
 export function CSVDownloadButton({
-    data,
-    filename,
+    onDownload,
     disabled = false,
+    isLoading = false,
     variant = 'outline',
     size = 'sm',
     label = 'CSV',
     className,
 }: CSVDownloadButtonProps) {
-    const handleDownload = () => {
-        if (!data || data.length === 0) return;
-
-        const baseFilename = typeof filename === 'function' ? filename() : filename;
-        const csvFilename = generateCsvFilename(baseFilename);
-
-        downloadCSV(data, csvFilename);
-    };
-
-    const isDisabled = disabled || !data || data.length === 0;
-
     return (
         <Button
             variant={variant}
             size={size}
-            onClick={handleDownload}
-            disabled={isDisabled}
+            onClick={onDownload}
+            disabled={disabled || isLoading}
             title="Download results as CSV"
             className={className}
         >
-            <Download className="size-4" />
+            {isLoading ? (
+                <Loader2 className="size-4 animate-spin" />
+            ) : (
+                <Download className="size-4" />
+            )}
             {label}
         </Button>
     );

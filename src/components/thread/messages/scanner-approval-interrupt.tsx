@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, Edit3 } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, Edit3, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -161,7 +161,7 @@ export function ScannerApprovalInterruptView({
       <div className="border-b border-border bg-muted/50 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-card-foreground">
-            Scanner Approval Required
+            Is this what you meant?
           </h3>
         </div>
       </div>
@@ -312,20 +312,20 @@ export function ScannerApprovalInterruptView({
           </Button>
 
           <Button
-            variant="destructive"
+            variant="secondary"
             onClick={handleCancel}
             disabled={loading || showModifyForm}
             className="flex items-center gap-2"
           >
-            <XCircle className="h-4 w-4" />
-            Cancel
+            <RefreshCcw className="h-4 w-4" />
+            Retry
           </Button>
 
           <Button
             variant="outline"
             onClick={() => setShowModifyForm(!showModifyForm)}
             disabled={loading}
-            className="flex items-center gap-2"
+            className="items-center gap-2 hidden"
           >
             <Edit3 className="h-4 w-4" />
             {showModifyForm ? "Hide Modify Form" : "Modify Parameters"}

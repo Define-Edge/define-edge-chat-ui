@@ -39,7 +39,10 @@ export const escapeCsvValue = (value: any): string => {
 /**
  * Converts row data to CSV format
  */
-export const convertToCSV = (data: Record<string, any>[]): string => {
+export const convertToCSV = (
+    data: Record<string, any>[],
+    headerFormatter: (key: string) => string
+): string => {
     if (!data || data.length === 0) return '';
 
     // Extract all unique column keys from the data, excluding columns with "code" in the name
@@ -48,7 +51,7 @@ export const convertToCSV = (data: Record<string, any>[]): string => {
     ).filter(key => !key.toLowerCase().includes('code'));
 
     // Create header row with formatted column names
-    const headers = allKeys.map(key => formatColumnHeader(key));
+    const headers = allKeys.map(key => headerFormatter(key));
     const headerRow = headers.map(h => escapeCsvValue(h)).join(',');
 
     // Create data rows
@@ -62,8 +65,12 @@ export const convertToCSV = (data: Record<string, any>[]): string => {
 /**
  * Downloads CSV data as a file
  */
-export const downloadCSV = (data: Record<string, any>[], filename: string): void => {
-    const csv = convertToCSV(data);
+export const downloadCSV = (
+    data: Record<string, any>[],
+    filename: string,
+    headerFormatter: (key: string) => string
+): void => {
+    const csv = convertToCSV(data, headerFormatter);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
 

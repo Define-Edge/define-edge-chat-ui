@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import {
     getScannerResults,
@@ -108,4 +108,58 @@ export function useRatioOptions() {
     }, [scannerRatios]);
 
     return { options, isLoading };
+}
+
+/**
+ * Hook to get ratio alias map for column headers
+ * Maps ratio keys (e.g., "FdDerivedRatio.pb") to their display names (currentAlias)
+ */
+export function useRatioAliasMap() {
+    const { data: scannerRatios } = useScannerRatios();
+
+    const ratioAliasMap = useMemo(() => {
+        if (!scannerRatios) return undefined;
+
+        const map = new Map<string, string>();
+        scannerRatios.forEach((ratio) => {
+            map.set(ratio.ratio, ratio.currentAlias);
+        });
+        return map;
+    }, [scannerRatios]);
+
+    return ratioAliasMap;
+}
+
+/**
+ * Hook to fetch all scanner results for CSV download
+ * Uses mutation to fetch all data when download is triggered
+ */
+export function useDownloadAllScannerResults() {
+    return useMutation({
+        mutationFn: async ({
+            params,
+            totalElements,
+            scannerId,
+        }: {
+            params: Omit<ScannerResultsParams, 'pageNumber' | 'pageSize'>;
+            totalElements: number;
+            scannerId?: number;
+        }) => {
+            const fullParams: ScannerResultsParams = {
+                ...params,
+                pageNumber: 1,
+                pageSize: totalElements,
+            };
+
+            let response: ScannerResultsResponse;
+
+            if (scannerId) {
+                response = await getExistingScannerResults({ ...fullParams, id: scannerId });
+            } else {
+                response = await getScannerResults(fullParams);
+            }
+
+            return response.paginationResult?.content || [];
+        },
+    });
 }

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry, themeQuartz } from 'ag-grid-community';
 import { startCase } from 'lodash';
+import { useRatioAliasMap } from '@/hooks/use-scanner-data';
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -33,23 +34,31 @@ const formatColumnHeader = (key: string): string => {
 };
 
 export function ScannerGrid({ rowData, isLoading = false }: ScannerGridProps) {
+    // Get ratio alias map for column headers
+    const ratioAliasMap = useRatioAliasMap();
+
     // Generate column definitions from the first row of data
     const columnDefs = useMemo(() => {
         if (!rowData || rowData.length === 0) return [];
+
+        const getColumnHeader = (key: string): string => {
+            // Check if this key has a ratio alias, otherwise use formatted header
+            return ratioAliasMap?.get(key) || formatColumnHeader(key);
+        };
 
         const firstRow = rowData[0];
         return Object.keys(firstRow)
             .filter((key) => !key.toLowerCase().includes('code'))
             .map((key) => ({
                 colId: key,
-                headerName: formatColumnHeader(key),
+                headerName: getColumnHeader(key),
                 valueGetter: (params: any) => params.data?.[key],
                 sortable: true,
                 filter: true,
                 resizable: true,
                 minWidth: 150,
             }));
-    }, [rowData]);
+    }, [rowData, ratioAliasMap]);
 
     const onGridReady = (params: any) => {
         params.api.sizeColumnsToFit();
