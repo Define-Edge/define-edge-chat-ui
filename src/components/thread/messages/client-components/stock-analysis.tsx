@@ -8,8 +8,11 @@ import { MarkdownText } from "../../markdown-text";
 import SimulationChart from "./SimulationChart";
 import { SectionFormatter } from "@/lib/section-formatter";
 import ClientComponentsRegistry from "./registry";
+import { FormatNewsSentiment } from "./format-news-sentiment";
 
 export default function StockAnalysisComponent(analysis: StockAnalysis) {
+  console.log(analysis);
+
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
   const mutation = useMutation({
@@ -38,16 +41,14 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
       <FormatSection section={data.business_overview} />
       <FormatSection section={data.management_strategy} />
       <FormatSection section={data.sector_outlook} />
-      <FormatTechnicalAnalysis
-        section={data.technical_analysis}
-      />
+      <FormatTechnicalAnalysis section={data.technical_analysis} />
       <FormatSection section={data.fundamental_analysis} />
       {/* <FormatSection section={data.stats_analysis} /> */}
       <FormatSection section={data.peer_comparison} />
       <FormatSection section={data.conference_call_analysis} />
       <FormatSection section={data.shareholding_pattern} />
       <FormatSection section={data.corporate_actions} />
-      <FormatSection section={data.news_sentiment} />
+      <FormatNewsSentiment section={data.news_sentiment} />
       <FormatSection section={data.red_flags} />
       <FormatSection section={data.summary} />
       <SimulationChart {...data.simulation_chart} />
@@ -92,12 +93,11 @@ export function FormatTechnicalAnalysis({
   return (
     <div>
       <MarkdownText>{title}</MarkdownText>
-      {returns_line_chart &&
-
+      {returns_line_chart && (
         <div className="space-y-4 pt-4">
           <ClientComponentsRegistry.line_chart {...returns_line_chart} />
         </div>
-      }
+      )}
       <MarkdownText>{content}</MarkdownText>
       <MarkdownText>{in_depth_analysis}</MarkdownText>
       <MarkdownText>{sources}</MarkdownText>

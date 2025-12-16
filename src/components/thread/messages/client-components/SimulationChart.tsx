@@ -21,6 +21,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ChevronRightIcon } from "lucide-react";
+import { MarkdownText } from "../../markdown-text";
 
 type Props = {
   data?: any;
@@ -65,10 +67,10 @@ const ChartTooltip = ({
     <div className="border-border/50 bg-background grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl">
       {label
         ? `Date: ${new Intl.DateTimeFormat("en-US", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }).format(new Date(label))}`
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }).format(new Date(label))}`
         : null}
       <div className="grid gap-1.5">
         {payload?.map((item) => {
@@ -158,7 +160,6 @@ const SimulationChart = React.memo(
     labels_colors_map,
     report,
   }: Props) {
-    console.log("Rendering SimulationChart with args:", args);
     const isMobile = useIsMobile();
     const [hoveredLegendKey, setHoveredLegendKey] = React.useState<
       string | null
@@ -195,30 +196,35 @@ const SimulationChart = React.memo(
               {args.portfolio ? (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <button
-                      className="flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] leading-none text-blue-700 transition-colors hover:bg-blue-100"
-                    >
+                    <button className="flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] leading-none text-blue-700 transition-colors hover:bg-blue-100">
                       <span className="opacity-70">📊</span>
                       <span className="text-blue-500">Portfolio:</span>
                       <span className="font-mono text-blue-900">
-                        {args.portfolio.items?.length || 0} {args.pf_type === "mutual_fund" ? "Funds" : "Stocks"}
+                        {args.portfolio.items?.length || 0}{" "}
+                        {args.pf_type === "mutual_fund" ? "Funds" : "Stocks"}
                       </span>
                       <span className="text-blue-400">→</span>
                     </button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <span>📊</span>
                         Portfolio Details
                         {args?.pf_type && (
                           <span className="text-sm font-normal text-gray-500">
-                            ({args.pf_type === "mutual_fund" ? "Mutual Funds" : "Stocks"})
+                            (
+                            {args.pf_type === "mutual_fund"
+                              ? "Mutual Funds"
+                              : "Stocks"}
+                            )
                           </span>
                         )}
                       </DialogTitle>
                       <DialogDescription>
-                        {args?.portfolio?.items?.length || 0} {args?.pf_type === "mutual_fund" ? "funds" : "stocks"} in this portfolio
+                        {args?.portfolio?.items?.length || 0}{" "}
+                        {args?.pf_type === "mutual_fund" ? "funds" : "stocks"}{" "}
+                        in this portfolio
                       </DialogDescription>
                     </DialogHeader>
 
@@ -229,13 +235,17 @@ const SimulationChart = React.memo(
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             {args.portfolio.start_date && (
                               <div>
-                                <span className="text-gray-500">Start Date:</span>
+                                <span className="text-gray-500">
+                                  Start Date:
+                                </span>
                                 <span className="ml-2 font-mono text-gray-900">
                                   {new Intl.DateTimeFormat("en-US", {
                                     day: "2-digit",
                                     month: "short",
                                     year: "numeric",
-                                  }).format(new Date(args.portfolio.start_date))}
+                                  }).format(
+                                    new Date(args.portfolio.start_date),
+                                  )}
                                 </span>
                               </div>
                             )}
@@ -261,7 +271,9 @@ const SimulationChart = React.memo(
                             )}
                             {args.portfolio.input_unit && (
                               <div>
-                                <span className="text-gray-500">Input Unit:</span>
+                                <span className="text-gray-500">
+                                  Input Unit:
+                                </span>
                                 <span className="ml-2 font-mono text-gray-900 capitalize">
                                   {args.portfolio.input_unit}
                                 </span>
@@ -273,47 +285,57 @@ const SimulationChart = React.memo(
 
                       {/* Portfolio Items */}
                       <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-gray-700">Holdings</h4>
+                        <h4 className="text-sm font-medium text-gray-700">
+                          Holdings
+                        </h4>
                         <div className="max-h-[40vh] overflow-y-auto rounded-lg border border-gray-200">
                           <div className="divide-y divide-gray-200">
-                            {args?.portfolio?.items?.map((item: any, index: number) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between bg-white p-3 hover:bg-gray-50"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
-                                    {index + 1}
-                                  </div>
-                                  <div>
-                                    <div className="font-mono font-medium text-gray-900">
-                                      {item.symbol}
+                            {args?.portfolio?.items?.map(
+                              (item: any, index: number) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between bg-white p-3 hover:bg-gray-50"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+                                      {index + 1}
                                     </div>
-                                    {item.quantity !== null && item.quantity !== undefined && (
-                                      <div className="text-xs text-gray-500">
-                                        Qty: {item.quantity}
+                                    <div>
+                                      <div className="font-mono font-medium text-gray-900">
+                                        {item.symbol}
+                                      </div>
+                                      {item.quantity !== null &&
+                                        item.quantity !== undefined && (
+                                          <div className="text-xs text-gray-500">
+                                            Qty: {item.quantity}
+                                          </div>
+                                        )}
+                                    </div>
+                                  </div>
+                                  {item.weight !== null &&
+                                    item.weight !== undefined && (
+                                      <div className="flex items-center gap-2">
+                                        <div className="text-right">
+                                          <div className="font-mono text-lg font-semibold text-gray-900">
+                                            {item.weight}%
+                                          </div>
+                                          <div className="text-xs text-gray-500">
+                                            Weight
+                                          </div>
+                                        </div>
+                                        <div className="h-12 w-2 overflow-hidden rounded-full bg-gray-200">
+                                          <div
+                                            className="h-full bg-blue-500 transition-all"
+                                            style={{
+                                              height: `${item.weight}%`,
+                                            }}
+                                          />
+                                        </div>
                                       </div>
                                     )}
-                                  </div>
                                 </div>
-                                {item.weight !== null && item.weight !== undefined && (
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-right">
-                                      <div className="font-mono text-lg font-semibold text-gray-900">
-                                        {item.weight}%
-                                      </div>
-                                      <div className="text-xs text-gray-500">Weight</div>
-                                    </div>
-                                    <div className="h-12 w-2 overflow-hidden rounded-full bg-gray-200">
-                                      <div
-                                        className="h-full bg-blue-500 transition-all"
-                                        style={{ height: `${item.weight}%` }}
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
+                              ),
+                            )}
                           </div>
                         </div>
                       </div>
@@ -325,8 +347,13 @@ const SimulationChart = React.memo(
                             <span className="text-gray-500">Total Weight:</span>
                             <span className="font-mono font-semibold text-gray-900">
                               {args.portfolio.items
-                                ?.reduce((sum: number, item: any) => sum + (item.weight || 0), 0)
-                                .toFixed(2)}%
+                                ?.reduce(
+                                  (sum: number, item: any) =>
+                                    sum + (item.weight || 0),
+                                  0,
+                                )
+                                .toFixed(2)}
+                              %
                             </span>
                           </div>
                         </div>
@@ -390,13 +417,13 @@ const SimulationChart = React.memo(
                   payload={
                     Array.isArray(data) && data.length > 0
                       ? Object.keys(data[0])
-                        .filter((k) => k !== "date")
-                        .map((key) => ({
-                          value: key,
-                          dataKey: key,
-                          color: labels_colors_map?.[key] || "lightgray",
-                          type: "line",
-                        }))
+                          .filter((k) => k !== "date")
+                          .map((key) => ({
+                            value: key,
+                            dataKey: key,
+                            color: labels_colors_map?.[key] || "lightgray",
+                            type: "line",
+                          }))
                       : []
                   }
                   verticalAlign="top"
@@ -482,7 +509,7 @@ const SimulationChart = React.memo(
 
                           const effectiveStrokeWidth =
                             hoveredLegendKey !== null &&
-                              key === hoveredLegendKey
+                            key === hoveredLegendKey
                               ? strokeWidth + 2
                               : strokeWidth;
 
@@ -504,6 +531,23 @@ const SimulationChart = React.memo(
                 </ResponsiveContainer>
               </AnimatePresence>
             </div>
+            {/* Analysis */}
+            {analysis && typeof analysis === "string" && (
+              <div className="markdown-content">
+                <details
+                  className="!m-0 rounded-lg border border-gray-200 bg-gray-50"
+                  open
+                >
+                  <summary className="flex cursor-pointer items-center font-medium hover:bg-gray-100">
+                    <ChevronRightIcon className="h-4 w-4 transition-transform duration-200" />
+                    Analysis
+                  </summary>
+                  <div className="p-3">
+                    <MarkdownText>{analysis}</MarkdownText>
+                  </div>
+                </details>
+              </div>
+            )}
           </motion.div>
           {/* Report Summary (outside chart) */}
           {report && (

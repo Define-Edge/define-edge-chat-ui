@@ -25,11 +25,6 @@
   overflow-x: auto;
 }
 
-.markdown-content table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
 .markdown-content th,
 .markdown-content td {
   border: 1px solid #ddd;
@@ -42,4 +37,68 @@
 
 .markdown-content tr:nth-child(even) {
   background-color: #f9f9f9;
+}
+
+/* Details and Summary styles */
+.markdown-content details {
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.markdown-content summary {
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.markdown-content summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Content inside details */
+.markdown-content details>*:not(summary) {
+  padding: 0 1rem 1rem 1rem;
+}
+
+/* Chevron rotation for details */
+.markdown-content details[open] summary svg {
+  transform: rotate(90deg);
+}
+
+/* Stock report compact table styles */
+.report-compact-table table {
+  font-size: 8px !important;
+  margin: 0.5rem 0 !important;
+}
+
+.report-compact-table th {
+  padding: 2px 4px !important;
+  font-size: 8px !important;
+}
+
+.report-compact-table td {
+  padding: 2px 4px !important;
+  font-size: 8px !important;
+}
+
+.report-compact-table h1,
+.report-compact-table h2,
+.report-compact-table h3,
+.report-compact-table h4,
+.report-compact-table h5,
+.report-compact-table h6 {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+
+.chat-message-table table {
+  max-height: 400px;
+  overflow: auto;
 }

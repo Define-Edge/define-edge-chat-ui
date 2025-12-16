@@ -182,7 +182,7 @@ export function AssistantMessage({
 
   return (
     <CitationProvider>
-      <div className="group mr-auto flex items-start w-full">
+      <div className="chat-message-table group mr-auto flex items-start w-full">
         <div className="flex flex-col w-full">
 
           {contentString.length > 0 && (

@@ -1,14 +1,14 @@
-import StockAnalysisReportMessageComponent from "@/components/pdfs_templates/stock-report/stock-report";
+import MfAnalysisReportMessageComponent from "@/components/pdfs_templates/mf-report/mf-report";
 import ClientComponentsRegistry from "@/components/thread/messages/client-components/registry";
 import { createClient } from "@/providers/client";
-import { StockAnalysis } from "@/types/stock-analysis";
+import { MfAnalysis } from "@/types/mf-analysis";
 import { UIMessage } from "@langchain/langgraph-sdk/react-ui";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function StockAnalysisReportPage({ searchParams }: Props) {
+export default async function MfAnalysisReportPage({ searchParams }: Props) {
   const params = await searchParams;
   const threadId = params.threadId;
   const analysisId = params.analysisId;
@@ -37,11 +37,11 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
             uiComponent.name as keyof typeof ClientComponentsRegistry
           ];
 
-        if (uiComponent.name === "stock_analysis")
+        if (uiComponent.name === "mf_analysis")
           return (
-            <StockAnalysisReportMessageComponent
+            <MfAnalysisReportMessageComponent
               key={uiComponent.id}
-              analysis={uiComponent.props as StockAnalysis}
+              analysis={uiComponent.props as MfAnalysis}
             />
           );
         return (
@@ -51,7 +51,6 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
           />
         );
       })}
-      {/* <MarkdownText>{String(message.content ?? "")}</MarkdownText>; */}
     </main>
   );
 }

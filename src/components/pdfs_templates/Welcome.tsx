@@ -1,8 +1,23 @@
 "use client";
 import { StockAnalysis } from "@/types/stock-analysis";
+import { useState, useEffect } from "react";
 
 function Welcome({ analysis }: { analysis: StockAnalysis }) {
   const { ticker, company_name, date } = analysis;
+  const [showLogo, setShowLogo] = useState(false);
+  const logoUrl = getCompanyLogoUrl(ticker);
+
+  useEffect(() => {
+    // Preload the image to check if it exists
+    const img = new Image();
+    img.onload = () => {
+      setShowLogo(true);
+    };
+    img.onerror = () => {
+      setShowLogo(false);
+    };
+    img.src = logoUrl;
+  }, [logoUrl]);
 
   // Extract quote data
 
@@ -30,22 +45,15 @@ function Welcome({ analysis }: { analysis: StockAnalysis }) {
         <section className="mt-12">
           <div className="flex items-center gap-4">
             {/* Company Logo */}
-            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white/10">
-              <img
-                src={getCompanyLogoUrl(ticker)}
-                alt={`${ticker} logo`}
-                className="h-12 w-12 object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  e.currentTarget.nextElementSibling?.classList.remove(
-                    "hidden",
-                  );
-                }}
-              />
-              <div className="hidden text-2xl font-bold text-white">
-                {getTickerInitials(ticker)}
+            {showLogo && (
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white/10">
+                <img
+                  src={logoUrl}
+                  alt=""
+                  className="h-12 w-12 object-contain"
+                />
               </div>
-            </div>
+            )}
 
             <div>
               <div className="text-4xl font-bold">{ticker.toUpperCase()}</div>

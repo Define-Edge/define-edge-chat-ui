@@ -1,4 +1,4 @@
-import { Section } from "@/types/stock-analysis";
+import { Section, NewsSourcesContent } from "@/types/stock-analysis";
 
 export class SectionFormatter {
     private section: Section;
@@ -16,6 +16,10 @@ export class SectionFormatter {
         return normalized || "section";
     }
 
+    private isNewsSourcesContent(sources: any): sources is NewsSourcesContent {
+        return sources && typeof sources === "object" && "content" in sources && Array.isArray(sources.content);
+    }
+
     getSource(): string {
         const sources = this.section.sources;
         if (!sources) {
@@ -24,9 +28,13 @@ export class SectionFormatter {
         if (typeof sources === "string") {
             return sources;
         }
+        // If it's NewsSourcesContent, return empty string (handled by FormatNewsSentiment component)
+        if (this.isNewsSourcesContent(sources)) {
+            return "";
+        }
         const domainPattern = /https?:\/\/(?:www\.)?([^/]+)/;
         const _sources = sources
-            .map((source) => {
+            .map((source: string) => {
                 const match = source.match(domainPattern);
                 const domain = match ? match[1] : source;
                 return `[${domain}](${source}) ,`;
@@ -44,9 +52,14 @@ export class SectionFormatter {
             return `<details open><summary>Sources</summary>\n\n${sources}\n</details>\n`;
         }
 
+        // If it's NewsSourcesContent, return empty string (handled by FormatNewsSentiment component)
+        if (this.isNewsSourcesContent(sources)) {
+            return "";
+        }
+
         const domainPattern = /https?:\/\/(?:www\.)?([^/]+)/;
         const _sources = sources
-            .map((source) => {
+            .map((source: string) => {
                 const match = source.match(domainPattern);
                 const domain = match ? match[1] : source;
                 return `[${domain}](${source}) ,`;

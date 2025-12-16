@@ -3,7 +3,7 @@
 import "./markdown-styles.css";
 
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon, CopyIcon } from "lucide-react";
 import { FC, memo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
@@ -323,6 +323,47 @@ const defaultComponents: any = {
       >
         {children}
       </button>
+    );
+  },
+  details: ({
+    className,
+    children,
+    ...props
+  }: {
+    className?: string;
+    children: React.ReactNode;
+  }) => {
+    return (
+      <details
+        className={cn(
+          "rounded-lg border border-gray-200 bg-gray-50",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </details>
+    );
+  },
+  summary: ({
+    className,
+    children,
+    ...props
+  }: {
+    className?: string;
+    children: React.ReactNode;
+  }) => {
+    return (
+      <summary
+        className={cn(
+          "flex cursor-pointer items-center font-medium hover:bg-gray-100",
+          className,
+        )}
+        {...props}
+      >
+        <ChevronRightIcon className="h-4 w-4 transition-transform duration-200" />
+        {children}
+      </summary>
     );
   },
 };
