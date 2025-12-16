@@ -39,7 +39,13 @@ async function getChromiumPath(): Promise<string> {
 }
 
 export async function POST(request: NextRequest) {
-  const { threadId, analysisId, analysisType = "stock_analysis" } = await request.json();
+  const {
+    threadId,
+    analysisId,
+    analysisType = "stock_analysis",
+    selectedSections,
+    personalComment
+  } = await request.json();
   if (!threadId || !analysisId) {
     return new NextResponse("Please provide a threadId and analysisId.", {
       status: 400,
@@ -61,6 +67,14 @@ export async function POST(request: NextRequest) {
   );
   gotoRoute.searchParams.set("threadId", threadId);
   gotoRoute.searchParams.set("analysisId", analysisId);
+
+  // Pass selected sections and personal comment to the report page
+  if (selectedSections && Array.isArray(selectedSections)) {
+    gotoRoute.searchParams.set("selectedSections", JSON.stringify(selectedSections));
+  }
+  if (personalComment) {
+    gotoRoute.searchParams.set("personalComment", personalComment);
+  }
 
   let browser;
   try {

@@ -12,6 +12,18 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
   const params = await searchParams;
   const threadId = params.threadId;
   const analysisId = params.analysisId;
+  const selectedSectionsParam = params.selectedSections as string | undefined;
+  const personalComment = params.personalComment as string | undefined;
+
+  // Parse selected sections from JSON string
+  let selectedSections: string[] | undefined;
+  if (selectedSectionsParam) {
+    try {
+      selectedSections = JSON.parse(selectedSectionsParam);
+    } catch (e) {
+      console.error("Failed to parse selectedSections:", e);
+    }
+  }
 
   const client = createClient(
     process.env.NEXT_PUBLIC_API_URL!,
@@ -42,6 +54,8 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
             <StockAnalysisReportMessageComponent
               key={uiComponent.id}
               analysis={uiComponent.props as StockAnalysis}
+              selectedSections={selectedSections}
+              personalComment={personalComment}
             />
           );
         return (

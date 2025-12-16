@@ -1,40 +1,18 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Section, StockAnalysis } from "@/types/stock-analysis";
-import { useMutation } from "@tanstack/react-query";
-import { DownloadIcon, Loader2 } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { MarkdownText } from "../../markdown-text";
 import SimulationChart from "./SimulationChart";
 import { SectionFormatter } from "@/lib/section-formatter";
 import ClientComponentsRegistry from "./registry";
 import { FormatNewsSentiment } from "./format-news-sentiment";
+import { StockAnalysisDownloadDialog } from "./stock-analysis-download-dialog";
 
 export default function StockAnalysisComponent(analysis: StockAnalysis) {
   console.log(analysis);
 
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/download-message", {
-        method: "POST",
-        body: JSON.stringify({
-          threadId: threadId,
-          analysisId: analysis.id,
-        }),
-      });
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = "screenshot.pdf";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(objectUrl);
-    },
-  });
 
   return (
     <div>
@@ -53,20 +31,11 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
       <FormatSection section={data.summary} />
       <SimulationChart {...data.simulation_chart} />
       <div className="flex justify-end">
-        <Button
-          variant="outline"
-          disabled={mutation.isPending}
-          onClick={() => mutation.mutate()}
-        >
-          {mutation.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <>
-              <DownloadIcon className="h-4 w-4" />
-              Download Report
-            </>
-          )}
-        </Button>
+        <StockAnalysisDownloadDialog
+          threadId={threadId}
+          analysisId={analysis.id}
+          companyName={analysis.company_name}
+        />
       </div>
     </div>
   );

@@ -13,64 +13,126 @@ import { ChevronRightIcon } from "lucide-react";
 
 export default function StockAnalysisReportMessageComponent({
   analysis,
+  selectedSections,
+  personalComment,
 }: {
   analysis: StockAnalysis;
+  selectedSections?: string[];
+  personalComment?: string;
 }) {
   const { data } = analysis;
+
+  // Helper function to check if a section should be rendered
+  const shouldRenderSection = (sectionKey: string) => {
+    // If no selectedSections provided, render all sections
+    if (!selectedSections || selectedSections.length === 0) return true;
+    return selectedSections.includes(sectionKey);
+  };
+
   return (
     <>
       <Welcome analysis={analysis} />
       <div className="report-compact-table mx-12 max-w-3xl space-y-8 pt-12">
-        <FormatSection section={data.business_overview} />
-        <FormatSection
-          section={data.management_strategy}
-          displaySources
-        />
-        <FormatSection section={data.sector_outlook} />
-        <FormatTechnicalSection section={data.technical_analysis} />
-        <FormatSection section={data.fundamental_analysis} />
+        {shouldRenderSection("business_overview") && (
+          <FormatSection section={data.business_overview} />
+        )}
+        {shouldRenderSection("management_strategy") && (
+          <FormatSection
+            section={data.management_strategy}
+            displaySources
+          />
+        )}
+        {shouldRenderSection("sector_outlook") && (
+          <FormatSection section={data.sector_outlook} />
+        )}
+        {shouldRenderSection("technical_analysis") && (
+          <FormatTechnicalSection section={data.technical_analysis} />
+        )}
+        {shouldRenderSection("fundamental_analysis") && (
+          <FormatSection section={data.fundamental_analysis} />
+        )}
         {/* <FormatSection section={data.stats_analysis} /> */}
-        <FormatSection section={data.peer_comparison} />
-        <FormatSection
-          section={data.conference_call_analysis}
-          displaySources
-        />
-        <FormatSection
-          section={data.shareholding_pattern}
-          displaySources
-        />
-        <FormatSection section={data.corporate_actions} />
-        <FormatSection section={data.news_sentiment} />
-        <FormatSection section={data.red_flags} />
-        <FormatSection section={data.summary} />
-        <SimulationChart {...data.simulation_chart} />
+        {shouldRenderSection("peer_comparison") && (
+          <FormatSection section={data.peer_comparison} />
+        )}
+        {shouldRenderSection("conference_call_analysis") && (
+          <FormatSection
+            section={data.conference_call_analysis}
+            displaySources
+          />
+        )}
+        {shouldRenderSection("shareholding_pattern") && (
+          <FormatSection
+            section={data.shareholding_pattern}
+            displaySources
+          />
+        )}
+        {shouldRenderSection("corporate_actions") && (
+          <FormatSection section={data.corporate_actions} />
+        )}
+        {shouldRenderSection("news_sentiment") && (
+          <FormatSection section={data.news_sentiment} />
+        )}
+        {shouldRenderSection("red_flags") && (
+          <FormatSection section={data.red_flags} />
+        )}
+        {shouldRenderSection("summary") && (
+          <FormatSection section={data.summary} />
+        )}
+        {shouldRenderSection("simulation_chart") && (
+          <SimulationChart {...data.simulation_chart} />
+        )}
+
+        {/* Personal Comment Section */}
+        {personalComment && (
+          <>
+            <div className="mt-8" />
+            <hr className="border-t-2 border-gray-800" />
+            <div className="mt-8" />
+            <div className="space-y-4">
+              <h3 className="text-3xl font-semibold tracking-tight">
+                Personal Comment
+              </h3>
+              <div className="rounded-lg border border-gray-300 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-900">
+                <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                  {personalComment}
+                </p>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="mt-8" />
         <hr className="border-t-2 border-gray-800" />
         <div className="mt-8" />
         <h3 className="text-3xl font-semibold tracking-tight">Data Sources</h3>
-        {[
-          data.technical_analysis,
-          data.fundamental_analysis,
-          // data.stats_analysis,
-          data.peer_comparison,
-          data.corporate_actions,
-          data.news_sentiment,
-        ].map((section, idx, arr) => {
-          const isNewsSentiment = section.title === data.news_sentiment.title;
-          return (
-            <div key={section.title}>
-              {isNewsSentiment ? (
-                <FormatNewsSentimentSourcesAndInDepthAnalysis
-                  section={section}
-                />
-              ) : (
-                <FormatSectionSourcesAndInDepthAnalysis section={section} />
-              )}
-              {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
-            </div>
-          );
-        })}
+        <span className="report-compact-table">
+          {[
+            { section: data.technical_analysis, key: "technical_analysis" },
+            { section: data.fundamental_analysis, key: "fundamental_analysis" },
+            // { section: data.stats_analysis, key: "stats_analysis" },
+            { section: data.peer_comparison, key: "peer_comparison" },
+            { section: data.corporate_actions, key: "corporate_actions" },
+            { section: data.news_sentiment, key: "news_sentiment" },
+          ]
+            .filter(({ key }) => shouldRenderSection(key))
+            .map(({ section }, idx, arr) => {
+              const isNewsSentiment =
+                section.title === data.news_sentiment.title;
+              return (
+                <div key={section.title}>
+                  {isNewsSentiment ? (
+                    <FormatNewsSentimentSourcesAndInDepthAnalysis
+                      section={section}
+                    />
+                  ) : (
+                    <FormatSectionSourcesAndInDepthAnalysis section={section} />
+                  )}
+                  {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
+                </div>
+              );
+            })}
+        </span>
       </div>
     </>
   );

@@ -2,36 +2,12 @@
 
 import { MfAnalysis, Section } from "@/types/mf-analysis";
 import { MarkdownText } from "../../markdown-text";
-import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
-import { DownloadIcon, Loader2 } from "lucide-react";
 import { useQueryState } from "nuqs";
+import { MfAnalysisDownloadDialog } from "./mf-analysis-download-dialog";
 
 export default function MfAnalysisComponent(analysis: MfAnalysis) {
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/download-message", {
-        method: "POST",
-        body: JSON.stringify({
-          threadId: threadId,
-          analysisId: analysis.id,
-          analysisType: "mf_analysis",
-        }),
-      });
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = `${analysis.scheme_name}_analysis.pdf`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(objectUrl);
-    },
-  });
 
   return (
     <div>
@@ -48,20 +24,11 @@ export default function MfAnalysisComponent(analysis: MfAnalysis) {
       <FormatSection section={data.conclusion} />
       <FormatSection section={data.summary} />
       <div className="flex justify-end">
-        <Button
-          variant="outline"
-          disabled={mutation.isPending}
-          onClick={() => mutation.mutate()}
-        >
-          {mutation.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <>
-              <DownloadIcon className="h-4 w-4" />
-              Download Report
-            </>
-          )}
-        </Button>
+        <MfAnalysisDownloadDialog
+          threadId={threadId}
+          analysisId={analysis.id}
+          schemeName={analysis.scheme_name}
+        />
       </div>
     </div>
   );
