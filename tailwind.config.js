@@ -1,3 +1,4 @@
+const plugin = require("tailwindcss/plugin");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -61,5 +62,26 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("tailwind-scrollbar"),
+    plugin(function ({ addComponents }) {
+      addComponents({
+        ".rounded-corner-table thead th:first-child": {
+          "border-top-left-radius": "0.375rem" /* 6px */,
+        },
+        ".rounded-corner-table thead th:last-child": {
+          "border-top-right-radius": "0.375rem" /* 6px */,
+        },
+        ".summary-container": {
+          "white-space": "pre-line",
+          "h1, h2, h3, h4": {
+            color: "rgba(6,59,170,1)",
+            "font-size": "1.25rem",
+            "font-weight": "600",
+          },
+        },
+      });
+    }),
+  ],
 };

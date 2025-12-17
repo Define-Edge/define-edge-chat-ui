@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react'
 import { ChevronDown, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'

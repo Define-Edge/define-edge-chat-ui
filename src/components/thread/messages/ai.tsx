@@ -8,7 +8,7 @@ import { MessageContentComplex } from "@langchain/core/messages";
 import { parsePartialJson } from "@langchain/core/output_parsers";
 import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment, useMemo } from "react";
 import { ThreadView } from "../agent-inbox";
 import { useArtifact } from "../artifact";
 import { CitationsList } from "../citations-list";
@@ -31,16 +31,31 @@ function CustomComponent({
 }) {
   const artifact = useArtifact();
   const { values } = useStreamContext();
+
+  // Filter for components belonging to this message
+  // And dedup by taking the last one for each component ID (or just the very last one if they share ID)
+  // Since our backend emits updates with same msg_id, we want to grab the latest state.
   const customComponents = values.ui?.filter(
     (ui) => ui.metadata?.message_id === message.id,
   );
 
-  if (!customComponents?.length) return null;
+  // If we have multiple updates for the SAME component ID, we only want the last one.
+  // Group by ui.id (component id) and take the last.
+  const latestComponents = useMemo(() => {
+    if (!customComponents) return [];
+    const map = new Map();
+    for (const c of customComponents) {
+      map.set(c.id, c);
+    }
+    return Array.from(map.values());
+  }, [customComponents]);
+
+  if (!latestComponents?.length) return null;
 
 
   return (
     <Fragment key={message.id}>
-      {customComponents.map((customComponent) => (
+      {latestComponents.map((customComponent) => (
         <LoadExternalComponent
           key={customComponent.id}
           stream={thread}
@@ -154,11 +169,19 @@ export function AssistantMessage({
   }
 
   if (hideToolCalls && hasToolCalls) {
-    return <Interrupt
-      interruptValue={threadInterrupt?.value}
-      isLastMessage={isLastMessage}
-      hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-    />;
+    return <>
+      <Interrupt
+        interruptValue={threadInterrupt?.value}
+        isLastMessage={isLastMessage}
+        hasNoAIOrToolMessages={hasNoAIOrToolMessages}
+      />
+      {message && (
+        <CustomComponent
+          message={message}
+          thread={thread}
+        />
+      )}
+    </>;
   }
 
   if (hasToolCalls && !hideToolCalls) {
@@ -177,12 +200,18 @@ export function AssistantMessage({
         isLastMessage={isLastMessage}
         hasNoAIOrToolMessages={hasNoAIOrToolMessages}
       />
+      {message && (
+        <CustomComponent
+          message={message}
+          thread={thread}
+        />
+      )}
     </>
   }
 
   return (
     <CitationProvider>
-      <div className="group mr-auto flex items-start w-full">
+      <div className="chat-message-table group mr-auto flex items-start w-full">
         <div className="flex flex-col w-full">
 
           {contentString.length > 0 && (
