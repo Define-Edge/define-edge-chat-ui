@@ -59,6 +59,9 @@ export function StockAnalysisDownloadDialog({
     mutationFn: async () => {
       const response = await fetch("/api/download-message", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           threadId: threadId,
           analysisId: analysisId,
@@ -66,6 +69,14 @@ export function StockAnalysisDownloadDialog({
           personalComment: personalComment,
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Failed to generate PDF: ${response.statusText}${errorText ? ` - ${errorText}` : ""}`
+        );
+      }
+
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -78,6 +89,10 @@ export function StockAnalysisDownloadDialog({
     },
     onSuccess: () => {
       setOpen(false);
+    },
+    onError: (error: Error) => {
+      console.error("PDF generation error:", error);
+      // Error will be shown in the UI via mutation.error
     },
   });
 
@@ -174,30 +189,38 @@ export function StockAnalysisDownloadDialog({
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={mutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending || isNoneSelected}
-          >
-            {mutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <DownloadIcon className="h-4 w-4" />
-                Download PDF
-              </>
-            )}
-          </Button>
+        <DialogFooter className="flex-col gap-2">
+          {mutation.error && (
+            <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <p className="font-medium">Error generating PDF</p>
+              <p className="mt-1 text-xs">{mutation.error.message}</p>
+            </div>
+          )}
+          <div className="flex w-full justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={mutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => mutation.mutate()}
+              disabled={mutation.isPending || isNoneSelected}
+            >
+              {mutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <DownloadIcon className="h-4 w-4" />
+                  Download PDF
+                </>
+              )}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
