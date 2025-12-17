@@ -98,7 +98,13 @@
 }
 
 
-.chat-message-table table {
+/* Scrollable tables wrapper */
+.chat-message-table .table-container {
   max-height: 400px;
   overflow: auto;
+  display: block;
+}
+
+.chat-message-table .table-container table {
+  width: 100%;
 }

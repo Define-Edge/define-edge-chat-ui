@@ -201,7 +201,7 @@ const defaultComponents: any = {
     />
   ),
   table: ({ className, children, ...props }: { className?: string, children: React.ReactNode }) => (
-    <div className="chat-container overflow-auto">
+    <div className="table-container chat-container overflow-auto">
       <table
         className={cn(
           "my-4 border-separate border-spacing-0",
