@@ -9,8 +9,6 @@ import { FormatNewsSentiment } from "./format-news-sentiment";
 import { StockAnalysisDownloadDialog } from "./stock-analysis-download-dialog";
 
 export default function StockAnalysisComponent(analysis: StockAnalysis) {
-  console.log(analysis);
-
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
 
