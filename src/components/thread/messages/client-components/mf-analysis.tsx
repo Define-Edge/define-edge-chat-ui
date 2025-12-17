@@ -4,6 +4,7 @@ import { MfAnalysis, Section } from "@/types/mf-analysis";
 import { MarkdownText } from "../../markdown-text";
 import { useQueryState } from "nuqs";
 import { MfAnalysisDownloadDialog } from "./mf-analysis-download-dialog";
+import { formatKey } from "@/lib/format-utils";
 
 export default function MfAnalysisComponent(analysis: MfAnalysis) {
   const [threadId] = useQueryState("threadId");
@@ -171,13 +172,4 @@ function JsonDataDisplay({ data }: { data: any }) {
       </table>
     </div>
   );
-}
-
-// Helper function to convert camelCase/snake_case to Title Case
-function formatKey(key: string): string {
-  return key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/_/g, " ")
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim();
 }

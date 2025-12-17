@@ -2,6 +2,7 @@ import { MarkdownText } from "@/components/thread/markdown-text";
 import { Section, MfAnalysis } from "@/types/mf-analysis";
 import MfWelcome from "./MfWelcome";
 import { SectionFormatter } from "@/lib/section-formatter";
+import { formatKey } from "@/lib/format-utils";
 
 export default function MfAnalysisReportMessageComponent({
   analysis,
@@ -268,13 +269,4 @@ function JsonDataDisplay({ data }: { data: any }) {
       </table>
     </div>
   );
-}
-
-// Helper function to convert camelCase/snake_case to Title Case
-function formatKey(key: string): string {
-  return key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/_/g, " ")
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim();
 }
