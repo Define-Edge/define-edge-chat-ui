@@ -25,7 +25,7 @@ export default function MfAnalysisReportMessageComponent({
   return (
     <>
       <MfWelcome analysis={analysis} />
-      <div className="mx-12 max-w-3xl space-y-8 pt-12">
+      <div className="mx-12 max-w-3xl space-y-8 pt-12" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
         {shouldRenderSection("scheme_overview") && (
           <FormatSection section={data.scheme_overview} />
         )}
