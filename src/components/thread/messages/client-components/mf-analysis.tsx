@@ -1,17 +1,21 @@
 "use client";
 
-import { MfAnalysis, Section } from "@/types/mf-analysis";
-import { MarkdownText } from "../../markdown-text";
-import { useQueryState } from "nuqs";
-import { MfAnalysisDownloadDialog } from "./mf-analysis-download-dialog";
+import { Button } from "@/components/ui/button";
 import { formatKey } from "@/lib/format-utils";
+import { MfAnalysis, Section } from "@/types/mf-analysis";
+import { ArrowUp } from "lucide-react";
+import { useQueryState } from "nuqs";
+import { useRef } from "react";
+import { MarkdownText } from "../../markdown-text";
+import { MfAnalysisDownloadDialog } from "./mf-analysis-download-dialog";
 
 export default function MfAnalysisComponent(analysis: MfAnalysis) {
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
+  const topRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div>
+    <div ref={topRef}>
       <FormatSection section={data.scheme_overview} />
       <FormatSection section={data.performance_analysis} />
       <FormatSection section={data.risk_metrics} />
@@ -24,7 +28,14 @@ export default function MfAnalysisComponent(analysis: MfAnalysis) {
       <FormatSection section={data.valuation_metrics} />
       <FormatSection section={data.conclusion} />
       <FormatSection section={data.summary} />
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        >
+          <ArrowUp className="mr-2 h-4 w-4" />
+          Back to Top
+        </Button>
         <MfAnalysisDownloadDialog
           threadId={threadId}
           analysisId={analysis.id}
