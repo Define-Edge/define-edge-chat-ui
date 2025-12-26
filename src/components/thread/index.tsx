@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import appConfig from "@/configs/app.config";
+import { PlannerModels } from "@/configs/models";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
+// import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   DO_NOT_RENDER_ID_PREFIX,
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { motion } from "framer-motion";
+import { startCase } from "lodash";
 import {
   ArrowDown,
   LoaderCircle,
@@ -33,7 +35,6 @@ import {
   SquarePen,
   XIcon
 } from "lucide-react";
-import { startCase } from "lodash";
 import Image from "next/image";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
@@ -42,7 +43,6 @@ import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
   ArtifactContent,
@@ -54,7 +54,6 @@ import ThreadHistory from "./history";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import { TooltipIconButton } from "./tooltip-icon-button";
-import { PlannerModels } from "@/configs/models";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -137,7 +136,7 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
-  const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
+  // const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
   const [selectedModel, setSelectedModel] = useState<PlannerModels>(
     PlannerModels.SONNET_4_5
@@ -151,7 +150,7 @@ export function Thread() {
     dragOver,
     handlePaste,
   } = useFileUpload();
-  const [firstTokenReceived, setFirstTokenReceived] = useState(false);
+  const [_firstTokenReceived, setFirstTokenReceived] = useState(false);
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
