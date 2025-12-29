@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Database, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { Database, PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
 import {
   parseAsBoolean,
   parseAsString,
@@ -154,6 +154,19 @@ export default function ThreadHistory() {
             className="w-full justify-start gap-2"
             onClick={() => {
               setQuery({
+                importViewOpen: null,
+                threadId: null,
+              });
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            New chat
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-2"
+            onClick={() => {
+              setQuery({
                 importViewOpen: true,
                 threadId: null,
               });
@@ -185,6 +198,20 @@ export default function ThreadHistory() {
               <SheetTitle className="sr-only">Thread History</SheetTitle>
             </SheetHeader>
             <div className="flex w-full flex-col gap-2 px-4 pb-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2"
+                onClick={() => {
+                  setQuery({
+                    importViewOpen: null,
+                    threadId: null,
+                    chatHistoryOpen: false,
+                  });
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                New chat
+              </Button>
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2"

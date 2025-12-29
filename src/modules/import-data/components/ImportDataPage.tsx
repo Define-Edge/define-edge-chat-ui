@@ -1,76 +1,40 @@
-import { Database, Shield, CheckCircle } from "lucide-react";
+"use client";
+import FetchingFiDataModal from "@/components/moneyone/FetchingFiDataModal";
+import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
+  AlertCircle,
+  BarChart3,
+  Building,
+  Coins,
+  CreditCard,
+  Database,
+  Globe,
+  Home,
+  Landmark,
+  PieChart,
+  Shield,
+} from "lucide-react";
+import { handleDummyFormSubmit } from "../utils/form-handlers";
+import { AccountTypeCard } from "./account-types/AccountTypeCard";
+import { MoneyOneHoldingsCard } from "./account-types/MoneyOneHoldingsCard";
+import { ComprehensiveAnalysisCard } from "./ComprehensiveAnalysisCard";
+import { DataSecurityInfo } from "./DataSecurityInfo";
+import { CommoditiesForm } from "./forms/CommoditiesForm";
+import { FixedDepositsForm } from "./forms/FixedDepositsForm";
+import { InsuranceForm } from "./forms/InsuranceForm";
+import { OtherInvestmentsForm } from "./forms/OtherInvestmentsForm";
+import { RealEstateForm } from "./forms/RealEstateForm";
 import { ImportHeader } from "./ImportHeader";
 import { NetworthGraph } from "./NetworthGraph";
 import { QuickUpload } from "./QuickUpload";
-import { ConnectAccounts } from "./ConnectAccounts";
-import { ComprehensiveAnalysisCard } from "./ComprehensiveAnalysisCard";
-import { AddedInvestments } from "./AddedInvestments";
-import { AnalysisModal } from "./modals/AnalysisModal";
 import { CollapsibleInstructions } from "./shared/CollapsibleInstructions";
-import { RealEstateForm } from "./forms/RealEstateForm";
-import { CommoditiesForm } from "./forms/CommoditiesForm";
-import { OtherInvestmentsForm } from "./forms/OtherInvestmentsForm";
-import { InsuranceForm } from "./forms/InsuranceForm";
-import { FixedDepositsForm } from "./forms/FixedDepositsForm";
-import { useImportData } from "../hooks/useImportData";
 
 export function ImportDataPage() {
-  const {
-    showAnalysisModal,
-    setShowAnalysisModal,
-    currentAnalysis,
-    showRealEstateForm,
-    setShowRealEstateForm,
-    showCommoditiesForm,
-    setShowCommoditiesForm,
-    showOtherInvestmentsForm,
-    setShowOtherInvestmentsForm,
-    showInsuranceForm,
-    setShowInsuranceForm,
-    showFixedDepositsForm,
-    setShowFixedDepositsForm,
-    realEstateHoldings,
-    commoditiesHoldings,
-    otherInvestments,
-    insurancePolicies,
-    fixedDeposits,
-    editingItem,
-    setEditingItem,
-    handleAnalysis,
-    handleRefreshData,
-    handleComprehensiveAnalysis,
-    handleConnect,
-    handleRealEstateSubmit,
-    handleCommoditiesSubmit,
-    handleOtherInvestmentsSubmit,
-    handleInsuranceSubmit,
-    handleFixedDepositsSubmit,
-    handleDelete,
-    handleEdit,
-  } = useImportData();
-
-  const handleAddNew = (type: string) => {
-    setEditingItem(null);
-    if (type === "realEstate") setShowRealEstateForm(true);
-    else if (type === "commodities") setShowCommoditiesForm(true);
-    else if (type === "other") setShowOtherInvestmentsForm(true);
-    else if (type === "insurance") setShowInsuranceForm(true);
-    else if (type === "fixedDeposit") setShowFixedDepositsForm(true);
-  };
-
   return (
-    <div className="space-y-6 p-6 pb-24">
+    <div className="mx-auto max-w-5xl space-y-6 p-6 pb-24">
       <ImportHeader />
 
-      <div className="flex flex-col md:flex-row gap-2 items-stretch justify-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* What is Import Section */}
         <CollapsibleInstructions
           title="Personal Investment Data Import"
@@ -95,268 +59,139 @@ export function ImportDataPage() {
           defaultExpanded={true}
         />
       </div>
+
+      {/* Connect Accounts */}
+      <div>
+        <h3 className="font-medium text-gray-900 mb-4">Connect Accounts</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Equity Holdings - MoneyOne */}
+          <MoneyOneHoldingsCard
+            consentType={ConsentType.EQUITIES}
+            icon={BarChart3}
+            title="Equity Holdings"
+            description="Connect your demat account to sync equity stocks and derivatives"
+          />
+
+          {/* Mutual Fund Holdings - MoneyOne */}
+          <MoneyOneHoldingsCard
+            consentType={ConsentType.MUTUAL_FUNDS}
+            icon={PieChart}
+            title="Mutual Fund Holdings"
+            description="Import mutual fund portfolios from AMCs and platforms"
+          />
+
+          {/* Fixed Deposits - Manual */}
+          <AccountTypeCard
+            icon={Landmark}
+            title="Fixed Deposits"
+            description="Connect bank FDs, corporate bonds, and term deposits"
+            formDescription="Add details about your fixed deposits including bank FDs, corporate bonds, and term deposits with comprehensive tracking features."
+            formIcon="🏦"
+            formComponent={
+              <FixedDepositsForm
+                onSubmit={(data) => handleDummyFormSubmit("Fixed Deposit", data)}
+                onCancel={() => {}}
+              />
+            }
+          />
+
+          {/* NPS - Pending */}
+          <AccountTypeCard
+            icon={Building}
+            title="NPS"
+            description="Import National Pension System contributions and NAV data"
+            formDescription=""
+            formIcon=""
+            status="connecting"
+            statusIcon={AlertCircle}
+          />
+
+          {/* Insurance - Manual */}
+          <AccountTypeCard
+            icon={Shield}
+            title="Insurance"
+            description="Connect life, health, and general insurance policies"
+            formDescription="Add details about your insurance policies including life, health, auto, home, travel, and other insurance coverage."
+            formIcon="🛡️"
+            formComponent={
+              <InsuranceForm
+                onSubmit={(data) => handleDummyFormSubmit("Insurance", data)}
+                onCancel={() => {}}
+              />
+            }
+          />
+
+          {/* Bank Accounts - Coming Soon */}
+          <AccountTypeCard
+            icon={CreditCard}
+            title="Bank Accounts"
+            description="Import savings, current account statements and transactions"
+            formDescription=""
+            formIcon=""
+            status="coming-soon"
+          />
+
+          {/* Real Estate - Manual */}
+          <AccountTypeCard
+            icon={Home}
+            title="Real Estate"
+            description="Add property details, rental income, and market valuations"
+            formDescription="Enter details about your property investments including residential, commercial, and land holdings."
+            formIcon="🏠"
+            formComponent={
+              <RealEstateForm
+                onSubmit={(data) => handleDummyFormSubmit("Real Estate", data)}
+                onCancel={() => {}}
+              />
+            }
+          />
+
+          {/* Commodities - Manual */}
+          <AccountTypeCard
+            icon={Coins}
+            title="Commodities"
+            description="Connect gold, silver, and other commodity investments"
+            formDescription="Add your commodity investments including gold, silver, and other precious metals or commodities."
+            formIcon="🪙"
+            formComponent={
+              <CommoditiesForm
+                onSubmit={(data) => handleDummyFormSubmit("Commodities", data)}
+                onCancel={() => {}}
+              />
+            }
+          />
+
+          {/* Other Investments - Manual */}
+          <AccountTypeCard
+            icon={Globe}
+            title="Other Investments"
+            description="Add unlisted shares, global stocks, crypto, bonds, and alternative investments"
+            formDescription="Add miscellaneous investments like unlisted shares, global stocks, cryptocurrency, bonds, and alternative investments."
+            formIcon="🌐"
+            formComponent={
+              <OtherInvestmentsForm
+                onSubmit={(data) => handleDummyFormSubmit("Other Investment", data)}
+                onCancel={() => {}}
+              />
+            }
+          />
+        </div>
+      </div>
+
       {/* My Networth Graph */}
       <NetworthGraph />
 
       {/* Quick Upload */}
       <QuickUpload />
 
-      {/* Connect Accounts */}
-      <ConnectAccounts
-        onConnect={handleConnect}
-        onAnalyse={handleAnalysis}
-        onRefresh={handleRefreshData}
-      />
-
-      {/* Manually Added Assets */}
-      <AddedInvestments
-        fixedDeposits={fixedDeposits}
-        realEstateHoldings={realEstateHoldings}
-        commoditiesHoldings={commoditiesHoldings}
-        insurancePolicies={insurancePolicies}
-        otherInvestments={otherInvestments}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onAddNew={handleAddNew}
-      />
-
       {/* Comprehensive Analysis Banner */}
-      <ComprehensiveAnalysisCard onAnalyse={handleComprehensiveAnalysis} />
+      <ComprehensiveAnalysisCard />
 
       {/* How We Use Your Data Section */}
-      <Card className="border-green-200 bg-green-50 p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 rounded-lg bg-green-100 p-2">
-            <Shield className="h-5 w-5 text-green-600" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="mb-2 font-medium text-green-900">
-              How We Use Your Data
-            </h3>
-            <div className="space-y-2 text-sm text-green-800">
-              <p className="flex items-start gap-2">
-                <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                <span>
-                  Your data is processed locally and encrypted with bank-level
-                  security
-                </span>
-              </p>
-              <p className="flex items-start gap-2">
-                <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                <span>
-                  We analyze patterns to provide personalized investment
-                  recommendations
-                </span>
-              </p>
-              <p className="flex items-start gap-2">
-                <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                <span>
-                  No data is shared with third parties without your explicit
-                  consent
-                </span>
-              </p>
-              <p className="flex items-start gap-2">
-                <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                <span>
-                  You maintain full control and can disconnect accounts anytime
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </Card>
+      <DataSecurityInfo />
 
-      {/* Analysis Modal */}
-      <AnalysisModal
-        isOpen={showAnalysisModal}
-        onClose={() => setShowAnalysisModal(false)}
-        analysisType={currentAnalysis.type}
-        analysisData={currentAnalysis.data}
-      />
-
-      {/* Form Modals */}
-      <FormModal
-        open={showRealEstateForm}
-        onOpenChange={setShowRealEstateForm}
-        title={
-          editingItem?.type === "realEstate"
-            ? "Edit Real Estate Investment"
-            : "Add Real Estate Investment"
-        }
-        description={
-          editingItem?.type === "realEstate"
-            ? "Update your property investment details"
-            : "Enter details about your property investments including residential, commercial, and land holdings."
-        }
-        icon="🏠"
-      >
-        <RealEstateForm
-          initialData={
-            editingItem?.type === "realEstate" ? editingItem.data : null
-          }
-          onSubmit={(data) => {
-            handleRealEstateSubmit(data);
-            setShowRealEstateForm(false);
-          }}
-          onCancel={() => {
-            setShowRealEstateForm(false);
-            setEditingItem(null);
-          }}
-        />
-      </FormModal>
-
-      <FormModal
-        open={showCommoditiesForm}
-        onOpenChange={setShowCommoditiesForm}
-        title={
-          editingItem?.type === "commodities"
-            ? "Edit Commodities Investment"
-            : "Add Commodities Investment"
-        }
-        description={
-          editingItem?.type === "commodities"
-            ? "Update your commodity investment details"
-            : "Add your commodity investments including gold, silver, and other precious metals or commodities."
-        }
-        icon="🪙"
-      >
-        <CommoditiesForm
-          initialData={
-            editingItem?.type === "commodities" ? editingItem.data : null
-          }
-          onSubmit={(data) => {
-            handleCommoditiesSubmit(data);
-            setShowCommoditiesForm(false);
-          }}
-          onCancel={() => {
-            setShowCommoditiesForm(false);
-            setEditingItem(null);
-          }}
-        />
-      </FormModal>
-
-      <FormModal
-        open={showOtherInvestmentsForm}
-        onOpenChange={setShowOtherInvestmentsForm}
-        title={
-          editingItem?.type === "other"
-            ? "Edit Other Investment"
-            : "Add Other Investments"
-        }
-        description={
-          editingItem?.type === "other"
-            ? "Update your investment details"
-            : "Add miscellaneous investments like unlisted shares, global stocks, cryptocurrency, bonds, and alternative investments."
-        }
-        icon="🌐"
-      >
-        <OtherInvestmentsForm
-          initialData={editingItem?.type === "other" ? editingItem.data : null}
-          onSubmit={(data) => {
-            handleOtherInvestmentsSubmit(data);
-            setShowOtherInvestmentsForm(false);
-          }}
-          onCancel={() => {
-            setShowOtherInvestmentsForm(false);
-            setEditingItem(null);
-          }}
-        />
-      </FormModal>
-
-      <FormModal
-        open={showInsuranceForm}
-        onOpenChange={setShowInsuranceForm}
-        title={
-          editingItem?.type === "insurance"
-            ? "Edit Insurance Policy"
-            : "Add Insurance Policy"
-        }
-        description={
-          editingItem?.type === "insurance"
-            ? "Update your insurance policy details"
-            : "Add details about your insurance policies including life, health, auto, home, travel, and other insurance coverage."
-        }
-        icon="🛡️"
-      >
-        <InsuranceForm
-          initialData={
-            editingItem?.type === "insurance" ? editingItem.data : null
-          }
-          onSubmit={(data) => {
-            handleInsuranceSubmit(data);
-            setShowInsuranceForm(false);
-          }}
-          onCancel={() => {
-            setShowInsuranceForm(false);
-            setEditingItem(null);
-          }}
-        />
-      </FormModal>
-
-      <FormModal
-        open={showFixedDepositsForm}
-        onOpenChange={setShowFixedDepositsForm}
-        title={
-          editingItem?.type === "fixedDeposit"
-            ? "Edit Fixed Deposit"
-            : "Add Fixed Deposit"
-        }
-        description={
-          editingItem?.type === "fixedDeposit"
-            ? "Update your fixed deposit details"
-            : "Add details about your fixed deposits including bank FDs, corporate bonds, and term deposits with comprehensive tracking features."
-        }
-        icon="🏦"
-      >
-        <FixedDepositsForm
-          initialData={
-            editingItem?.type === "fixedDeposit" ? editingItem.data : null
-          }
-          onSubmit={(data) => {
-            handleFixedDepositsSubmit(data);
-            setShowFixedDepositsForm(false);
-          }}
-          onCancel={() => {
-            setShowFixedDepositsForm(false);
-            setEditingItem(null);
-          }}
-        />
-      </FormModal>
+      {/* FetchingFiDataModal - MoneyOne import flow */}
+      <FetchingFiDataModal />
     </div>
-  );
-}
-
-// Helper component for form modals
-function FormModal({
-  open,
-  onOpenChange,
-  title,
-  description,
-  icon,
-  children,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  icon: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-    >
-      <DialogContent className="max-h-[80vh] max-w-md overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span>{icon}</span>
-            {title}
-          </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        {children}
-      </DialogContent>
-    </Dialog>
   );
 }

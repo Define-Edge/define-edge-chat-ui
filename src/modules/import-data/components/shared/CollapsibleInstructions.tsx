@@ -16,7 +16,7 @@ export function CollapsibleInstructions({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <Card className={`${bgColor} border-opacity-60 transition-all duration-200 max-w-md`}>
+    <Card className={`${bgColor} border-opacity-60 transition-all duration-200`}>
       <div
         className="flex items-start gap-3 p-4 cursor-pointer hover:opacity-90 transition-opacity"
         onClick={() => setIsExpanded(!isExpanded)}

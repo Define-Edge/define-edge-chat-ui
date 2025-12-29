@@ -5,6 +5,7 @@ export default function useModalState() {
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+  const handleOpenChange = (isOpen: boolean) => isOpen ? handleOpen() : handleClose()
 
-  return { handleOpen, handleClose, open }
+  return { handleOpen, handleClose, handleOpenChange, open }
 }

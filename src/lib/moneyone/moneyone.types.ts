@@ -17,7 +17,6 @@ export type ImportHoldingsContextType = {
   showCreateConsentModal: boolean;
   setShowCreateConsentModal: Dispatch<SetStateAction<boolean>>;
   consentType: ConsentType;
-  handlePfAction: (data: FiDataResponse, consentType: ConsentType) => void;
 };
 
 export const createNewConsentFormSchema = z.object({

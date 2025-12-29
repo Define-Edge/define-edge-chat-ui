@@ -1,14 +1,77 @@
-import { useState } from "react";
-import { Landmark, Calendar, DollarSign, Users, RotateCcw, FileText, CheckCircle, TrendingUp, AlertCircle } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Calendar, DollarSign, FileText, RotateCcw, TrendingUp, Users } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+interface FixedDepositsFormData {
+  fdType: string;
+  bankName: string;
+  branchName: string;
+  fdNumber: string;
+  accountNumber: string;
+  principalAmount: string;
+  interestRate: string;
+  compoundingFrequency: string;
+  fdTenure: string;
+  tenureUnit: string;
+  startDate: string;
+  maturityDate: string;
+  maturityAmount: string;
+  interestPayoutMode: string;
+  interestPayoutFrequency: string;
+  interestPayoutAccount: string;
+  cumulativeInterest: string;
+  autoRenewal: boolean;
+  renewalInstructions: string;
+  renewalTenure: string;
+  partialWithdrawal: boolean;
+  minWithdrawalAmount: string;
+  tdsDeducted: boolean;
+  tdsRate: string;
+  form15G_15H: boolean;
+  taxSavingFD: boolean;
+  section80C: string;
+  nomineePresent: boolean;
+  nomineeName: string;
+  nomineeRelation: string;
+  nomineeAge: string;
+  nomineeShare: string;
+  guardianName: string;
+  prematurePenalty: string;
+  loanAgainstFD: boolean;
+  loanAmount: string;
+  loanInterestRate: string;
+  overdraftFacility: boolean;
+  overdraftLimit: string;
+  certificateType: string;
+  certificateNumber: string;
+  lockerLocation: string;
+  linkedSavingsAccount: string;
+  onlineAccess: boolean;
+  mobileBanking: boolean;
+  smsAlerts: boolean;
+  emailStatements: boolean;
+  seniorCitizenRate: boolean;
+  specialRate: string;
+  promotionalRate: boolean;
+  rateType: string;
+  investmentPurpose: string;
+  riskProfile: string;
+  contactPerson: string;
+  relationshipManager: string;
+  documentStatus: string;
+  kycStatus: string;
+  fdStatus: string;
+  maturityAlert: boolean;
+  renewalAlert: boolean;
+  interestCreditAlert: boolean;
+  description: string;
+}
 
 interface FixedDepositsFormProps {
   onSubmit: (data: any) => void;
@@ -17,7 +80,7 @@ interface FixedDepositsFormProps {
 }
 
 export function FixedDepositsForm({ onSubmit, onCancel, initialData }: FixedDepositsFormProps) {
-  const [formData, setFormData] = useState(initialData || {
+  const [formData, setFormData] = useState<FixedDepositsFormData>(initialData || {
     // Basic FD Information
     fdType: "",
     bankName: "",

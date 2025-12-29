@@ -1,14 +1,101 @@
-import { useState } from "react";
-import { Coins, Calendar, Weight, MapPin, Building, Shield, FileText, TrendingUp, Banknote, Truck } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Banknote, Building, Coins, FileText, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+interface CommoditiesFormData {
+  // Basic Commodity Information
+  commodityType: string;
+  customCommodity: string;
+  commodityCategory: string;
+  holdingForm: string;
+
+  // Purchase Details
+  purchaseDate: string;
+  quantity: string;
+  unit: string;
+  purchasePrice: string;
+  purchasePricePerUnit: string;
+  currentPrice: string;
+  currentPricePerUnit: string;
+
+  // Quality and Specifications
+  purity: string;
+  grade: string;
+  brand: string;
+  manufacturer: string;
+  certificateNumber: string;
+  hallmarkNumber: string;
+
+  // Physical Holdings Details
+  storageLocation: string;
+  storageType: string;
+  storageCharges: string;
+  insuranceValue: string;
+  insuranceProvider: string;
+  insurancePolicyNumber: string;
+
+  // ETF/Digital Holdings Details
+  platformName: string;
+  folioNumber: string;
+  dpId: string;
+  clientId: string;
+  isin: string;
+
+  // Trading and Transaction Details
+  brokerName: string;
+  tradingAccount: string;
+  exchangeName: string;
+  contractDetails: string;
+  marginRequired: string;
+
+  // Valuation and Performance
+  lastValuationDate: string;
+  valuationMethod: string;
+  marketPrice: string;
+  unrealizedGainLoss: string;
+  totalReturns: string;
+
+  // Tax and Legal
+  taxImplications: string;
+  customsDuty: string;
+  gstPaid: string;
+  importDocuments: boolean;
+
+  // Additional Features
+  loanAgainst: boolean;
+  loanAmount: string;
+  loanProvider: string;
+  pledged: boolean;
+  pledgedAmount: string;
+  pledgedTo: string;
+
+  // Delivery and Logistics
+  deliveryMode: string;
+  deliveryAddress: string;
+  trackingNumber: string;
+  deliveryCharges: string;
+
+  // Investment Strategy
+  investmentPurpose: string;
+  holdingPeriod: string;
+  targetPrice: string;
+  stopLoss: string;
+
+  // Alerts and Monitoring
+  priceAlerts: boolean;
+  maturityAlerts: boolean;
+  renewalDate: string;
+
+  // Additional Information
+  description: string;
+}
 
 interface CommoditiesFormProps {
   onSubmit: (data: any) => void;
@@ -17,7 +104,7 @@ interface CommoditiesFormProps {
 }
 
 export function CommoditiesForm({ onSubmit, onCancel, initialData }: CommoditiesFormProps) {
-  const [formData, setFormData] = useState(initialData || {
+  const [formData, setFormData] = useState<CommoditiesFormData>(initialData || {
     // Basic Commodity Information
     commodityType: "",
     customCommodity: "",

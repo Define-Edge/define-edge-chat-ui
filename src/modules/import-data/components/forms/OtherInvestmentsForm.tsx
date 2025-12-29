@@ -1,22 +1,149 @@
-import { useState } from "react";
-import { TrendingUp, Calendar, DollarSign, Globe, Building2, Shield, FileText, AlertTriangle, Banknote, Users, BarChart3 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Banknote, BarChart3, Building2, FileText, Globe, Shield, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+interface OtherInvestmentsFormData {
+  // Basic Investment Information
+  investmentType: string;
+  customType: string;
+  investmentName: string;
+  symbol: string;
+  isin: string;
+  cusip: string;
+
+  // Exchange and Geography
+  exchange: string;
+  exchangeCode: string;
+  country: string;
+  currency: string;
+  geography: string;
+  timeZone: string;
+
+  // Purchase Details
+  investmentDate: string;
+  quantity: string;
+  unit: string;
+  purchasePrice: string;
+  purchasePricePerUnit: string;
+  totalInvestment: string;
+
+  // Current Valuation
+  currentValue: string;
+  currentPricePerUnit: string;
+  lastUpdated: string;
+  unrealizedGainLoss: string;
+  unrealizedGainLossPercent: string;
+
+  // Trading Details
+  broker: string;
+  platform: string;
+  accountNumber: string;
+  folioNumber: string;
+  dpId: string;
+  clientId: string;
+
+  // Investment Categorization
+  assetClass: string;
+  category: string;
+  subCategory: string;
+  sector: string;
+  industryGroup: string;
+  theme: string;
+
+  // Risk and Performance
+  riskLevel: string;
+  riskRating: string;
+  creditRating: string;
+  performanceBenchmark: string;
+  beta: string;
+
+  // Bond/Fixed Income Specific
+  faceValue: string;
+  couponRate: string;
+  interestRate: string;
+  paymentFrequency: string;
+  maturityDate: string;
+  issuer: string;
+  issuerType: string;
+  callable: boolean;
+
+  // Equity Specific
+  marketCap: string;
+  shareholdingPercentage: string;
+  votingRights: boolean;
+  dividendYield: string;
+
+  // Alternative Investments
+  fundManager: string;
+  managementFee: string;
+  performanceFee: string;
+  lockInPeriod: string;
+  minimumInvestment: string;
+
+  // Tax and Legal
+  taxStatus: string;
+  taxBenefits: string;
+  withholdingTax: string;
+  kycCompliant: boolean;
+  fatcaCompliant: boolean;
+
+  // Regulatory and Compliance
+  regulatoryBody: string;
+  licenseNumber: string;
+  prospectusAvailable: boolean;
+  riskDisclosureRead: boolean;
+
+  // Investment Strategy
+  investmentObjective: string;
+  investmentHorizon: string;
+  targetPrice: string;
+  stopLoss: string;
+  rebalanceFrequency: string;
+
+  // Documentation
+  certificateNumber: string;
+  physicalCertificate: boolean;
+  nomineeDetails: boolean;
+
+  // Monitoring and Alerts
+  priceAlerts: boolean;
+  maturityAlerts: boolean;
+  performanceAlerts: boolean;
+  newsAlerts: boolean;
+
+  // Status and Activity
+  isActive: boolean;
+  isPledged: boolean;
+  pledgedAmount: string;
+  pledgedTo: string;
+
+  // Fees and Charges
+  brokerage: string;
+  taxes: string;
+  otherCharges: string;
+  exitLoad: string;
+
+  // Additional Information
+  notes: string;
+  riskFactors: string;
+  keyFeatures: string;
+}
 
 interface OtherInvestmentsFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  initialData?: any;
 }
 
-export function OtherInvestmentsForm({ onSubmit, onCancel }: OtherInvestmentsFormProps) {
-  const [formData, setFormData] = useState({
+export function OtherInvestmentsForm({ onSubmit, onCancel, initialData }: OtherInvestmentsFormProps) {
+  const [formData, setFormData] = useState<OtherInvestmentsFormData>(initialData || {
     // Basic Investment Information
     investmentType: "",
     customType: "",

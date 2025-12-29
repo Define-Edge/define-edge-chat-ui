@@ -2,6 +2,7 @@ import { CheckCircle, AlertCircle, Clock, RefreshCw, BarChart3 } from "lucide-re
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ImportMethodProps } from "../../types/import-data.types";
+import { ReactNode } from "react";
 
 export function ImportMethod({
   icon: Icon,
@@ -11,8 +12,9 @@ export function ImportMethod({
   lastUpdated,
   onConnect,
   onAnalyse,
-  onRefresh
-}: ImportMethodProps) {
+  onRefresh,
+  customButton
+}: ImportMethodProps & { customButton?: ReactNode }) {
   const getStatusColor = () => {
     switch (status) {
       case "connected": return "text-green-500";
@@ -56,7 +58,10 @@ export function ImportMethod({
           <div className="flex items-center justify-between gap-2 mt-auto pt-3">
             {/* Left side - Status and primary action */}
             <div className="flex items-center gap-2">
-              {status === "available" && (
+              {customButton ? (
+                // Use custom button if provided (e.g., ImportHoldings)
+                customButton
+              ) : status === "available" ? (
                 <Button
                   size="sm"
                   variant="outline"
@@ -65,9 +70,7 @@ export function ImportMethod({
                 >
                   Connect
                 </Button>
-              )}
-
-              {status === "connected" && (
+              ) : status === "connected" ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-green-600 font-medium">Connected</span>
                   <Button
@@ -80,11 +83,9 @@ export function ImportMethod({
                     <RefreshCw className="w-3 h-3" />
                   </Button>
                 </div>
-              )}
-
-              {status === "pending" && (
+              ) : status === "pending" ? (
                 <span className="text-xs text-yellow-600 font-medium">Connecting...</span>
-              )}
+              ) : null}
             </div>
 
             {/* Right side - Always analyse button */}

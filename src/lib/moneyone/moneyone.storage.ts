@@ -52,6 +52,13 @@ export function saveConsent(consent: ConsentData): void {
     consentIds.push(consent.consentID);
     localStorage.setItem(userConsentsKey, JSON.stringify(consentIds));
   }
+
+  // Dispatch custom event for same-tab updates
+  window.dispatchEvent(
+    new CustomEvent("moneyone:consent-updated", {
+      detail: { consentType: consent.type, type: "consent" },
+    })
+  );
 }
 
 /**
@@ -111,6 +118,7 @@ export function updateConsent(
 
   const updated = { ...existing, ...updates };
   saveConsent(updated);
+  // saveConsent already dispatches the event, no need to dispatch again
 }
 
 /**
@@ -119,6 +127,7 @@ export function updateConsent(
 export function deleteConsent(consentID: string): void {
   if (typeof window === "undefined") return;
 
+  const consent = getConsent(consentID);
   const consentKey = `${CONSENT_KEY_PREFIX}${consentID}`;
   localStorage.removeItem(consentKey);
 
@@ -131,6 +140,15 @@ export function deleteConsent(consentID: string): void {
     const consentIds: string[] = JSON.parse(existingConsents);
     const filtered = consentIds.filter((id) => id !== consentID);
     localStorage.setItem(userConsentsKey, JSON.stringify(filtered));
+  }
+
+  // Dispatch custom event for same-tab updates
+  if (consent) {
+    window.dispatchEvent(
+      new CustomEvent("moneyone:consent-updated", {
+        detail: { consentType: consent.type, type: "consent" },
+      })
+    );
   }
 }
 

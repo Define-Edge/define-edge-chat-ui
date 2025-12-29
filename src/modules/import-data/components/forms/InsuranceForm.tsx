@@ -1,14 +1,89 @@
-import { useState } from "react";
-import { Shield, Calendar, DollarSign, Users, Building, Car, Plane, Heart, FileText, CheckCircle } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Building, Car, FileText, Heart, Plane, Shield, Users } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+interface InsuranceFormData {
+  // Basic Policy Information
+  insuranceType: string;
+  insuranceCompany: string;
+  policyNumber: string;
+  policyName: string;
+  sumAssured: string;
+  annualPremium: string;
+  premiumFrequency: string;
+  policyStartDate: string;
+  policyMaturityDate: string;
+  policyTerm: string;
+
+  // Life Insurance Specific
+  lifeInsuranceType: string;
+  bonusAmount: string;
+  surrenderValue: string;
+  loanAgainst: string;
+
+  // Health Insurance Specific
+  familyFloater: boolean;
+  membersCount: string;
+  membersDetails: string;
+  copayPercentage: string;
+  deductible: string;
+  roomRentLimit: string;
+  preMedicalCheckup: boolean;
+  networkHospitals: string;
+
+  // Auto Insurance Specific
+  vehicleType: string;
+  vehicleNumber: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  manufactureYear: string;
+  coverageType: string;
+
+  // Home Insurance Specific
+  propertyValue: string;
+  propertyType: string;
+  propertyAddress: string;
+  coverageItems: string;
+
+  // Travel Insurance Specific
+  destinationType: string;
+  coverageDays: string;
+  travelType: string;
+
+  // Nominee Information
+  nomineePresent: boolean;
+  nomineeName: string;
+  nomineeRelation: string;
+  nomineeAge: string;
+  nomineeShare: string;
+
+  // Agent/Advisor Details
+  hasAgent: boolean;
+  agentName: string;
+  agentContact: string;
+  agentCode: string;
+
+  // Claim History
+  claimsMade: boolean;
+  claimsCount: string;
+  totalClaimsAmount: string;
+  lastClaimDate: string;
+
+  // Payment Details
+  paymentMode: string;
+  nextDueDate: string;
+
+  // Additional Information
+  isActive: boolean;
+  renewalAlert: boolean;
+  description: string;
+}
 
 interface InsuranceFormProps {
   onSubmit: (data: any) => void;
@@ -17,7 +92,7 @@ interface InsuranceFormProps {
 }
 
 export function InsuranceForm({ onSubmit, onCancel, initialData }: InsuranceFormProps) {
-  const [formData, setFormData] = useState(initialData || {
+  const [formData, setFormData] = useState<InsuranceFormData>(initialData || {
     // Basic Policy Information
     insuranceType: "",
     insuranceCompany: "",

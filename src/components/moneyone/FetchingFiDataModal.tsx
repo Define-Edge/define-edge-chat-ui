@@ -1,22 +1,17 @@
 "use client";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import useModalState from "@/hooks/useModalState";
+import { getAllFiData } from "@/lib/moneyone/moneyone.actions";
+import { ConsentType } from "@/lib/moneyone/moneyone.enums";
+import {
+  completePendingConsent,
+  updateConsent,
+} from "@/lib/moneyone/moneyone.storage";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import FiDataAnimation from "./FiDataAnimation";
-import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import useModalState from "@/hooks/useModalState";
-import { getAllFiData } from "@/lib/moneyone/moneyone.actions";
-import { updateConsent, completePendingConsent } from "@/lib/moneyone/moneyone.storage";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { FiDataResponse } from "@/lib/moneyone/moneyone.types";
 
-export default function FetchingFiDataModal({
-  handleImportHoldings,
-}: {
-  handleImportHoldings: (
-    data: FiDataResponse,
-    consentType: ConsentType,
-  ) => void;
-}) {
+export default function FetchingFiDataModal() {
   const { open, handleClose, handleOpen } = useModalState();
   const searchParams = useSearchParams();
   const consentID = searchParams.get("consentID");
@@ -37,7 +32,7 @@ export default function FetchingFiDataModal({
         consentID,
         consentType as ConsentType,
         mobileNo,
-        consentCreationData
+        consentCreationData,
       );
 
       const data = await getAllFiData(consentID, 3000);

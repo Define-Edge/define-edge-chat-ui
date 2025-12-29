@@ -21,6 +21,7 @@ import {
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
 import { cn } from "@/lib/utils";
+import { ImportDataPage } from "@/modules/import-data";
 import { useStreamContext } from "@/providers/Stream";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { motion } from "framer-motion";
@@ -41,6 +42,7 @@ import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { v4 as uuidv4 } from "uuid";
+import FetchingFiDataModal from "../moneyone/FetchingFiDataModal";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
@@ -54,11 +56,6 @@ import ThreadHistory from "./history";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import { TooltipIconButton } from "./tooltip-icon-button";
-import { ImportDataPage } from "@/modules/import-data";
-import { FiDataResponse, Holding } from "@/lib/moneyone/moneyone.types";
-import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
-import FetchingFiDataModal from "../moneyone/FetchingFiDataModal";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -283,85 +280,9 @@ export function Thread() {
     (m) => m.type === "ai" || m.type === "tool",
   );
 
-  const handleImportHoldings = (
-    data: FiDataResponse,
-    consentType: ConsentType,
-  ) => {
-    // Extract all holdings from all accounts
-    const allHoldings: Holding[] = [];
-
-    data.forEach((account) => {
-      if (account.Summary?.Investment?.Holdings?.Holding) {
-        allHoldings.push(...account.Summary.Investment.Holdings.Holding);
-      }
-    });
-
-    if (allHoldings.length === 0) {
-      console.warn("No holdings found in the imported data");
-      return;
-    }
-
-    // Convert holdings to a simplified format for the markdown table
-    const formattedHoldings = allHoldings.map((holding) => {
-      if (consentType === ConsentType.EQUITIES) {
-        return {
-          Issuer: holding.issuerName || "",
-          ISIN: holding.isin || "",
-          Description: holding.isinDescription || "",
-          Units: holding.units || "",
-          "Last Traded Price": holding.lastTradedPrice || "",
-        };
-      } else {
-        // Mutual Funds
-        return {
-          Scheme: holding.schemeTypes || "",
-          AMC: holding.amc || "",
-          "Folio No": holding.folioNo || "",
-          "Closing Units": holding.closingUnits || "",
-          NAV: holding.nav || "",
-          "NAV Date": holding.navDate || "",
-        };
-      }
-    });
-
-    // Create markdown table
-    const markdownTable = convertToMarkdownTable(formattedHoldings);
-
-    // Create message content
-    const assetType =
-      consentType === ConsentType.EQUITIES ? "Equity" : "Mutual Fund";
-    const messageText = `I've imported my ${assetType} holdings. Here's the data:\n\n${markdownTable}\n\nPlease analyze my portfolio and provide insights.`;
-
-    // Create a human message
-    const newHumanMessage: Message = {
-      id: uuidv4(),
-      type: "human",
-      content: [{ type: "text", text: messageText }] as Message["content"],
-    };
-
-    // Get tool messages to ensure consistency
-    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-
-    // Submit to stream (will use existing thread or create new one)
-    stream.submit(
-      { messages: [...toolMessages, newHumanMessage] },
-      {
-        streamMode: ["values"],
-        optimisticValues: (prev) => ({
-          ...prev,
-          messages: [
-            ...(prev.messages ?? []),
-            ...toolMessages,
-            newHumanMessage,
-          ],
-        }),
-      },
-    );
-  };
-
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <FetchingFiDataModal handleImportHoldings={handleImportHoldings} />
+      <FetchingFiDataModal />
       <div className="relative hidden lg:flex">
         <motion.div
           className="absolute z-20 h-full overflow-hidden border-r"
@@ -437,7 +358,7 @@ export function Thread() {
           )}
           {/* Render Import Data Page if import view is open */}
           {importViewOpen && (
-            <div className="overflow-y-auto w-full my-auto">
+            <div className="my-auto w-full overflow-y-auto">
               <ImportDataPage />
             </div>
           )}

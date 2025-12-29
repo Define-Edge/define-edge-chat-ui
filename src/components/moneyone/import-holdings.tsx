@@ -13,10 +13,7 @@ type Props = Omit<
   "showCreateConsentModal" | "setShowCreateConsentModal"
 >;
 
-export default function ImportHoldings({
-  consentType,
-  handlePfAction,
-}: Props) {
+export default function ImportHoldings({ consentType }: Props) {
   const [showCreateConsentModal, setShowCreateConsentModal] = useState(false);
   const checkConsentMut = useCheckConsentMut(consentType);
 
@@ -25,7 +22,6 @@ export default function ImportHoldings({
       onSettled: (data, error) => {
         if (data) {
           setShowCreateConsentModal(false);
-          handlePfAction(data, consentType);
         } else if (!error) {
           setShowCreateConsentModal(true);
         }
@@ -43,7 +39,6 @@ export default function ImportHoldings({
   return (
     <ImportHoldingsProvider
       consentType={consentType}
-      handlePfAction={handlePfAction}
       showCreateConsentModal={showCreateConsentModal}
       setShowCreateConsentModal={setShowCreateConsentModal}
     >
