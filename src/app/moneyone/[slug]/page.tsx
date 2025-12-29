@@ -1,4 +1,4 @@
-import { decryptUrl, getConsentList } from "@/lib/moneyone/moneyone.actions";
+import { decryptUrl, getConsentList, requestFiData } from "@/lib/moneyone/moneyone.actions";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { webRedirectionDecryptionApiReqParamsSchema } from "@/lib/moneyone/moneyone.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -58,12 +58,24 @@ export default async function page({ params, searchParams }: Props) {
       const consentID = consent.consentID;
       if (!consentID) return <div>Invalid consent ID</div>;
 
+      // Request FI data from Account Aggregator
+      const fiRequestResult = await requestFiData(consentID);
+
+      if ("error" in fiRequestResult) {
+        console.error("FI request failed:", fiRequestResult.error);
+        // Continue with redirect even if FI request fails
+        // The data flow is asynchronous, so we don't wait for the actual FI data
+      } else if (process.env.NODE_ENV === "development") {
+        console.log("FI request initiated successfully:", fiRequestResult);
+      }
+
       // Redirect with consent data as search params
       const redirectUrlParams = new URLSearchParams();
       redirectUrlParams.set("consentID", consentID);
       redirectUrlParams.set("consentType", consentType);
       redirectUrlParams.set("mobileNo", mobileNo);
       redirectUrlParams.set("consentCreationData", consent.consentCreationData);
+      redirectUrlParams.set("importViewOpen", "true");
       if (threadId) redirectUrlParams.set("threadId", threadId);
 
       redirect(`/?${redirectUrlParams.toString()}`);

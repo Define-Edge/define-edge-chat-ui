@@ -1,8 +1,5 @@
 "use client";
-import {
-  createConsentRequest,
-  getEncryptedUrl
-} from "@/lib/moneyone/moneyone.actions";
+import { createConsentRequestV3 } from "@/lib/moneyone/moneyone.actions";
 import { getUserId } from "@/lib/moneyone/moneyone.storage";
 import {
   createNewConsentFormSchema,
@@ -22,10 +19,22 @@ export function useCreateConsentAndRedirectMut() {
       const formValues = createNewConsentFormSchema.parse(input);
       const userId = getUserId();
 
-      const createConsentReqRes = await createConsentRequest(
+      // Construct redirect URL with accountID and optional threadId in the path
+      // Pattern: /moneyone/{consentType}~{accountID} or /moneyone/{consentType}~{accountID}~{threadId}
+      // Using ~ as delimiter since accountID and threadID may contain dashes
+      const redirectPath = threadId
+        ? `/moneyone/${consentType}~${userId}~${threadId}`
+        : `/moneyone/${consentType}~${userId}`;
+
+      const redirectUrl = new URL(redirectPath, window.location.origin);
+
+      // V3 API combines consent creation + encrypted URL generation
+      const createConsentReqRes = await createConsentRequestV3(
         formValues.number,
         consentType,
-        userId
+        userId,
+        formValues.pan,
+        redirectUrl.toString()
       );
 
       if ("error" in createConsentReqRes) throw createConsentReqRes;
@@ -33,8 +42,9 @@ export function useCreateConsentAndRedirectMut() {
       // New consent created
       if (createConsentReqRes?.status === "success") {
         const consentHandle = createConsentReqRes.data.consent_handle;
+        const webRedirectionUrl = createConsentReqRes.data.webRedirectionUrl;
 
-        // Store pending consent info temporarily
+        // IMPORTANT: Store pending consent BEFORE redirecting
         // We'll save the full consent after redirect when we have the real consentID
         localStorage.setItem(
           `moneyone:pending-consent:${consentHandle}`,
@@ -51,31 +61,10 @@ export function useCreateConsentAndRedirectMut() {
           })
         );
 
-        // Construct redirect URL with accountID and optional threadId in the path
-        // Pattern: /moneyone/{consentType}~{accountID} or /moneyone/{consentType}~{accountID}~{threadId}
-        // Using ~ as delimiter since accountID and threadID may contain dashes
-        const redirectPath = threadId
-          ? `/moneyone/${consentType}~${userId}~${threadId}`
-          : `/moneyone/${consentType}~${userId}`;
-
-        const redirectUrl = new URL(redirectPath, window.location.origin);
-
         toast.success("Consent created successfully, Redirecting to MoneyOne.");
 
-        // getEncryptedUrl calls Next.js redirect() on success
-        // If it returns with an error object, handle it
-        const response = await getEncryptedUrl(
-          consentHandle,
-          redirectUrl.toString(),
-          formValues.pan,
-          consentType
-        );
-
-        // If we reach here, redirect didn't happen - check for errors
-        if (response && "error" in response) {
-          toast.error(response.error);
-          throw new Error(response.error);
-        }
+        // Redirect to MoneyOne OAuth page
+        window.location.href = webRedirectionUrl;
       }
     },
   });

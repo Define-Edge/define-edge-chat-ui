@@ -1,13 +1,12 @@
 "use client";
-import { useState } from "react";
-import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { ImportHoldingsContextType } from "@/lib/moneyone/moneyone.types";
-import { ImportHoldingsProvider } from "./import-holdings.context";
-import CreateConsentModel from "./CreateConsentModel";
 import { Button } from "@/components/ui/button";
-import { useCheckConsentMut } from "./useCheckConsentMut";
-import { toast } from "sonner";
+import { ImportHoldingsContextType } from "@/lib/moneyone/moneyone.types";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import CreateConsentModel from "./CreateConsentModel";
+import { ImportHoldingsProvider } from "./import-holdings.context";
+import { useCheckConsentMut } from "./useCheckConsentMut";
 
 type Props = Omit<
   ImportHoldingsContextType,
@@ -50,22 +49,17 @@ export default function ImportHoldings({
     >
       <Button
         onClick={handleImportClick}
-        className="flex w-full items-center justify-center gap-2"
-        variant="default"
+        size="sm"
+        variant="outline"
+        className="text-xs"
         disabled={checkConsentMut.isPending}
       >
         {checkConsentMut.isPending ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Checking...
+            <Loader2 className="h-3 w-3 animate-spin" />
           </>
         ) : (
-          <>
-            Import{" "}
-            {consentType === ConsentType.EQUITIES
-              ? "Eq-Portfolio"
-              : "Mf-Portfolio"}
-          </>
+          "Connect"
         )}
       </Button>
       <CreateConsentModel

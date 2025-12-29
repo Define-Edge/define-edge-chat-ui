@@ -3,8 +3,8 @@ import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 
 const productIdToConsentTypeMap: { [productId: string]: ConsentType } = {
-  EQSUMMARY: ConsentType.EQUITIES,
-  WM101: ConsentType.MUTUAL_FUNDS,
+  [process.env.MONEY_ONE_EQUITIES_CONSENT_FORM as string]: ConsentType.EQUITIES,
+  [process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM as string]: ConsentType.MUTUAL_FUNDS,
 };
 
 export async function POST(request: Request) {
@@ -39,10 +39,9 @@ export async function POST(request: Request) {
       { error: err?.message || ReasonPhrases.INTERNAL_SERVER_ERROR },
       {
         status: StatusCodes.INTERNAL_SERVER_ERROR,
-      }
+      },
     );
   }
 }
-
 
 // /api/webhooks/moneyone/data-ready

@@ -48,6 +48,17 @@ export type ConsentRequestResponse = {
   };
 };
 
+export type ConsentRequestV3Response = {
+  status: string;
+  ver: string;
+  message: string;
+  data: {
+    webRedirectionUrl: string;
+    status: string;
+    consent_handle: string;
+  };
+};
+
 export type LinkRefNumber = {
   linkRefNumber: string;
   fiStatus: string;
@@ -121,3 +132,13 @@ type AccountType = {
 };
 
 export type FiDataResponse = AccountType[];
+
+export type FiRequestResponse = {
+  ver: string;
+  timestamp: string;
+  response: string;
+  data: {
+    consentId: string;
+    sessionId: string;
+  };
+};

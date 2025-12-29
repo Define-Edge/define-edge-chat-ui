@@ -33,7 +33,7 @@ import {
   PanelRightOpen,
   Plus,
   SquarePen,
-  XIcon
+  XIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { parseAsBoolean, useQueryState } from "nuqs";
@@ -54,6 +54,11 @@ import ThreadHistory from "./history";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import { TooltipIconButton } from "./tooltip-icon-button";
+import { ImportDataPage } from "@/modules/import-data";
+import { FiDataResponse, Holding } from "@/lib/moneyone/moneyone.types";
+import { ConsentType } from "@/lib/moneyone/moneyone.enums";
+import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
+import FetchingFiDataModal from "../moneyone/FetchingFiDataModal";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -100,7 +105,7 @@ function ScrollToBottom(props: { className?: string }) {
 function getModelDisplayName(modelKey: string): string {
   const formatted = startCase(modelKey.toLowerCase());
   // Replace spaces between numbers with dots (e.g., "4 5" -> "4.5")
-  return formatted.replace(/(\d)\s+(\d)/g, '$1.$2');
+  return formatted.replace(/(\d)\s+(\d)/g, "$1.$2");
 }
 
 // function OpenGitHubRepo() {
@@ -136,10 +141,14 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
+  const [importViewOpen, setImportViewOpen] = useQueryState(
+    "importViewOpen",
+    parseAsBoolean.withDefault(false),
+  );
   // const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
   const [selectedModel, setSelectedModel] = useState<PlannerModels>(
-    PlannerModels.SONNET_4_5
+    PlannerModels.SONNET_4_5,
   );
   const {
     contentBlocks,
@@ -165,6 +174,9 @@ export function Thread() {
     // close artifact and reset artifact context
     closeArtifact();
     setArtifactContext({});
+
+    // close import view when switching threads
+    setImportViewOpen(false);
   };
 
   useEffect(() => {
@@ -235,8 +247,8 @@ export function Thread() {
         streamMode: ["values"],
         config: {
           configurable: {
-            planner_agent_model: selectedModel
-          }
+            planner_agent_model: selectedModel,
+          },
         },
         optimisticValues: (prev) => ({
           ...prev,
@@ -271,11 +283,88 @@ export function Thread() {
     (m) => m.type === "ai" || m.type === "tool",
   );
 
+  const handleImportHoldings = (
+    data: FiDataResponse,
+    consentType: ConsentType,
+  ) => {
+    // Extract all holdings from all accounts
+    const allHoldings: Holding[] = [];
+
+    data.forEach((account) => {
+      if (account.Summary?.Investment?.Holdings?.Holding) {
+        allHoldings.push(...account.Summary.Investment.Holdings.Holding);
+      }
+    });
+
+    if (allHoldings.length === 0) {
+      console.warn("No holdings found in the imported data");
+      return;
+    }
+
+    // Convert holdings to a simplified format for the markdown table
+    const formattedHoldings = allHoldings.map((holding) => {
+      if (consentType === ConsentType.EQUITIES) {
+        return {
+          Issuer: holding.issuerName || "",
+          ISIN: holding.isin || "",
+          Description: holding.isinDescription || "",
+          Units: holding.units || "",
+          "Last Traded Price": holding.lastTradedPrice || "",
+        };
+      } else {
+        // Mutual Funds
+        return {
+          Scheme: holding.schemeTypes || "",
+          AMC: holding.amc || "",
+          "Folio No": holding.folioNo || "",
+          "Closing Units": holding.closingUnits || "",
+          NAV: holding.nav || "",
+          "NAV Date": holding.navDate || "",
+        };
+      }
+    });
+
+    // Create markdown table
+    const markdownTable = convertToMarkdownTable(formattedHoldings);
+
+    // Create message content
+    const assetType =
+      consentType === ConsentType.EQUITIES ? "Equity" : "Mutual Fund";
+    const messageText = `I've imported my ${assetType} holdings. Here's the data:\n\n${markdownTable}\n\nPlease analyze my portfolio and provide insights.`;
+
+    // Create a human message
+    const newHumanMessage: Message = {
+      id: uuidv4(),
+      type: "human",
+      content: [{ type: "text", text: messageText }] as Message["content"],
+    };
+
+    // Get tool messages to ensure consistency
+    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+
+    // Submit to stream (will use existing thread or create new one)
+    stream.submit(
+      { messages: [...toolMessages, newHumanMessage] },
+      {
+        streamMode: ["values"],
+        optimisticValues: (prev) => ({
+          ...prev,
+          messages: [
+            ...(prev.messages ?? []),
+            ...toolMessages,
+            newHumanMessage,
+          ],
+        }),
+      },
+    );
+  };
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
+      <FetchingFiDataModal handleImportHoldings={handleImportHoldings} />
       <div className="relative hidden lg:flex">
         <motion.div
-          className="absolute z-20 h-full overflow-hidden border-r bg-white"
+          className="absolute z-20 h-full overflow-hidden border-r"
           style={{ width: 300 }}
           animate={
             isLargeScreen
@@ -346,7 +435,13 @@ export function Thread() {
               </div> */}
             </div>
           )}
-          {chatStarted && (
+          {/* Render Import Data Page if import view is open */}
+          {importViewOpen && (
+            <div className="overflow-y-auto w-full my-auto">
+              <ImportDataPage />
+            </div>
+          )}
+          {chatStarted && !importViewOpen && (
             <div className="relative z-10 flex items-center justify-between gap-3 p-2">
               <div className="relative flex items-center justify-start gap-2">
                 <div className="absolute left-0 z-10">
@@ -365,7 +460,10 @@ export function Thread() {
                   )}
                 </div>
                 <motion.button
-                  className={cn("flex cursor-pointer items-center gap-2", !chatHistoryOpen && "-ml-12")}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-2",
+                    !chatHistoryOpen && "-ml-12",
+                  )}
                   onClick={() => setThreadId(null)}
                   style={{ marginLeft: !chatHistoryOpen ? 48 : 0 }}
                   transition={{
@@ -378,7 +476,12 @@ export function Thread() {
                     width={32}
                     height={32}
                   /> */}
-                  <Image src="/logo.png" alt="logo" width={32} height={32} />
+                  <Image
+                    src="/logo.png"
+                    alt="logo"
+                    width={32}
+                    height={32}
+                  />
                   <span className="text-xl font-semibold tracking-tight">
                     {appConfig.appName}
                   </span>
@@ -400,115 +503,125 @@ export function Thread() {
                 </TooltipIconButton>
               </div>
 
-              <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />
+              {/* <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" /> */}
             </div>
           )}
 
-          <StickToBottom className="relative flex-1 overflow-hidden">
-            <StickyToBottomContent
-              className={cn(
-                "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
-                !chatStarted && "mt-[25vh] flex flex-col items-stretch",
-                chatStarted && "grid grid-rows-[1fr_auto]",
-              )}
-              contentClassName="pt-8 pb-16 chat-container mx-auto flex flex-col gap-4 w-full"
-              content={
-                <>
-                  {messages
-                    .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
-                    .map((message, index) =>
-                      message.type === "human" ? (
-                        <HumanMessage
-                          key={message.id || `${message.type}-${index}`}
-                          message={message}
-                          isLoading={isLoading}
-                        />
-                      ) : (
-                        <AssistantMessage
-                          key={message.id || `${message.type}-${index}`}
-                          message={message}
-                          isLoading={isLoading}
-                          handleRegenerate={handleRegenerate}
-                        />
-                      ),
-                    )}
-                  {/* Special rendering case where there are no AI/tool messages, but there is an interrupt.
+          {!importViewOpen && (
+            <StickToBottom className="relative flex-1 overflow-hidden">
+              <StickyToBottomContent
+                className={cn(
+                  "scrollbar-thin absolute inset-0 overflow-y-auto",
+                  !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+                  chatStarted && "grid grid-rows-[1fr_auto]",
+                )}
+                contentClassName="pt-8 pb-16 chat-container mx-auto flex flex-col gap-4 w-full"
+                content={
+                  <>
+                    {messages
+                      .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
+                      .map((message, index) =>
+                        message.type === "human" ? (
+                          <HumanMessage
+                            key={message.id || `${message.type}-${index}`}
+                            message={message}
+                            isLoading={isLoading}
+                          />
+                        ) : (
+                          <AssistantMessage
+                            key={message.id || `${message.type}-${index}`}
+                            message={message}
+                            isLoading={isLoading}
+                            handleRegenerate={handleRegenerate}
+                          />
+                        ),
+                      )}
+                    {/* Special rendering case where there are no AI/tool messages, but there is an interrupt.
                     We need to render it outside of the messages list, since there are no messages to render */}
-                  {hasNoAIOrToolMessages && !!stream.interrupt && (
-                    <AssistantMessage
-                      key="interrupt-msg"
-                      message={undefined}
-                      isLoading={isLoading}
-                      handleRegenerate={handleRegenerate}
-                    />
-                  )}
-                  {isLoading && (
-                    <AssistantMessageLoading />
-                  )}
-                </>
-              }
-              footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
-                  {!chatStarted && (
-                    <div className="flex items-center gap-3">
-                      <Image src="/logo.png" alt="logo" width={32} height={32} />
-                      {/* <LangGraphLogoSVG className="h-8 flex-shrink-0" /> */}
-                      <h1 className="text-2xl font-semibold tracking-tight">
-                        {appConfig.appName}
-                      </h1>
-                    </div>
-                  )}
-
-                  <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
-
-                  <div
-                    ref={dropRef}
-                    className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full chat-container rounded-2xl shadow-xs transition-all",
-                      dragOver
-                        ? "border-primary border-2 border-dotted"
-                        : "border border-solid",
+                    {hasNoAIOrToolMessages && !!stream.interrupt && (
+                      <AssistantMessage
+                        key="interrupt-msg"
+                        message={undefined}
+                        isLoading={isLoading}
+                        handleRegenerate={handleRegenerate}
+                      />
                     )}
-                  >
-                    <form
-                      onSubmit={handleSubmit}
-                      className="mx-auto grid chat-container grid-rows-[1fr_auto] gap-2"
-                    >
-                      <ContentBlocksPreview
-                        blocks={contentBlocks}
-                        onRemove={removeBlock}
-                      />
-                      <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onPaste={handlePaste}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            !e.shiftKey &&
-                            !e.metaKey &&
-                            !e.nativeEvent.isComposing
-                          ) {
-                            e.preventDefault();
-                            const el = e.target as HTMLElement | undefined;
-                            const form = el?.closest("form");
-                            form?.requestSubmit();
-                          }
-                        }}
-                        placeholder="Type your message..."
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
-                      />
+                    {isLoading && <AssistantMessageLoading />}
+                  </>
+                }
+                footer={
+                  <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-gray-50">
+                    {!chatStarted && (
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src="/logo.png"
+                          alt="logo"
+                          width={32}
+                          height={32}
+                        />
+                        {/* <LangGraphLogoSVG className="h-8 flex-shrink-0" /> */}
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                          {appConfig.appName}
+                        </h1>
+                      </div>
+                    )}
 
-                      <div className="flex items-center gap-6 p-2 pt-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="md:hidden" asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreVertical />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start">
-                            {/* <DropdownMenuItem asChild>
+                    <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
+
+                    <div
+                      ref={dropRef}
+                      className={cn(
+                        "chat-container relative z-10 mx-auto mb-8 w-full rounded-2xl shadow-xs transition-all",
+                        dragOver
+                          ? "border-primary border-2 border-dotted"
+                          : "border border-solid",
+                      )}
+                    >
+                      <form
+                        onSubmit={handleSubmit}
+                        className="chat-container mx-auto grid grid-rows-[1fr_auto] gap-2"
+                      >
+                        <ContentBlocksPreview
+                          blocks={contentBlocks}
+                          onRemove={removeBlock}
+                        />
+                        <textarea
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onPaste={handlePaste}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "Enter" &&
+                              !e.shiftKey &&
+                              !e.metaKey &&
+                              !e.nativeEvent.isComposing
+                            ) {
+                              e.preventDefault();
+                              const el = e.target as HTMLElement | undefined;
+                              const form = el?.closest("form");
+                              form?.requestSubmit();
+                            }
+                          }}
+                          placeholder="Type your message..."
+                          className="field-sizing-content resize-none border-none p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        />
+
+                        <div className="flex items-center gap-6 p-2 pt-4">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              className="md:hidden"
+                              asChild
+                            >
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                              >
+                                <span className="sr-only">Open menu</span>
+                                <MoreVertical />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                              {/* <DropdownMenuItem asChild>
                               <div className="flex items-center space-x-2">
                                 <Switch
                                   id="render-tool-calls"
@@ -523,39 +636,49 @@ export function Thread() {
                                 </Label>
                               </div>
                             </DropdownMenuItem> */}
-                            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-                              <div className="flex flex-col gap-2 p-2">
-                                <Select
-                                  value={selectedModel}
-                                  onValueChange={(value) => setSelectedModel(value as PlannerModels)}
-                                >
-                                  <SelectTrigger className="w-full h-8 text-sm">
-                                    <SelectValue placeholder="Select a model" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Object.entries(PlannerModels).map(([key, value]) => (
-                                      <SelectItem key={value} value={value}>
-                                        {getModelDisplayName(key)}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Label
-                                htmlFor="file-input"
-                                className="flex cursor-pointer items-center gap-2"
+                              <DropdownMenuItem
+                                asChild
+                                onSelect={(e) => e.preventDefault()}
                               >
-                                <Plus className="size-5 text-gray-600" />
-                                <span className="text-sm text-gray-600">
-                                  Upload PDF or Image
-                                </span>
-                              </Label>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        {/* <div className="hidden md:flex items-center space-x-2">
+                                <div className="flex flex-col gap-2 p-2">
+                                  <Select
+                                    value={selectedModel}
+                                    onValueChange={(value) =>
+                                      setSelectedModel(value as PlannerModels)
+                                    }
+                                  >
+                                    <SelectTrigger className="h-8 w-full text-sm">
+                                      <SelectValue placeholder="Select a model" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {Object.entries(PlannerModels).map(
+                                        ([key, value]) => (
+                                          <SelectItem
+                                            key={value}
+                                            value={value}
+                                          >
+                                            {getModelDisplayName(key)}
+                                          </SelectItem>
+                                        ),
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Label
+                                  htmlFor="file-input"
+                                  className="flex cursor-pointer items-center gap-2"
+                                >
+                                  <Plus className="size-5 text-gray-600" />
+                                  <span className="text-sm text-gray-600">
+                                    Upload PDF or Image
+                                  </span>
+                                </Label>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          {/* <div className="hidden md:flex items-center space-x-2">
                           <Switch
                             id="render-tool-calls"
                             checked={hideToolCalls ?? false}
@@ -568,68 +691,76 @@ export function Thread() {
                             Hide Tool Calls
                           </Label>
                         </div> */}
-                        <div className="hidden md:flex items-center gap-2">
-                          <Select
-                            value={selectedModel}
-                            onValueChange={(value) => setSelectedModel(value as PlannerModels)}
+                          <div className="hidden items-center gap-2 md:flex">
+                            <Select
+                              value={selectedModel}
+                              onValueChange={(value) =>
+                                setSelectedModel(value as PlannerModels)
+                              }
+                            >
+                              <SelectTrigger className="h-8 w-[200px] text-sm">
+                                <SelectValue placeholder="Select a model" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(PlannerModels).map(
+                                  ([key, value]) => (
+                                    <SelectItem
+                                      key={value}
+                                      value={value}
+                                    >
+                                      {getModelDisplayName(key)}
+                                    </SelectItem>
+                                  ),
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Label
+                            htmlFor="file-input"
+                            className="hidden cursor-pointer items-center gap-2 md:flex"
                           >
-                            <SelectTrigger className="w-[200px] h-8 text-sm">
-                              <SelectValue placeholder="Select a model" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(PlannerModels).map(([key, value]) => (
-                                <SelectItem key={value} value={value}>
-                                  {getModelDisplayName(key)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            <Plus className="size-5 text-gray-600" />
+                            <span className="text-sm text-gray-600">
+                              Upload PDF or Image
+                            </span>
+                          </Label>
+                          <input
+                            id="file-input"
+                            type="file"
+                            onChange={handleFileUpload}
+                            multiple
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                            className="hidden"
+                          />
+                          {stream.isLoading ? (
+                            <Button
+                              key="stop"
+                              onClick={() => stream.stop()}
+                              className="ml-auto"
+                            >
+                              <LoaderCircle className="h-4 w-4 animate-spin" />
+                              Cancel
+                            </Button>
+                          ) : (
+                            <Button
+                              type="submit"
+                              className="ml-auto shadow-md transition-all"
+                              disabled={
+                                isLoading ||
+                                (!input.trim() && contentBlocks.length === 0)
+                              }
+                            >
+                              Send
+                            </Button>
+                          )}
                         </div>
-                        <Label
-                          htmlFor="file-input"
-                          className="hidden md:flex cursor-pointer items-center gap-2"
-                        >
-                          <Plus className="size-5 text-gray-600" />
-                          <span className="text-sm text-gray-600">
-                            Upload PDF or Image
-                          </span>
-                        </Label>
-                        <input
-                          id="file-input"
-                          type="file"
-                          onChange={handleFileUpload}
-                          multiple
-                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                          className="hidden"
-                        />
-                        {stream.isLoading ? (
-                          <Button
-                            key="stop"
-                            onClick={() => stream.stop()}
-                            className="ml-auto"
-                          >
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                            Cancel
-                          </Button>
-                        ) : (
-                          <Button
-                            type="submit"
-                            className="ml-auto shadow-md transition-all"
-                            disabled={
-                              isLoading ||
-                              (!input.trim() && contentBlocks.length === 0)
-                            }
-                          >
-                            Send
-                          </Button>
-                        )}
-                      </div>
-                    </form>
+                      </form>
+                    </div>
                   </div>
-                </div>
-              }
-            />
-          </StickToBottom>
+                }
+              />
+            </StickToBottom>
+          )}
         </motion.div>
         {artifactOpen && (
           <div className="relative flex flex-col border-l">

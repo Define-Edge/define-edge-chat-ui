@@ -46,7 +46,7 @@ export default function FetchingFiDataModal({
         throw new Error(data.error);
       }
 
-      handleImportHoldings(data, consentType as ConsentType);
+      // handleImportHoldings(data, consentType as ConsentType);
 
       // Mark data as ready after successful fetch
       updateConsent(consentID, { isDataReady: true });
@@ -62,9 +62,9 @@ export default function FetchingFiDataModal({
       url.searchParams.delete("consentType");
       url.searchParams.delete("mobileNo");
       url.searchParams.delete("consentCreationData");
-      if (!url.searchParams.has("threadId")) {
-        url.search = "";
-      }
+      // if (!url.searchParams.has("threadId")) {
+      //   url.search = "";
+      // }
       history.pushState(null, "", url.toString());
 
       return data;

@@ -8,7 +8,9 @@ import { webRedirectionDecryptionApiReqParamsSchema } from "./moneyone.schema";
 import {
   Consent,
   ConsentRequestResponse,
+  ConsentRequestV3Response,
   FiDataResponse,
+  FiRequestResponse,
 } from "./moneyone.types";
 import { getErrMsgKey } from "./moneyone.utils";
 
@@ -67,6 +69,57 @@ export const createConsentRequest = async (
     return res;
   } catch (error) {
     console.log("---Error occurred while creating consent", error);
+    if (error instanceof Error) return { error: error.message };
+    return { error: ReasonPhrases.INTERNAL_SERVER_ERROR };
+  }
+};
+
+export const createConsentRequestV3 = async (
+  mobileNo: string,
+  consentType: ConsentType,
+  accountID: string,
+  pan: string,
+  redirectUrl: string,
+): Promise<{ error: string } | ConsentRequestV3Response> => {
+  const body = JSON.stringify({
+    partyIdentifierType: "MOBILE",
+    partyIdentifierValue: mobileNo,
+    productID: consentFormMap[consentType],
+    vua: `${mobileNo}@onemoney`,
+    accountID: accountID,
+    fipID: consentFipIdsMap[consentType],
+    pan: pan,
+    redirectUrl: redirectUrl,
+  });
+
+  const url = `${process.env.MONEY_ONE_BASE_URL}/v3/requestconsent`;
+
+  try {
+    if (process.env.NODE_ENV === "development")
+      console.log("---Making v3 consent request ~ body:", body);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...moneyOneAuthHeaders,
+      },
+      body,
+    });
+
+    if (!response.ok) {
+      if (response.status === 503)
+        throw new Error("503 Service Temporarily Unavailable");
+      throw await response.json();
+    }
+
+    const res: ConsentRequestV3Response = await response.json();
+    if (process.env.NODE_ENV === "development")
+      console.log("---Consent created v3 ~ /v3/requestconsent", res);
+
+    return res;
+  } catch (error) {
+    console.log("---Error occurred while creating v3 consent", error);
     if (error instanceof Error) return { error: error.message };
     return { error: ReasonPhrases.INTERNAL_SERVER_ERROR };
   }
@@ -218,6 +271,54 @@ export const getAllFiData = async (consentID: string, waitTime?: number) => {
 
     throw response;
   } catch (e) {
+    const message =
+      e instanceof Error
+        ? e.message
+        : getErrMsgKey(e, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+    return { error: message };
+  }
+};
+
+export const requestFiData = async (
+  consentId: string,
+): Promise<FiRequestResponse | { error: string }> => {
+  const url = `${process.env.MONEY_ONE_BASE_URL}/fi/request`;
+
+  try {
+    if (process.env.NODE_ENV === "development")
+      console.log("---Requesting FI data for consent id", consentId);
+
+    const body = JSON.stringify({
+      consentId,
+    });
+
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        ...moneyOneAuthHeaders,
+      },
+      method: "POST",
+      body,
+    });
+
+    if (!response.ok) {
+      if (response.status === 503)
+        throw new Error("503 Service Temporarily Unavailable");
+      throw await response.json();
+    }
+
+    const res: FiRequestResponse = await response.json();
+
+    if (res.response !== "ok") {
+      throw new Error("FI request failed");
+    }
+
+    if (process.env.NODE_ENV === "development")
+      console.log("---FI request successful", res);
+
+    return res;
+  } catch (e) {
+    console.error("---Error occurred while requesting FI data", e);
     const message =
       e instanceof Error
         ? e.message
