@@ -400,14 +400,8 @@ export function HoldingsPreviewModal({
                                 <th className="px-4 py-3 text-left font-medium text-gray-900">
                                   ISIN
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-900">
-                                  Description
-                                </th>
                                 <th className="px-4 py-3 text-right font-medium text-gray-900">
-                                  Quantity
-                                </th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-900">
-                                  Last Price
+                                  Units
                                 </th>
                                 <th className="px-4 py-3 text-center font-medium text-gray-900 w-20">
                                   Action
@@ -416,19 +410,13 @@ export function HoldingsPreviewModal({
                             ) : (
                               <>
                                 <th className="px-4 py-3 text-left font-medium text-gray-900">
-                                  Scheme
+                                  Description
                                 </th>
                                 <th className="px-4 py-3 text-left font-medium text-gray-900">
-                                  AMC
-                                </th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-900">
-                                  Folio No
+                                  ISIN
                                 </th>
                                 <th className="px-4 py-3 text-right font-medium text-gray-900">
-                                  Quantity
-                                </th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-900">
-                                  NAV
+                                  Closing Units
                                 </th>
                                 <th className="px-4 py-3 text-center font-medium text-gray-900 w-20">
                                   Action
@@ -448,9 +436,6 @@ export function HoldingsPreviewModal({
                                   <td className="px-4 py-3 text-gray-600 font-mono text-xs">
                                     {field.isin || "-"}
                                   </td>
-                                  <td className="px-4 py-3 text-gray-900">
-                                    {field.isinDescription || "-"}
-                                  </td>
                                   <td className="px-4 py-3">
                                     <Controller
                                       control={control}
@@ -477,9 +462,6 @@ export function HoldingsPreviewModal({
                                         />
                                       )}
                                     />
-                                  </td>
-                                  <td className="px-4 py-3 text-right text-gray-900">
-                                    {field.lastTradedPrice || "-"}
                                   </td>
                                   <td className="px-4 py-3 text-center">
                                     <Button
@@ -496,13 +478,10 @@ export function HoldingsPreviewModal({
                               ) : (
                                 <>
                                   <td className="px-4 py-3 text-gray-900">
-                                    {field.schemeTypes || "-"}
-                                  </td>
-                                  <td className="px-4 py-3 text-gray-900 max-w-xs truncate">
-                                    {field.amc || "-"}
+                                    {field.isinDescription || field.schemeTypes || "-"}
                                   </td>
                                   <td className="px-4 py-3 text-gray-600 font-mono text-xs">
-                                    {field.folioNo || "-"}
+                                    {field.isin || "-"}
                                   </td>
                                   <td className="px-4 py-3">
                                     <Controller
@@ -530,9 +509,6 @@ export function HoldingsPreviewModal({
                                         />
                                       )}
                                     />
-                                  </td>
-                                  <td className="px-4 py-3 text-right text-gray-900">
-                                    {field.nav || "-"}
                                   </td>
                                   <td className="px-4 py-3 text-center">
                                     <Button

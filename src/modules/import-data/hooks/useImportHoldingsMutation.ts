@@ -42,19 +42,14 @@ export function useImportHoldingsMutation() {
           return {
             Issuer: holding.issuerName || "",
             ISIN: holding.isin || "",
-            Description: holding.isinDescription || "",
             Units: holding.units || "",
-            "Last Traded Price": holding.lastTradedPrice || "",
           };
         } else {
           // Mutual Funds
           return {
-            Scheme: holding.schemeTypes || "",
-            AMC: holding.amc || "",
-            "Folio No": holding.folioNo || "",
+            Description: holding.isinDescription || holding.schemeTypes || "",
+            ISIN: holding.isin || "",
             "Closing Units": holding.closingUnits || "",
-            NAV: holding.nav || "",
-            "NAV Date": holding.navDate || "",
           };
         }
       });
