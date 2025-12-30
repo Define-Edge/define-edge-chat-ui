@@ -14,9 +14,18 @@ import {
   PieChart,
   Shield,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { handleDummyFormSubmit } from "../utils/form-handlers";
 import { AccountTypeCard } from "./account-types/AccountTypeCard";
-import { MoneyOneHoldingsCard } from "./account-types/MoneyOneHoldingsCard";
+
+// Import with ssr: false to prevent hydration errors from localStorage usage
+const MoneyOneHoldingsCard = dynamic(
+  () =>
+    import("./account-types/MoneyOneHoldingsCard").then(
+      (mod) => mod.MoneyOneHoldingsCard
+    ),
+  { ssr: false }
+);
 import { ComprehensiveAnalysisCard } from "./ComprehensiveAnalysisCard";
 import { DataSecurityInfo } from "./DataSecurityInfo";
 import { CommoditiesForm } from "./forms/CommoditiesForm";

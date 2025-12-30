@@ -6,6 +6,7 @@ import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { CheckCircle, Clock, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useConsentQuery } from "../../hooks/useConsentQuery";
+import { useRefreshFiData } from "../../hooks/useFiData";
 import { formatLastUpdated } from "../../utils/date-formatting";
 import { HoldingsPreviewModal } from "../modals/HoldingsPreviewModal";
 
@@ -27,11 +28,29 @@ export function MoneyOneHoldingsCard({
   description,
 }: MoneyOneHoldingsCardProps) {
   const { data: consent } = useConsentQuery(consentType);
+  const { mutate: refreshData, isPending: isRefreshing } = useRefreshFiData();
+
   const isDataReady = consent?.isDataReady;
   const lastUpdated = formatLastUpdated(consent?.consentCreationData);
 
   const handleRefresh = () => {
-    toast.info(`Refresh functionality for ${title} coming soon`);
+    if (!consent?.consentID) {
+      toast.error("Unable to refresh: consent ID not found");
+      return;
+    }
+
+    refreshData(consent.consentID, {
+      onSuccess: () => {
+        toast.success(`${title} data refreshed successfully`);
+      },
+      onError: (error) => {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : `Failed to refresh ${title} data`
+        );
+      },
+    });
   };
 
   return (
@@ -71,17 +90,24 @@ export function MoneyOneHoldingsCard({
             <div className="flex items-center gap-2">
               {isDataReady && consent ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-green-600 font-medium">
-                    Connected
+                  <span
+                    className={`text-xs font-medium ${
+                      isRefreshing ? "text-blue-600" : "text-green-600"
+                    }`}
+                  >
+                    {isRefreshing ? "Refreshing..." : "Connected"}
                   </span>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={handleRefresh}
+                    disabled={isRefreshing}
                     className="text-xs p-1.5"
                     title="Refresh data"
                   >
-                    <RefreshCw className="w-3 h-3" />
+                    <RefreshCw
+                      className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}
+                    />
                   </Button>
                 </div>
               ) : (
