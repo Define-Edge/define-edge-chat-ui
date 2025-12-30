@@ -228,22 +228,24 @@ src/modules/
 
 ### Import Data Module
 
-Located at `src/modules/import-data/`, this module demonstrates the modular architecture:
+Located at `src/modules/import-data/`, this module handles importing financial data from various sources including:
+- **MoneyOne Account Aggregator**: Equity and Mutual Fund holdings (RBI-approved framework)
+- **Manual Entry Forms**: Fixed Deposits, Insurance, Real Estate, Commodities, Other Investments
 
 **Components Structure:**
-- `ImportDataPage.tsx` - Main entry component (~280 lines, orchestrates all parts)
-- `ImportHeader.tsx` - Page header (~10 lines)
-- `NetworthGraph.tsx` - Networth visualization (~100 lines)
-- `QuickUpload.tsx` - Document upload interface (~20 lines)
-- `ConnectAccounts.tsx` - Account connection list (~40 lines)
-- `ComprehensiveAnalysisCard.tsx` - Analysis CTA section (~35 lines)
-- `AddedInvestments.tsx` - Display manually added investments (~220 lines)
-- `modals/AnalysisModal.tsx` - Analysis results modal (~200 lines)
-- `forms/` - Form components for various investment types (150-500 lines each)
+- `ImportDataPage.tsx` - Main entry component (~200 lines, orchestrates all parts)
+- `account-types/MoneyOneHoldingsCard.tsx` - Reusable card for MoneyOne-connected holdings
+- `account-types/AccountTypeCard.tsx` - Generic card for manual/pending integrations
+- `modals/HoldingsPreviewModal/` - Modular holdings preview and editing system
+- `forms/` - Form components for manual investment entry (150-500 lines each)
 - `shared/` - Shared components like `ImportMethod.tsx`, `CollapsibleInstructions.tsx`
 
 **Hooks:**
-- `useImportData.ts` - Centralized state and handler logic (~200 lines)
+- `useConsentQuery.ts` - Real-time localStorage tracking for consent status
+- `useFiData.ts` - FI data fetching and consent flow management
+- `useImportHoldingsMutation.ts` - Import holdings to chat as markdown table
+- `useMoneyOneStatus.ts` - MoneyOne connection status tracking
+- `useRefreshFiData` - Manual FI data refresh functionality
 
 **Integration:**
 - Import view toggled via `importViewOpen` URL query state (using nuqs)
