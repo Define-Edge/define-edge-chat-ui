@@ -1,13 +1,7 @@
 "use client";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import useModalState from "@/hooks/useModalState";
-import { getAllFiData } from "@/lib/moneyone/moneyone.actions";
-import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import {
-  completePendingConsent,
-  updateConsent,
-} from "@/lib/moneyone/moneyone.storage";
-import { useQuery } from "@tanstack/react-query";
+import { useFiDataConsentFlow } from "@/modules/import-data/hooks/useFiData";
 import { useSearchParams } from "next/navigation";
 import FiDataAnimation from "./FiDataAnimation";
 
@@ -17,61 +11,18 @@ export default function FetchingFiDataModal() {
   const consentID = searchParams.get("consentID");
   const consentType = searchParams.get("consentType");
 
-  const { isLoading, data } = useQuery({
-    queryKey: ["fi-data", consentID],
-    queryFn: async () => {
-      if (!consentID || !consentType)
-        throw new Error("Invalid consent ID or consent type");
-      handleOpen();
+  const { isLoading, data } = useFiDataConsentFlow(
+    consentID,
+    consentType,
+    () => {
+      handleClose();
+    }
+  );
 
-      // Complete pending consent by saving with real consentID
-      const mobileNo = searchParams.get("mobileNo");
-      const consentCreationData = searchParams.get("consentCreationData");
-
-      completePendingConsent(
-        consentID,
-        consentType as ConsentType,
-        mobileNo,
-        consentCreationData,
-      );
-
-      const data = await getAllFiData(consentID, 3000);
-
-      if ("error" in data) {
-        throw new Error(data.error);
-      }
-
-      // handleImportHoldings(data, consentType as ConsentType);
-
-      // Mark data as ready after successful fetch
-      updateConsent(consentID, { isDataReady: true });
-      console.log("Marked consent data as ready:", consentID);
-
-      setTimeout(() => {
-        handleClose();
-      }, 1500);
-
-      // Remove search params from url
-      const url = new URL(window.location.href);
-      url.searchParams.delete("consentID");
-      url.searchParams.delete("consentType");
-      url.searchParams.delete("mobileNo");
-      url.searchParams.delete("consentCreationData");
-      // if (!url.searchParams.has("threadId")) {
-      //   url.search = "";
-      // }
-      history.pushState(null, "", url.toString());
-
-      return data;
-    },
-    enabled:
-      !!consentID &&
-      !!consentType &&
-      Object.values(ConsentType).includes(consentType as ConsentType),
-    retry: true,
-    retryDelay: 3000,
-    refetchOnWindowFocus: false,
-  });
+  // Open modal when query starts
+  if (isLoading && !open) {
+    handleOpen();
+  }
 
   // Derive fetch status from query state
   const fetchStatus: "fetching" | "success" =

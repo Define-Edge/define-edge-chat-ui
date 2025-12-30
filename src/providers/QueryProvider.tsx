@@ -1,6 +1,10 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { QueryClient } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { del, get, set } from 'idb-keyval';
 import { useState } from 'react';
 
 type QueryProviderProps = {
@@ -13,6 +17,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
             new QueryClient({
                 defaultOptions: {
                     queries: {
+                        gcTime: 0, // Don't persist queries by default
                         staleTime: 60 * 1000, // 1 minute
                         retry: 1,
                         refetchOnWindowFocus: false,
@@ -21,9 +26,23 @@ export function QueryProvider({ children }: QueryProviderProps) {
             })
     );
 
+    const [persister] = useState(() =>
+        createAsyncStoragePersister({
+            storage: {
+                getItem: async (key) => await get(key),
+                setItem: async (key, value) => await set(key, value),
+                removeItem: async (key) => await del(key),
+            },
+        })
+    );
+
     return (
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+        >
             {children}
-        </QueryClientProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+        </PersistQueryClientProvider>
     );
 }

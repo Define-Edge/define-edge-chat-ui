@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { getAllFiData } from "@/lib/moneyone/moneyone.actions";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { Holding } from "@/lib/moneyone/moneyone.types";
 import { ConsentData } from "@/lib/moneyone/moneyone.storage";
@@ -20,12 +19,12 @@ import {
   MutualFundSearchResponse,
   StockSearchResponse
 } from "@/types/search-api.types";
-import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Search, Trash2, TrendingUp, X } from "lucide-react";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useCallback, useState, useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useImportHoldingsMutation } from "../../hooks/useImportHoldingsMutation";
+import { useFiData } from "../../hooks/useFiData";
 
 type HoldingFormData = {
   holdings: Array<Holding & { quantity: number }>;
@@ -57,18 +56,7 @@ export function HoldingsPreviewModal({
   >(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  const { data: fiData, isLoading } = useQuery({
-    queryKey: ["fi-data-preview", consentID],
-    queryFn: async () => {
-      const data = await getAllFiData(consentID!, 3000);
-      if ("error" in data) {
-        throw new Error(data.error);
-      }
-      return data;
-    },
-    enabled: open && !!consentID,
-    retry: false,
-  });
+  const { data: fiData, isLoading } = useFiData(consentID, open);
 
   // Extract holdings and convert to form data
   const allHoldings: Holding[] = [];
