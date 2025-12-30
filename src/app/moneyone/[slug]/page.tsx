@@ -1,4 +1,8 @@
-import { decryptUrl, getConsentList, requestFiData } from "@/lib/moneyone/moneyone.actions";
+import {
+  decryptUrl,
+  getConsentList,
+  // requestFiData
+} from "@/lib/moneyone/moneyone.actions";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { webRedirectionDecryptionApiReqParamsSchema } from "@/lib/moneyone/moneyone.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -50,7 +54,7 @@ export default async function page({ params, searchParams }: Props) {
         consentHandle,
         mobileNo,
         consentType,
-        accountID
+        accountID,
       );
 
       if (!consent) return <div>Consent not found</div>;
@@ -59,15 +63,19 @@ export default async function page({ params, searchParams }: Props) {
       if (!consentID) return <div>Invalid consent ID</div>;
 
       // Request FI data from Account Aggregator
-      const fiRequestResult = await requestFiData(consentID);
+      // Hmm this is not required as we've set
+      // DATA FETCH AND PERIODICITY to Periodic
+      // Data Request Mode : Manual
+      // Do First Time Data Request Automatic is set to true
+      // const fiRequestResult = await requestFiData(consentID);
 
-      if ("error" in fiRequestResult) {
-        console.error("FI request failed:", fiRequestResult.error);
-        // Continue with redirect even if FI request fails
-        // The data flow is asynchronous, so we don't wait for the actual FI data
-      } else if (process.env.NODE_ENV === "development") {
-        console.log("FI request initiated successfully:", fiRequestResult);
-      }
+      // if ("error" in fiRequestResult) {
+      //   console.error("FI request failed:", fiRequestResult.error);
+      //   // Continue with redirect even if FI request fails
+      //   // The data flow is asynchronous, so we don't wait for the actual FI data
+      // } else if (process.env.NODE_ENV === "development") {
+      //   console.log("FI request initiated successfully:", fiRequestResult);
+      // }
 
       // Redirect with consent data as search params
       const redirectUrlParams = new URLSearchParams();
@@ -80,7 +88,7 @@ export default async function page({ params, searchParams }: Props) {
 
       redirect(`/?${redirectUrlParams.toString()}`);
     } catch (error) {
-      if(isRedirectError(error)) throw error
+      if (isRedirectError(error)) throw error;
       console.error("Error processing consent redirect:", error);
       return <div>Error processing consent</div>;
     }
