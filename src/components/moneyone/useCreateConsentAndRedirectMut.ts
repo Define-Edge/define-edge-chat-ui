@@ -37,7 +37,9 @@ export function useCreateConsentAndRedirectMut() {
         redirectUrl.toString()
       );
 
-      if ("error" in createConsentReqRes) throw createConsentReqRes;
+      if ("error" in createConsentReqRes) {
+        throw new Error(createConsentReqRes.error);
+      }
 
       // New consent created
       if (createConsentReqRes?.status === "success") {
@@ -65,7 +67,43 @@ export function useCreateConsentAndRedirectMut() {
 
         // Redirect to MoneyOne OAuth page
         window.location.href = webRedirectionUrl;
+      } else {
+        throw new Error("Failed to create consent. Please try again.");
       }
     },
+    onError: (error: Error) => {
+      // Log detailed error for debugging (only in development)
+      if (process.env.NODE_ENV === "development") {
+        console.error("Consent creation error:", error.message);
+      }
+
+      // Extract user-friendly error message
+      const errorMessage = getConsentErrorMessage(error.message);
+      toast.error(errorMessage, {
+        description: "Please check your details and try again.",
+        duration: 5000,
+      });
+    },
   });
+}
+
+/**
+ * Extract user-friendly error message from MoneyOne API error
+ */
+function getConsentErrorMessage(errorMsg: string): string {
+  // Handle specific MoneyOne error codes/messages
+  if (errorMsg.includes("503")) {
+    return "MoneyOne service is temporarily unavailable";
+  }
+
+  if (errorMsg.includes("InternalError") || errorMsg.includes("failed to generate consent")) {
+    return "Unable to create consent at this time";
+  }
+
+  if (errorMsg.includes("Invalid") || errorMsg.includes("invalid")) {
+    return "Invalid mobile number or PAN";
+  }
+
+  // Default error message
+  return "Failed to create consent";
 }

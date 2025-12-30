@@ -68,9 +68,15 @@ export const createConsentRequest = async (
 
     return res;
   } catch (error) {
-    console.log("---Error occurred while creating consent", error);
-    if (error instanceof Error) return { error: error.message };
-    return { error: ReasonPhrases.INTERNAL_SERVER_ERROR };
+    console.error("---Error occurred while creating consent", error);
+
+    // Extract error message from MoneyOne API response or Error object
+    const message =
+      error instanceof Error
+        ? error.message
+        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+
+    return { error: message };
   }
 };
 
@@ -119,9 +125,15 @@ export const createConsentRequestV3 = async (
 
     return res;
   } catch (error) {
-    console.log("---Error occurred while creating v3 consent", error);
-    if (error instanceof Error) return { error: error.message };
-    return { error: ReasonPhrases.INTERNAL_SERVER_ERROR };
+    console.error("---Error occurred while creating v3 consent", error);
+
+    // Extract error message from MoneyOne API response or Error object
+    const message =
+      error instanceof Error
+        ? error.message
+        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+
+    return { error: message };
   }
 };
 
