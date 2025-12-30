@@ -56,7 +56,9 @@ export function HoldingsPreviewModal({
   >(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  const { data: fiData, isLoading } = useFiData(consentID, open);
+  // Always enable the query if consentID exists (not tied to modal open state)
+  // This allows the persister to hydrate cached data on page load
+  const { data: fiData, isLoading } = useFiData(consentID, !!isDataReady);
 
   // Extract holdings and convert to form data
   const allHoldings: Holding[] = [];
