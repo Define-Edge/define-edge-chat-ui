@@ -1,20 +1,17 @@
 "use client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
-import {
-  getAllFiData,
-  requestFiData,
-} from "@/lib/moneyone/moneyone.actions";
+import { getAllFiData, requestFiData } from "@/lib/moneyone/moneyone.actions";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import {
   completePendingConsent,
   updateConsent,
 } from "@/lib/moneyone/moneyone.storage";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 // Shared constants for FI data queries
 export const FI_DATA_QUERY_KEY = "fi-data";
-export const FI_DATA_GC_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
-export const FI_DATA_STALE_TIME = Infinity; // Never refetch
+// Cache settings (gcTime: 7 days, staleTime: Infinity) are configured in QueryProvider via setQueryDefaults
 
 /**
  * Hook for completing consent flow and fetching FI data
@@ -23,22 +20,23 @@ export const FI_DATA_STALE_TIME = Infinity; // Never refetch
  * - Fetching FI data from MoneyOne API
  * - Marking consent as ready
  * - Cleaning up URL parameters
+ * - Managing modal state for fetch status display
  *
- * @param consentID - The consent ID from URL params
- * @param consentType - The consent type from URL params
- * @param onSuccess - Callback when data is successfully fetched
- * @returns Query result with FI data
+ * @returns Object with fetchStatus, modal state (modalOpen, handleClose, handleOpen), and query data
  */
-export function useFiDataConsentFlow(
-  consentID: string | null,
-  consentType: string | null,
-  onSuccess?: () => void
-) {
+export function useFiDataConsentFlow() {
   const searchParams = useSearchParams();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const consentID = searchParams.get("consentID");
+  const consentType = searchParams.get("consentType");
 
   const query = useQuery({
     queryKey: consentID ? [FI_DATA_QUERY_KEY, consentID] : ["fi-data-disabled"],
     queryFn: async () => {
+      // Open modal when fetch starts
+      setModalOpen(true);
+
       if (!consentID || !consentType) {
         throw new Error("Invalid consent ID or consent type");
       }
@@ -51,7 +49,7 @@ export function useFiDataConsentFlow(
         consentID,
         consentType as ConsentType,
         mobileNo,
-        consentCreationData
+        consentCreationData,
       );
 
       const data = await getAllFiData(consentID, 3000);
@@ -62,14 +60,6 @@ export function useFiDataConsentFlow(
 
       // Mark data as ready after successful fetch
       updateConsent(consentID, { isDataReady: true });
-      console.log("Marked consent data as ready:", consentID);
-
-      // Call success callback after a delay
-      if (onSuccess) {
-        setTimeout(() => {
-          onSuccess();
-        }, 1500);
-      }
 
       // Remove search params from url
       const url = new URL(window.location.href);
@@ -79,6 +69,11 @@ export function useFiDataConsentFlow(
       url.searchParams.delete("consentCreationData");
       history.pushState(null, "", url.toString());
 
+      // Close modal after a delay
+      setTimeout(() => {
+        setModalOpen(false);
+      }, 1500);
+
       return data;
     },
     enabled:
@@ -87,12 +82,20 @@ export function useFiDataConsentFlow(
       Object.values(ConsentType).includes(consentType as ConsentType),
     retry: true,
     retryDelay: 3000,
-    refetchOnWindowFocus: false,
-    gcTime: FI_DATA_GC_TIME,
-    staleTime: FI_DATA_STALE_TIME,
+    // gcTime, staleTime, and refetchOnWindowFocus inherited from QueryProvider defaults for ['fi-data'] queries
   });
 
-  return query;
+  // Derive fetch status from query state
+  const fetchStatus: "fetching" | "success" =
+    query.isLoading || !query.data ? "fetching" : "success";
+
+  return {
+    ...query,
+    fetchStatus,
+    modalOpen,
+    handleClose: () => setModalOpen(false),
+    handleOpen: () => setModalOpen(true),
+  };
 }
 
 /**
@@ -106,7 +109,7 @@ export function useFiDataConsentFlow(
  */
 export function useFiData(
   consentID: string | null | undefined,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   const query = useQuery({
     queryKey: consentID ? [FI_DATA_QUERY_KEY, consentID] : ["fi-data-disabled"],
@@ -115,7 +118,7 @@ export function useFiData(
         throw new Error("Invalid consent ID");
       }
 
-      const data = await getAllFiData(consentID, 3000);
+      const data = await getAllFiData(consentID);
 
       if ("error" in data) {
         throw new Error(data.error);
@@ -124,10 +127,7 @@ export function useFiData(
       return data;
     },
     enabled: enabled && !!consentID,
-    retry: false,
-    refetchOnWindowFocus: false,
-    gcTime: FI_DATA_GC_TIME,
-    staleTime: FI_DATA_STALE_TIME,
+    // gcTime and staleTime inherited from QueryProvider defaults for ['fi-data'] queries
   });
 
   return query;
@@ -170,7 +170,7 @@ export function useRefreshFiData() {
 
         if (retryCount >= maxRetries) {
           throw new Error(
-            "Request timeout. The refresh is taking longer than expected. Please try again later."
+            "Request timeout. The refresh is taking longer than expected. Please try again later.",
           );
         }
 

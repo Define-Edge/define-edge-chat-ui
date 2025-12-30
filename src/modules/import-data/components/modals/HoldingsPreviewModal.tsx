@@ -251,9 +251,6 @@ export function HoldingsPreviewModal({
     }
   };
 
-  console.log(consent);
-  
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>

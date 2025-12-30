@@ -111,7 +111,7 @@ export function ImportDataPage() {
             description="Import National Pension System contributions and NAV data"
             formDescription=""
             formIcon=""
-            status="connecting"
+            status="not-connected"
             statusIcon={AlertCircle}
           />
 
