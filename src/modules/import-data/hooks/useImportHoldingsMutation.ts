@@ -2,12 +2,17 @@
 import { useMutation } from "@tanstack/react-query";
 import { useStreamContext } from "@/providers/Stream";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { FiDataResponse, Holding } from "@/lib/moneyone/moneyone.types";
+import { FiDataResponse } from "@/lib/moneyone/moneyone.types";
 import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
 import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
 import { Message } from "@langchain/langgraph-sdk";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import {
+  extractHoldingsFromFiData,
+  transformHoldingsToMarkdownFormat,
+  getAssetTypeName,
+} from "../components/modals/HoldingsPreviewModal";
 
 interface ImportHoldingsParams {
   data: FiDataResponse;
@@ -23,43 +28,24 @@ export function useImportHoldingsMutation() {
 
   return useMutation({
     mutationFn: async ({ data, consentType }: ImportHoldingsParams) => {
-      // Extract all holdings from all accounts
-      const allHoldings: Holding[] = [];
+      // Extract holdings using utility
+      const holdings = extractHoldingsFromFiData(data);
 
-      data.forEach((account) => {
-        if (account.Summary?.Investment?.Holdings?.Holding) {
-          allHoldings.push(...account.Summary.Investment.Holdings.Holding);
-        }
-      });
-
-      if (allHoldings.length === 0) {
+      if (holdings.length === 0) {
         throw new Error("No holdings found in the imported data");
       }
 
-      // Convert holdings to a simplified format for the markdown table
-      const formattedHoldings = allHoldings.map((holding) => {
-        if (consentType === ConsentType.EQUITIES) {
-          return {
-            Issuer: holding.issuerName || "",
-            ISIN: holding.isin || "",
-            Units: holding.units || "",
-          };
-        } else {
-          // Mutual Funds
-          return {
-            Description: holding.isinDescription || holding.schemeTypes || "",
-            ISIN: holding.isin || "",
-            "Closing Units": holding.closingUnits || "",
-          };
-        }
-      });
+      // Transform to markdown format using utility
+      const formattedHoldings = transformHoldingsToMarkdownFormat(
+        holdings,
+        consentType,
+      );
 
       // Create markdown table
       const markdownTable = convertToMarkdownTable(formattedHoldings);
 
-      // Create message content
-      const assetType =
-        consentType === ConsentType.EQUITIES ? "Equity" : "Mutual Fund";
+      // Get asset type name using utility
+      const assetType = getAssetTypeName(consentType);
       const messageText = `I've imported my ${assetType} holdings. Here's the data:\n\n${markdownTable}\n\nPlease analyze my portfolio and provide insights.`;
 
       // Create a human message
@@ -88,7 +74,7 @@ export function useImportHoldingsMutation() {
         },
       );
 
-      return { assetType, holdingsCount: allHoldings.length };
+      return { assetType, holdingsCount: holdings.length };
     },
     onSuccess: (result) => {
       toast.success(

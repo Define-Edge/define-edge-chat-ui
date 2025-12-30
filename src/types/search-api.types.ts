@@ -11,10 +11,12 @@ export type StockSearchRequest = {
 };
 
 export type StockSearchResult = {
+  /** Financial code */
+  fincode: number;
   /** Stock symbol */
   symbol: string;
   /** Company name */
-  name: string;
+  compname: string;
   /** Relevancy score (0.0 to 1.0) */
   relevancy: number;
 };
