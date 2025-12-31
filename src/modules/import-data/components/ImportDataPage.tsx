@@ -21,6 +21,7 @@ import { AccountTypeCard } from "./account-types/AccountTypeCard";
 import { EquitiesPreviewModal } from "./modals/EquitiesPreviewModal";
 import { MutualFundsPreviewModal } from "./modals/MutualFundsPreviewModal";
 import { EtfPreviewModal } from "./modals/EtfPreviewModal";
+import { BankAccountsPreviewModal } from "./modals/BankAccountsPreviewModal";
 
 // Import with ssr: false to prevent hydration errors from localStorage usage
 const MoneyOneHoldingsCard = dynamic(
@@ -145,14 +146,13 @@ export function ImportDataPage() {
             }
           />
 
-          {/* Bank Accounts - Coming Soon */}
-          <AccountTypeCard
+          {/* Bank Accounts - MoneyOne */}
+          <MoneyOneHoldingsCard
+            consentType={ConsentType.BANK_ACCOUNTS}
             icon={CreditCard}
             title="Bank Accounts"
             description="Import savings, current account statements and transactions"
-            formDescription=""
-            formIcon=""
-            status="coming-soon"
+            AnalysisModal={BankAccountsPreviewModal}
           />
 
           {/* Real Estate - Manual */}

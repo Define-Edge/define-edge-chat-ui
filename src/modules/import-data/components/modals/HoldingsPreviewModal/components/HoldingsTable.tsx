@@ -5,6 +5,8 @@ import { HoldingFormData } from "../hooks/useHoldingsForm";
 import {
   EQUITY_COLUMNS,
   MUTUAL_FUND_COLUMNS,
+  ETF_COLUMNS,
+  BANK_ACCOUNT_COLUMNS,
 } from "../utils/holdings-constants";
 
 type HoldingsTableProps = {
@@ -28,8 +30,23 @@ export function HoldingsTable({
   consentType,
   onRemove,
 }: HoldingsTableProps) {
-  const isEquity = consentType === ConsentType.EQUITIES;
-  const columns = isEquity ? EQUITY_COLUMNS : MUTUAL_FUND_COLUMNS;
+  // Select appropriate columns based on consent type
+  const getColumns = () => {
+    switch (consentType) {
+      case ConsentType.EQUITIES:
+        return EQUITY_COLUMNS;
+      case ConsentType.MUTUAL_FUNDS:
+        return MUTUAL_FUND_COLUMNS;
+      case ConsentType.ETF:
+        return ETF_COLUMNS;
+      case ConsentType.BANK_ACCOUNTS:
+        return BANK_ACCOUNT_COLUMNS;
+      default:
+        return EQUITY_COLUMNS;
+    }
+  };
+
+  const columns = getColumns();
 
   if (fields.length === 0) {
     return (

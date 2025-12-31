@@ -19,6 +19,7 @@ const consentFormMap = {
   [ConsentType.EQUITIES]: process.env.MONEY_ONE_EQUITIES_CONSENT_FORM,
   [ConsentType.MUTUAL_FUNDS]: process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM,
   [ConsentType.ETF]: process.env.MONEY_ONE_ETF_CONSENT_FORM,
+  [ConsentType.BANK_ACCOUNTS]: process.env.MONEY_ONE_BANK_ACCOUNTS_CONSENT_FORM,
 } as const;
 
 const consentFipIdsMap = {
@@ -31,6 +32,10 @@ const consentFipIdsMap = {
   // ETF FIPS is optional - may not be required by MoneyOne
   [ConsentType.ETF]: process.env.MONEY_ONE_ETF_FIPS
     ? process.env.MONEY_ONE_ETF_FIPS.split(",")
+    : null,
+  // Bank Accounts FIPS is optional - may not be required by MoneyOne
+  [ConsentType.BANK_ACCOUNTS]: process.env.MONEY_ONE_BANK_ACCOUNTS_FIPS
+    ? process.env.MONEY_ONE_BANK_ACCOUNTS_FIPS.split(",")
     : null,
 } as const;
 
