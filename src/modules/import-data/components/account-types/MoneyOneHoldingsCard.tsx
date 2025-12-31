@@ -8,24 +8,31 @@ import { toast } from "sonner";
 import { useConsentQuery } from "../../hooks/useConsentQuery";
 import { useRefreshFiData } from "../../hooks/useFiData";
 import { formatLastUpdated } from "../../utils/date-formatting";
-import { HoldingsPreviewModal } from "../modals/HoldingsPreviewModal";
+import { BaseAnalysisModalProps } from "../../types";
 
 type MoneyOneHoldingsCardProps = {
   consentType: ConsentType;
   icon: React.ElementType;
   title: string;
   description: string;
+  /**
+   * Analysis modal component to render for this consent type
+   * Must accept BaseAnalysisModalProps (consent: ConsentData | null)
+   */
+  AnalysisModal: React.ComponentType<BaseAnalysisModalProps>;
 };
 
 /**
- * Reusable card component for MoneyOne-connected holdings (Equity & Mutual Funds)
+ * Reusable card component for MoneyOne-connected holdings (Equity, Mutual Funds, ETF, etc.)
  * Displays connection status and import button
+ * Renders consent-type specific analysis modal via AnalysisModal prop
  */
 export function MoneyOneHoldingsCard({
   consentType,
   icon: Icon,
   title,
   description,
+  AnalysisModal,
 }: MoneyOneHoldingsCardProps) {
   const { data: consent } = useConsentQuery(consentType);
   const { mutate: refreshData, isPending: isRefreshing } = useRefreshFiData();
@@ -115,8 +122,8 @@ export function MoneyOneHoldingsCard({
               )}
             </div>
 
-            {/* Right side - Analyse button */}
-            <HoldingsPreviewModal consent={consent} />
+            {/* Right side - Analyse button (consent-specific modal) */}
+            <AnalysisModal consent={consent} />
           </div>
         </div>
       </div>

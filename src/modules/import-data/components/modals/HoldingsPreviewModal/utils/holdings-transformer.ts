@@ -1,7 +1,10 @@
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import {
   FiDataResponse,
-  Holding,
+  AnyHolding,
+  EquityHolding,
+  MutualFundHolding,
+  ETFHolding,
 } from "@/lib/moneyone/moneyone.types";
 import {
   MutualFundSearchResponse,
@@ -12,17 +15,17 @@ import { QUANTITY_FIELD_MAP, ASSET_TYPE_MAP } from "./holdings-constants";
 /**
  * Type for holding with quantity field for form management
  */
-export type HoldingWithQuantity = Holding & { quantity: number };
+export type HoldingWithQuantity = AnyHolding & { quantity: number };
 
 /**
  * Extract all holdings from FI data response
  */
 export function extractHoldingsFromFiData(
   fiData: FiDataResponse | undefined | null,
-): Holding[] {
+): AnyHolding[] {
   if (!fiData) return [];
 
-  const allHoldings: Holding[] = [];
+  const allHoldings: AnyHolding[] = [];
 
   fiData.forEach((account) => {
     if (account.Summary?.Investment?.Holdings?.Holding) {
@@ -37,14 +40,14 @@ export function extractHoldingsFromFiData(
  * Transform holdings to form data with quantity field
  */
 export function transformHoldingsToFormData(
-  holdings: Holding[],
+  holdings: AnyHolding[],
   consentType: ConsentType,
 ): HoldingWithQuantity[] {
   const quantityField = QUANTITY_FIELD_MAP[consentType];
 
   return holdings.map((holding) => ({
     ...holding,
-    quantity: parseFloat(holding[quantityField] || "0"),
+    quantity: parseFloat((holding as any)[quantityField] || "0"),
   }));
 }
 
@@ -55,7 +58,7 @@ export function transformHoldingsToFormData(
 export function transformFormDataToHoldings(
   formHoldings: HoldingWithQuantity[],
   consentType: ConsentType,
-): Holding[] {
+): AnyHolding[] {
   const quantityField = QUANTITY_FIELD_MAP[consentType];
 
   // Filter out holdings with quantity = 0
@@ -67,12 +70,13 @@ export function transformFormDataToHoldings(
     return {
       ...holdingWithoutQuantity,
       [quantityField]: quantity.toString(),
-    };
+    } as AnyHolding;
   });
 }
 
 /**
  * Transform search result (equity or mutual fund) to holding with quantity
+ * TODO: SET_TYPE - Add ETF search result transformation when ETF search API is available
  */
 export function transformSearchResultToHolding(
   result:
@@ -89,8 +93,13 @@ export function transformSearchResultToHolding(
       units: "0",
       lastTradedPrice: "0",
       quantity: 0,
-    } as HoldingWithQuantity;
-  } else if ("schemeCode" in result) {
+      ucc: "",
+      lienUnits: "0",
+      registrar: "",
+      FatcaStatus: "",
+      lockinUnits: "0",
+    } as EquityHolding & { quantity: number };
+  } else if (consentType === ConsentType.MUTUAL_FUNDS && "schemeCode" in result) {
     // Add mutual fund
     return {
       schemeTypes: result.sName,
@@ -100,7 +109,21 @@ export function transformSearchResultToHolding(
       nav: "0",
       navDate: "",
       quantity: 0,
-    } as HoldingWithQuantity;
+      isinDescription: result.sName,
+      isin: "",
+      ucc: "",
+      lienUnits: "0",
+      registrar: "",
+      FatcaStatus: "",
+      lockinUnits: "0",
+      amfiCode: "",
+      schemeCode: result.schemeCode,
+      schemeOption: "",
+      schemeCategory: "",
+    } as MutualFundHolding & { quantity: number };
+  } else if (consentType === ConsentType.ETF) {
+    // TODO: SET_TYPE - Implement ETF search result transformation
+    throw new Error("ETF search result transformation not yet implemented");
   }
 
   throw new Error("Invalid search result type");
@@ -108,26 +131,39 @@ export function transformSearchResultToHolding(
 
 /**
  * Transform holdings to markdown-ready format for import mutation
+ * TODO: SET_TYPE - Add ETF markdown format when ETF structure is confirmed
  */
 export function transformHoldingsToMarkdownFormat(
-  holdings: Holding[],
+  holdings: AnyHolding[],
   consentType: ConsentType,
 ): Record<string, string>[] {
   return holdings.map((holding) => {
     if (consentType === ConsentType.EQUITIES) {
+      const equityHolding = holding as EquityHolding;
       return {
-        "Company Name": holding.issuerName || "",
-        ISIN: holding.isin || "",
-        Units: holding.units || "",
+        "Company Name": equityHolding.issuerName || "",
+        ISIN: equityHolding.isin || "",
+        Units: equityHolding.units || "",
       } as Record<string, string>;
-    } else {
+    } else if (consentType === ConsentType.MUTUAL_FUNDS) {
       // Mutual Funds
+      const mfHolding = holding as MutualFundHolding;
       return {
-        Description: holding.isinDescription || holding.schemeTypes || "",
-        ISIN: holding.isin || "",
-        "Closing Units": holding.closingUnits || "",
+        Description: mfHolding.isinDescription || mfHolding.schemeTypes || "",
+        ISIN: mfHolding.isin || "",
+        "Closing Units": mfHolding.closingUnits || "",
+      } as Record<string, string>;
+    } else if (consentType === ConsentType.ETF) {
+      // TODO: SET_TYPE - Add ETF-specific markdown format based on actual fields
+      const etfHolding = holding as ETFHolding;
+      return {
+        "ETF Name": etfHolding.etfName || "", // TODO: SET_TYPE - Verify field name
+        ISIN: etfHolding.isin || "",
+        Units: etfHolding.etfUnits || "", // TODO: SET_TYPE - Verify field name
       } as Record<string, string>;
     }
+
+    throw new Error(`Unsupported consent type: ${consentType}`);
   });
 }
 

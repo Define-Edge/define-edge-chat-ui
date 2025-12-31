@@ -14,9 +14,11 @@ import {
 } from "./moneyone.types";
 import { getErrMsgKey } from "./moneyone.utils";
 
+// TODO: SET_TYPE - Add MONEY_ONE_ETF_CONSENT_FORM environment variable
 const consentFormMap = {
   [ConsentType.EQUITIES]: process.env.MONEY_ONE_EQUITIES_CONSENT_FORM,
   [ConsentType.MUTUAL_FUNDS]: process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM,
+  [ConsentType.ETF]: process.env.MONEY_ONE_ETF_CONSENT_FORM,
 } as const;
 
 const consentFipIdsMap = {
@@ -26,6 +28,10 @@ const consentFipIdsMap = {
   [ConsentType.MUTUAL_FUNDS]: (
     process.env.MONEY_ONE_MUTUAL_FUNDS_FIPS as string
   ).split(","),
+  // ETF FIPS is optional - may not be required by MoneyOne
+  [ConsentType.ETF]: process.env.MONEY_ONE_ETF_FIPS
+    ? process.env.MONEY_ONE_ETF_FIPS.split(",")
+    : null,
 } as const;
 
 export const createConsentRequest = async (
@@ -93,7 +99,9 @@ export const createConsentRequestV3 = async (
     productID: consentFormMap[consentType],
     vua: `${mobileNo}@onemoney`,
     accountID: accountID,
-    fipID: consentFipIdsMap[consentType],
+    ...(Boolean(consentFipIdsMap[consentType]) && {
+      fipID: consentFipIdsMap[consentType],
+    }),
     pan: pan,
     redirectUrl: redirectUrl,
   });
@@ -144,10 +152,13 @@ export const getEncryptedUrl = async (
   consentType: ConsentType,
 ) => {
   try {
+    const fipID = consentFipIdsMap[consentType];
     const body = JSON.stringify({
       consentHandle,
       redirectUrl,
-      fipID: consentFipIdsMap[consentType],
+      ...(Boolean(fipID) && {
+        fipID,
+      }),
       pan,
     });
 

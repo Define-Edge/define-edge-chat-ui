@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { HoldingFormData } from "../hooks/useHoldingsForm";
 import { HoldingWithQuantity } from "../utils/holdings-transformer";
+import { getHoldingName } from "../utils/holdings-constants";
 
 type HoldingTableRowProps = {
   /** Field data for this row */
@@ -31,29 +32,17 @@ export const HoldingTableRow = memo(function HoldingTableRow({
   consentType,
   onRemove,
 }: HoldingTableRowProps) {
-  const isEquity = consentType === ConsentType.EQUITIES;
-
   return (
     <tr className="hover:bg-gray-50">
-      {isEquity ? (
-        <>
-          <td className="px-4 py-3 text-gray-900">
-            {field.issuerName || "-"}
-          </td>
-          <td className="px-4 py-3 text-gray-600 font-mono text-xs">
-            {field.isin || "-"}
-          </td>
-        </>
-      ) : (
-        <>
-          <td className="px-4 py-3 text-gray-900">
-            {field.isinDescription || field.schemeTypes || "-"}
-          </td>
-          <td className="px-4 py-3 text-gray-600 font-mono text-xs">
-            {field.isin || "-"}
-          </td>
-        </>
-      )}
+      {/* Name/Description Column */}
+      <td className="px-4 py-3 text-gray-900">
+        {getHoldingName(field, consentType)}
+      </td>
+
+      {/* ISIN Column */}
+      <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+        {field.isin || "-"}
+      </td>
 
       {/* Quantity Input */}
       <td className="px-4 py-3">

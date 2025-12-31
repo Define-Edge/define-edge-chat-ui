@@ -2,7 +2,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { getUserConsent, ConsentData } from "@/lib/moneyone/moneyone.storage";
+import { getUserConsent } from "@/lib/moneyone/moneyone.storage";
 
 /**
  * Custom hook to query user consent with real-time localStorage tracking

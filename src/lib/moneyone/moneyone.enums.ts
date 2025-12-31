@@ -4,5 +4,6 @@ export const MONEY_ONE_ERROR_CODES = {
 
 export enum ConsentType {
     MUTUAL_FUNDS = 'MUTUAL_FUNDS',
-    EQUITIES = 'EQUITIES'
+    EQUITIES = 'EQUITIES',
+    ETF = 'ETF'
 };

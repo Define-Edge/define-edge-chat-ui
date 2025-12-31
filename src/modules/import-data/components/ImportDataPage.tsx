@@ -13,10 +13,14 @@ import {
   Landmark,
   PieChart,
   Shield,
+  TrendingUp,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { handleDummyFormSubmit } from "../utils/form-handlers";
 import { AccountTypeCard } from "./account-types/AccountTypeCard";
+import { EquitiesPreviewModal } from "./modals/EquitiesPreviewModal";
+import { MutualFundsPreviewModal } from "./modals/MutualFundsPreviewModal";
+import { EtfPreviewModal } from "./modals/EtfPreviewModal";
 
 // Import with ssr: false to prevent hydration errors from localStorage usage
 const MoneyOneHoldingsCard = dynamic(
@@ -79,6 +83,7 @@ export function ImportDataPage() {
             icon={BarChart3}
             title="Equity Holdings"
             description="Connect your demat account to sync equity stocks and derivatives"
+            AnalysisModal={EquitiesPreviewModal}
           />
 
           {/* Mutual Fund Holdings - MoneyOne */}
@@ -87,6 +92,16 @@ export function ImportDataPage() {
             icon={PieChart}
             title="Mutual Fund Holdings"
             description="Import mutual fund portfolios from AMCs and platforms"
+            AnalysisModal={MutualFundsPreviewModal}
+          />
+
+          {/* ETF Holdings - MoneyOne */}
+          <MoneyOneHoldingsCard
+            consentType={ConsentType.ETF}
+            icon={TrendingUp}
+            title="ETF Holdings"
+            description="Connect to sync Exchange Traded Fund holdings"
+            AnalysisModal={EtfPreviewModal}
           />
 
           {/* Fixed Deposits - Manual */}

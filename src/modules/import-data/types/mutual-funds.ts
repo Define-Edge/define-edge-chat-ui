@@ -1,0 +1,78 @@
+/**
+ * Mutual Fund-specific types and constants
+ */
+
+import { ConsentType } from "@/lib/moneyone/moneyone.enums";
+import { BaseHolding, BaseAccountType, ColumnConfig } from "./common";
+
+/**
+ * Mutual Fund-specific holding type
+ */
+export interface MutualFundHolding extends BaseHolding {
+  amc: string;
+  nav: string;
+  folioNo: string;
+  navDate: string;
+  amfiCode: string;
+  schemeCode: string;
+  schemeTypes: string;
+  closingUnits: string;
+  schemeOption: string;
+  schemeCategory: string;
+  isinDescription: string;
+}
+
+/**
+ * Mutual Fund holding with quantity field for form management
+ */
+export type MutualFundHoldingWithQuantity = MutualFundHolding & {
+  quantity: number;
+};
+
+/**
+ * Mutual Fund FI data account type
+ */
+export type MutualFundsFiDataAccount = BaseAccountType<MutualFundHolding> & {
+  fiType: "MUTUAL_FUNDS";
+};
+
+/**
+ * Mutual Fund FI data response (array of accounts)
+ */
+export type MutualFundsFiDataResponse = MutualFundsFiDataAccount[];
+
+/**
+ * Mutual Fund form data structure
+ */
+export interface MutualFundsFormData {
+  holdings: MutualFundHoldingWithQuantity[];
+}
+
+/**
+ * Mutual Fund markdown format for chat import
+ */
+export interface MutualFundMarkdownFormat {
+  "Description": string;
+  "ISIN": string;
+  "Closing Units": string;
+}
+
+/**
+ * Column configurations for mutual fund holdings table
+ */
+export const MUTUAL_FUND_COLUMNS: readonly ColumnConfig[] = [
+  { key: "description", label: "Description", align: "left" },
+  { key: "isin", label: "ISIN", align: "left" },
+  { key: "quantity", label: "Closing Units", align: "right" },
+  { key: "action", label: "Action", align: "center" },
+] as const;
+
+/**
+ * Quantity field name for mutual funds
+ */
+export const MUTUAL_FUND_QUANTITY_FIELD = "closingUnits" as const;
+
+/**
+ * Consent type constant
+ */
+export const MUTUAL_FUNDS_CONSENT_TYPE = ConsentType.MUTUAL_FUNDS;

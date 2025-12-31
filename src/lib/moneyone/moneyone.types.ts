@@ -84,29 +84,57 @@ export type DataReadyWebHookReqBody = {
   linkRefNumbers: LinkRefNumber[];
 };
 
-export type Holding = {
-  amc: string;
-  nav: string;
+// Base holding type with common fields
+export type BaseHolding = {
   ucc: string;
   isin: string;
-  folioNo: string;
-  navDate: string;
-  amfiCode: string;
   lienUnits: string;
   registrar: string;
-  schemeCode: string;
   FatcaStatus: string;
   lockinUnits: string;
-  schemeTypes: string;
-  closingUnits: string;
-  schemeOption: string;
-  schemeCategory: string;
-  // Equity stock keys
+};
+
+// Equity-specific holding fields
+export type EquityHolding = BaseHolding & {
   units: string;
   issuerName: string;
   isinDescription: string;
   lastTradedPrice: string;
 };
+
+// Mutual Fund-specific holding fields
+export type MutualFundHolding = BaseHolding & {
+  amc: string;
+  nav: string;
+  folioNo: string;
+  navDate: string;
+  amfiCode: string;
+  schemeCode: string;
+  schemeTypes: string;
+  closingUnits: string;
+  schemeOption: string;
+  schemeCategory: string;
+  isinDescription: string;
+};
+
+// ETF-specific holding fields
+// TODO: SET_TYPE - Update ETF fields based on actual FI data response structure
+export type ETFHolding = BaseHolding & {
+  etfUnits: string; // TODO: SET_TYPE - Verify field name from API response
+  etfName: string; // TODO: SET_TYPE - Verify field name from API response
+  etfPrice: string; // TODO: SET_TYPE - Verify field name from API response
+  isinDescription: string; // TODO: SET_TYPE - Add other ETF-specific fields as needed
+};
+
+// Generic Holding type based on ConsentType
+export type Holding<T extends ConsentType = ConsentType> =
+  T extends ConsentType.EQUITIES ? EquityHolding :
+  T extends ConsentType.MUTUAL_FUNDS ? MutualFundHolding :
+  T extends ConsentType.ETF ? ETFHolding :
+  EquityHolding | MutualFundHolding | ETFHolding; // Fallback for generic usage
+
+// Legacy type for backwards compatibility (union of all holding types)
+export type AnyHolding = EquityHolding | MutualFundHolding | ETFHolding;
 
 export type NumericKeys<T> = {
   [K in keyof T]: T[K] extends number ? K : never;
@@ -117,7 +145,7 @@ type FiDataAccountSummary = {
   currentValue: string;
   Investment: {
     Holdings: {
-      Holding: Holding[];
+      Holding: AnyHolding[];
     };
   };
 };
