@@ -15,11 +15,12 @@ import {
 import { transformFormDataToBankAccounts } from "./utils/bank-accounts-transformer";
 // Reuse shared components from HoldingsPreviewModal
 import { HoldingsSummaryCard } from "../HoldingsPreviewModal/components/HoldingsSummaryCard";
-import { HoldingsTable } from "../HoldingsPreviewModal/components/HoldingsTable";
 import {
   useHoldingsForm,
   HoldingFormData,
 } from "../HoldingsPreviewModal/hooks/useHoldingsForm";
+// Bank accounts specific components
+import { BankAccountsTable } from "./components/BankAccountsTable";
 
 type BankAccountsPreviewFormProps = {
   /** Initial form values (bank accounts with display fields) */
@@ -48,15 +49,16 @@ export function BankAccountsPreviewForm({
   onSubmit,
   onClose,
 }: BankAccountsPreviewFormProps) {
-  const { control, handleSubmit, fields, handleRemoveHolding } =
+  const { handleSubmit, fields, handleRemoveHolding } =
     useHoldingsForm(defaultValues as any, ConsentType.BANK_ACCOUNTS);
 
   const handleFormSubmit = (data: HoldingFormData) => {
     if (!fiData) return;
 
     // Transform form data back to bank accounts (filters quantity=0)
+    // Cast through unknown to handle the union type safely
     const convertedAccounts = transformFormDataToBankAccounts(
-      data.holdings as BankAccountWithFormData[],
+      data.holdings as unknown as BankAccountWithFormData[],
     );
 
     onSubmit(convertedAccounts);
@@ -85,11 +87,9 @@ export function BankAccountsPreviewForm({
               assetType="Bank Account"
             />
 
-            {/* Bank Accounts Table */}
-            <HoldingsTable
+            {/* Bank Accounts Table with Analytics */}
+            <BankAccountsTable
               fields={fields}
-              control={control}
-              consentType={ConsentType.BANK_ACCOUNTS}
               onRemove={handleRemoveHolding}
             />
           </>
