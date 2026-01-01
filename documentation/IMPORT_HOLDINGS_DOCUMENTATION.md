@@ -1,4 +1,4 @@
-# Import Equity and Mutual Funds Holdings - Technical Documentation
+# Import Holdings via MoneyOne Account Aggregator - Technical Documentation
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -17,7 +17,7 @@
 
 ## Overview
 
-The import holdings feature enables users to securely import their Equity and Mutual Fund holdings data from their depository accounts through India's RBI-approved Account Aggregator (AA) framework, powered by MoneyOne.
+The import holdings feature enables users to securely import their financial data (Equities, Mutual Funds, ETFs, and Bank Accounts) from their financial institutions through India's RBI-approved Account Aggregator (AA) framework, powered by MoneyOne.
 
 ### Key Features
 - **RBI-Approved**: Uses Account Aggregator framework for secure data access
@@ -29,8 +29,10 @@ The import holdings feature enables users to securely import their Equity and Mu
 - **AI Analysis**: Import holdings as markdown table for portfolio insights
 
 ### Supported Asset Types
-- **Equities (EQSUMMARY)**: Stock holdings with ISIN, units, last traded price
-- **Mutual Funds (WM101)**: MF holdings with scheme details, NAV, folio numbers
+- **Equities (EQSUMMARY)**: Stock holdings with ISIN, units, last traded price - *Editable form*
+- **Mutual Funds (WM101)**: MF holdings with scheme details, NAV, folio numbers - *Editable form*
+- **ETF**: Exchange Traded Fund holdings - *Editable form (Placeholder, pending API response)*
+- **Bank Accounts (DEPOSITDETAILS)**: Bank account statements and transactions - *Read-only with analytics*
 
 ---
 
@@ -42,18 +44,31 @@ The import holdings feature enables users to securely import their Equity and Mu
 Thread (Main Chat UI)
 ├─ FetchingFiDataModal (OAuth callback & data fetching)
 ├─ ImportDataPage (Import view)
-│   └─ MoneyOneHoldingsCard (Equity/MF cards)
+│   └─ MoneyOneHoldingsCard (Reusable for all MoneyOne consent types)
 │       ├─ ImportHoldings (Connect button)
 │       │   ├─ useCheckConsentMut (check existing consent)
 │       │   └─ CreateConsentModel (new consent form)
 │       │       └─ useCreateConsentAndRedirectMut
 │       ├─ useConsentQuery (real-time consent status)
 │       ├─ useRefreshFiData (manual refresh button)
-│       └─ HoldingsPreviewModal (review/edit before import)
-│           ├─ useHoldingsData (fetch & transform FI data)
-│           ├─ useHoldingsForm (react-hook-form integration)
-│           ├─ useHoldingsSearch (add new holdings)
-│           └─ useImportHoldingsMutation (submit to chat)
+│       └─ AnalysisModal (Passed as prop - varies by consent type)
+│           │
+│           ├─ EquitiesPreviewModal (Editable form)
+│           │   ├─ useEquitiesData
+│           │   └─ useImportEquitiesMutation
+│           │
+│           ├─ MutualFundsPreviewModal (Editable form)
+│           │   ├─ useMutualFundsData
+│           │   └─ useImportMutualFundsMutation
+│           │
+│           ├─ EtfPreviewModal (Editable form - Placeholder)
+│           │   ├─ useEtfData
+│           │   └─ useImportEtfMutation
+│           │
+│           └─ BankAccountsPreviewModal (Read-only with analytics)
+│               ├─ useBankAccountsData
+│               ├─ useImportBankAccountsMutation
+│               └─ Analytics Components (charts, transaction list)
 └─ ThreadHistory
     └─ Import Button (opens ImportDataPage)
 ```
@@ -1329,10 +1344,14 @@ MONEY_ONE_API_KEY=your_api_key_here
 # Consent Form IDs (Product IDs)
 MONEY_ONE_EQUITIES_CONSENT_FORM=EQSUMMARY
 MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM=WM101
+MONEY_ONE_ETF_CONSENT_FORM=                      # Pending API configuration
+MONEY_ONE_BANK_ACCOUNTS_CONSENT_FORM=DEPOSITDETAILS
 
 # Financial Information Provider IDs (comma-separated)
 MONEY_ONE_EQUITIES_FIPS=NSDL-FIP,CDSL-FIP
 MONEY_ONE_MUTUAL_FUNDS_FIPS=CAMS-FIP,KARVY-FIP
+MONEY_ONE_ETF_FIPS=                              # Pending API configuration
+MONEY_ONE_BANK_ACCOUNTS_FIPS=                    # Pending API configuration
 ```
 
 ### Consent Type Mapping
@@ -1342,7 +1361,9 @@ MONEY_ONE_MUTUAL_FUNDS_FIPS=CAMS-FIP,KARVY-FIP
 ```typescript
 export enum ConsentType {
   MUTUAL_FUNDS = 'MUTUAL_FUNDS',
-  EQUITIES = 'EQUITIES'
+  EQUITIES = 'EQUITIES',
+  ETF = 'ETF',
+  BANK_ACCOUNTS = 'BANK_ACCOUNTS'
 }
 ```
 
@@ -1660,6 +1681,36 @@ For questions or issues, refer to:
 
 ---
 
-**Document Version**: 2.0
-**Last Updated**: December 2024
+## Adding New Consent Types
+
+To integrate a new MoneyOne consent type (e.g., NPS, Insurance, Bonds), refer to the comprehensive integration guide:
+
+**📄 See**: [`ADDING_NEW_MONEYONE_CONSENT_TYPE.md`](./ADDING_NEW_MONEYONE_CONSENT_TYPE.md)
+
+**Key Points**:
+- **Form components are optional** - Not all consent types need editable forms
+- Start with read-only implementation, add forms only if needed
+- Choose between two implementation paths:
+  - **Path A: Read-Only Display** - Simple preview with direct import (1-2 hours)
+  - **Path B: Editable Form** - Full form with quantity editing (2-4 hours)
+- Includes complete code examples and decision tree
+- Lists all files that need to be created/updated
+- Provides testing checklist and troubleshooting guide
+
+**Implementation Pattern**:
+```
+1. Add consent type to enum
+2. Update webhook handler
+3. Create types (basic for read-only, extended for forms)
+4. Create transformers
+5. Create data hooks
+6. Create modal component (simple or with form)
+7. Add to ImportDataPage
+8. Configure environment variables
+```
+
+---
+
+**Document Version**: 3.0
+**Last Updated**: January 2025
 **Maintained By**: FinSharpe Engineering Team
