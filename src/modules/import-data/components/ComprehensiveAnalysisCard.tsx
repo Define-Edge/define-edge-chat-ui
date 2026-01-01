@@ -1,5 +1,5 @@
 import { Activity } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ComprehensiveAnalysisModal } from "./modals/ComprehensiveAnalysisModal";
 
 export function ComprehensiveAnalysisCard() {
   return (
@@ -19,14 +19,7 @@ export function ComprehensiveAnalysisCard() {
           </p>
         </div>
 
-        <Button
-          size="lg"
-          className="w-full border-0 bg-gradient-to-r from-slate-900 via-blue-900 to-blue-700 text-white hover:from-slate-950 hover:via-blue-950 hover:to-blue-800"
-          type="button"
-        >
-          <Activity className="mr-2 h-5 w-5" />
-          Run Comprehensive Analysis
-        </Button>
+        <ComprehensiveAnalysisModal />
       </div>
     </div>
   );
