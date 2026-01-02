@@ -59,13 +59,13 @@ export function HoldingsTable({
   return (
     <div className="border rounded-lg overflow-hidden">
       <div className="overflow-x-auto max-h-[350px]">
-        <table className="w-full text-sm">
+        <table className="w-full text-[10px] md:text-sm">
           <thead className="bg-gray-50 sticky top-0">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3 font-medium text-gray-900 ${
+                  className={`px-1.5 py-1.5 md:px-4 md:py-3 font-medium text-gray-900 ${
                     column.align === "left"
                       ? "text-left"
                       : column.align === "right"
