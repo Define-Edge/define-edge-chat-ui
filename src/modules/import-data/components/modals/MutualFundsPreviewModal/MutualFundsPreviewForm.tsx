@@ -125,7 +125,7 @@ export function MutualFundsPreviewForm({
         )}
       </div>
 
-      <DialogFooter className="flex justify-between items-center mt-4">
+      <DialogFooter className="flex flex-row justify-between items-center mt-4 gap-2">
         <Button
           type="button"
           variant="outline"
