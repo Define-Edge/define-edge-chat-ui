@@ -4,25 +4,24 @@
  */
 
 "use client";
-import { useMemo } from "react";
 import { BankAccount } from "@/modules/import-data/types/bank-accounts";
 import {
-  prepareBalanceTrendData,
+  ArrowRightLeft,
+  Calendar,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { useMemo } from "react";
+import {
   aggregateMonthlyData,
-  processTransactionsForDisplay,
   calculateTransactionStats,
+  formatCurrency,
+  prepareBalanceTrendData,
+  processTransactionsForDisplay,
 } from "../utils/transaction-analytics";
 import { BalanceTrendChart } from "./BalanceTrendChart";
 import { IncomeExpenseChart } from "./IncomeExpenseChart";
 import { TransactionsList } from "./TransactionsList";
-import { Card, CardContent } from "@/components/ui/card";
-import { formatCurrency } from "../utils/transaction-analytics";
-import {
-  TrendingUp,
-  TrendingDown,
-  ArrowRightLeft,
-  Calendar,
-} from "lucide-react";
 
 interface AccountAnalyticsProps {
   account: BankAccount;

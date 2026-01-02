@@ -14,15 +14,15 @@ export function HoldingsSummaryCard({
   assetType,
 }: HoldingsSummaryCardProps) {
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
-          <p className="text-sm text-blue-600 font-medium">Total Holdings</p>
-          <p className="text-2xl font-bold text-blue-900">{totalHoldings}</p>
+          <p className="text-xs sm:text-sm text-blue-600 font-medium">Total Holdings</p>
+          <p className="text-xl sm:text-2xl font-bold text-blue-900">{totalHoldings}</p>
         </div>
         <div>
-          <p className="text-sm text-blue-600 font-medium">Asset Type</p>
-          <p className="text-2xl font-bold text-blue-900">{assetType}</p>
+          <p className="text-xs sm:text-sm text-blue-600 font-medium">Asset Type</p>
+          <p className="text-xl sm:text-2xl font-bold text-blue-900">{assetType}</p>
         </div>
       </div>
     </div>
