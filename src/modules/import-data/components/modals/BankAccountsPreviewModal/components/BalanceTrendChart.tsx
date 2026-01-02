@@ -23,25 +23,46 @@ import {
 
 interface BalanceTrendChartProps {
   data: BalanceDataPoint[];
+  startDate?: string;
+  endDate?: string;
   className?: string;
 }
 
 /**
  * Custom tooltip for balance trend chart
  */
-function CustomTooltip({ active, payload }: any) {
+function CustomTooltip({ active, payload, startDate, endDate }: any) {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload as BalanceDataPoint;
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-        {data.formattedDate}
-      </p>
-      <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold">
-        Balance: {formatCurrency(data.balance)}
-      </p>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 max-w-xs">
+      <div className="space-y-2">
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Transaction Date
+          </p>
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            {data.formattedDate}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Account Balance
+          </p>
+          <p className="text-base text-blue-600 dark:text-blue-400 font-semibold">
+            {formatCurrency(data.balance)}
+          </p>
+        </div>
+        {startDate && endDate && (
+          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Showing balance trend from {startDate} to {endDate}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -65,15 +86,23 @@ function formatYAxis(value: number): string {
 /**
  * Balance Trend Chart Component
  */
-export function BalanceTrendChart({ data, className }: BalanceTrendChartProps) {
+export function BalanceTrendChart({
+  data,
+  startDate,
+  endDate,
+  className,
+}: BalanceTrendChartProps) {
   if (!data || data.length === 0) {
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 pt-2 md:pt-4">
             <TrendingUp className="w-4 h-4" />
             Balance Trend
           </CardTitle>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Track how your account balance changes over time
+          </p>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[250px] text-gray-500 text-sm">
@@ -98,11 +127,15 @@ export function BalanceTrendChart({ data, className }: BalanceTrendChartProps) {
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2 pt-2 md:pt-4">
           <TrendingUp className="w-4 h-4 text-blue-600" />
           Balance Trend
         </CardTitle>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Track how your account balance changes over time based on
+          transactions
+        </p>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -120,7 +153,9 @@ export function BalanceTrendChart({ data, className }: BalanceTrendChartProps) {
               height={80}
             />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={formatYAxis} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip startDate={startDate} endDate={endDate} />}
+            />
             <Legend />
             <Line
               type="monotone"

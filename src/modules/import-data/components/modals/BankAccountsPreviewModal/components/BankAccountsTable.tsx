@@ -1,13 +1,14 @@
 /**
- * Bank Accounts Table Component
- * Custom table for bank accounts with expandable analytics rows
+ * Bank Accounts Grid Component
+ * Card-based layout for bank accounts with expandable analytics
+ * Responsive design optimized for mobile and desktop
  */
 
 "use client";
 import { FieldArrayWithId } from "react-hook-form";
 import { HoldingFormData } from "../../HoldingsPreviewModal/hooks/useHoldingsForm";
 import { BankAccountWithFormData } from "@/modules/import-data/types/bank-accounts";
-import { BankAccountTableRow } from "./BankAccountTableRow";
+import { BankAccountCard } from "./BankAccountCard";
 
 interface BankAccountsTableProps {
   /** Field array items from react-hook-form */
@@ -17,7 +18,8 @@ interface BankAccountsTableProps {
 }
 
 /**
- * Bank Accounts Table with Analytics
+ * Bank Accounts Grid with Card Layout
+ * Displays bank accounts in a responsive grid of cards
  */
 export function BankAccountsTable({
   fields,
@@ -32,41 +34,15 @@ export function BankAccountsTable({
   }
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <tr>
-              <th className="px-4 py-3 w-12" aria-label="Expand/Collapse"></th>
-              <th className="px-4 py-3 text-left font-medium text-gray-900 dark:text-gray-100">
-                Bank Name
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-gray-900 dark:text-gray-100">
-                Account Type
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-gray-900 dark:text-gray-100">
-                Account Number
-              </th>
-              <th className="px-4 py-3 text-right font-medium text-gray-900 dark:text-gray-100">
-                Balance (INR)
-              </th>
-              <th className="px-4 py-3 text-center font-medium text-gray-900 dark:text-gray-100 w-20">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
-            {fields.map((field, index) => (
-              <BankAccountTableRow
-                key={field.id}
-                account={field as unknown as BankAccountWithFormData}
-                index={index}
-                onRemove={onRemove}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {fields.map((field, index) => (
+        <BankAccountCard
+          key={field.id}
+          account={field as unknown as BankAccountWithFormData}
+          index={index}
+          onRemove={onRemove}
+        />
+      ))}
     </div>
   );
 }

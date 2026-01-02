@@ -20,38 +20,67 @@ import { MonthlyData, formatCurrency } from "../utils/transaction-analytics";
 
 interface IncomeExpenseChartProps {
   data: MonthlyData[];
+  startDate?: string;
+  endDate?: string;
   className?: string;
 }
 
 /**
  * Custom tooltip for income/expense chart
  */
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label, startDate, endDate }: any) {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload as MonthlyData;
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-        {label}
-      </p>
-      <div className="space-y-1">
-        <p className="text-sm text-green-600 dark:text-green-400">
-          Income: {formatCurrency(data.income)}
-        </p>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          Expenses: {formatCurrency(data.expenses)}
-        </p>
-        <p
-          className={`text-sm font-semibold ${
-            data.netFlow >= 0
-              ? "text-green-600 dark:text-green-400"
-              : "text-red-600 dark:text-red-400"
-          }`}
-        >
-          Net: {formatCurrency(data.netFlow)}
-        </p>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 max-w-xs">
+      <div className="space-y-2">
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Month</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            {label}
+          </p>
+        </div>
+        <div className="space-y-1 pt-1">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Income:
+            </span>
+            <span className="text-sm text-green-600 dark:text-green-400 font-semibold">
+              {formatCurrency(data.income)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Expenses:
+            </span>
+            <span className="text-sm text-red-600 dark:text-red-400 font-semibold">
+              {formatCurrency(data.expenses)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center pt-1 border-t border-gray-200 dark:border-gray-700">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Net Flow:
+            </span>
+            <span
+              className={`text-sm font-bold ${
+                data.netFlow >= 0
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
+              }`}
+            >
+              {formatCurrency(data.netFlow)}
+            </span>
+          </div>
+        </div>
+        {startDate && endDate && (
+          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Showing monthly summary from {startDate} to {endDate}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -78,16 +107,21 @@ function formatYAxis(value: number): string {
  */
 export function IncomeExpenseChart({
   data,
+  startDate,
+  endDate,
   className,
 }: IncomeExpenseChartProps) {
   if (!data || data.length === 0) {
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 pt-2 md:pt-4">
             <BarChart3 className="w-4 h-4" />
             Income vs Expenses
           </CardTitle>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Compare monthly income and expenses side-by-side
+          </p>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[250px] text-gray-500 text-sm">
@@ -103,11 +137,14 @@ export function IncomeExpenseChart({
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2 pt-2 md:pt-4">
           <BarChart3 className="w-4 h-4 text-purple-600" />
           Income vs Expenses
         </CardTitle>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Compare monthly income and expenses to track your cash flow patterns
+        </p>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -124,7 +161,11 @@ export function IncomeExpenseChart({
               height={80}
             />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={formatYAxis} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={
+                <CustomTooltip startDate={startDate} endDate={endDate} />
+              }
+            />
             <Legend />
             <Bar
               dataKey="income"

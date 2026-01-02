@@ -101,7 +101,7 @@ export function TransactionsList({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 pt-2 md:pt-4">
             <Receipt className="w-4 h-4" />
             Recent Transactions
           </CardTitle>
@@ -118,7 +118,7 @@ export function TransactionsList({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
+        <CardTitle className="text-base flex items-center gap-2 pt-2 md:pt-4">
           <Receipt className="w-4 h-4 text-indigo-600" />
           Recent Transactions
           <span className="ml-auto text-xs font-normal text-gray-500">

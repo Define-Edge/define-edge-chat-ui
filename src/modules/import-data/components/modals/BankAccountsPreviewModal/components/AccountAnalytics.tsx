@@ -31,6 +31,7 @@ interface AccountAnalyticsProps {
 
 /**
  * Stats Card Component
+ * Modern card design for financial statistics using app theme colors
  */
 function StatsCard({
   label,
@@ -45,36 +46,66 @@ function StatsCard({
   trend?: "up" | "down" | "neutral";
   className?: string;
 }) {
+  // Use theme colors based on trend
+  const getTrendStyles = () => {
+    switch (trend) {
+      case "up":
+        return {
+          bgGradient: "bg-gradient-to-br from-accent/30 to-accent/10 dark:from-accent/10 dark:to-accent/5",
+          border: "border-border/50",
+          iconBg: "bg-accent dark:bg-accent/20",
+          icon: "text-foreground dark:text-foreground",
+          value: "text-foreground dark:text-foreground",
+        };
+      case "down":
+        return {
+          bgGradient: "bg-gradient-to-br from-destructive/5 to-destructive/[0.02] dark:from-destructive/10 dark:to-destructive/5",
+          border: "border-destructive/20 dark:border-destructive/30",
+          iconBg: "bg-destructive/10 dark:bg-destructive/20",
+          icon: "text-destructive dark:text-destructive-foreground",
+          value: "text-destructive dark:text-destructive-foreground",
+        };
+      default: // neutral
+        return {
+          bgGradient: "bg-gradient-to-br from-muted/50 to-muted/20 dark:from-muted/20 dark:to-muted/10",
+          border: "border-border/50",
+          iconBg: "bg-muted dark:bg-muted/40",
+          icon: "text-muted-foreground dark:text-muted-foreground",
+          value: "text-foreground dark:text-foreground",
+        };
+    }
+  };
+
+  const styles = getTrendStyles();
+
   return (
-    <Card className={className}>
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-            <p className="text-2xl font-bold mt-1">{value}</p>
-          </div>
-          <div
-            className={`p-2 rounded-lg ${
-              trend === "up"
-                ? "bg-green-100 dark:bg-green-900/30"
-                : trend === "down"
-                  ? "bg-red-100 dark:bg-red-900/30"
-                  : "bg-blue-100 dark:bg-blue-900/30"
-            }`}
-          >
-            <Icon
-              className={`w-5 h-5 ${
-                trend === "up"
-                  ? "text-green-600"
-                  : trend === "down"
-                    ? "text-red-600"
-                    : "text-blue-600"
-              }`}
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className={`relative overflow-hidden rounded-xl border ${styles.border} ${styles.bgGradient} p-4 md:p-5 ${className}`}
+    >
+      {/* Icon Badge */}
+      <div
+        className={`inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg ${styles.iconBg} mb-3 md:mb-4`}
+      >
+        <Icon className={`w-5 h-5 md:w-6 md:h-6 ${styles.icon}`} />
+      </div>
+
+      {/* Content */}
+      <div className="space-y-1">
+        <p className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
+          {label}
+        </p>
+        <p
+          className={`text-xl md:text-3xl font-bold ${styles.value} break-words`}
+        >
+          {value}
+        </p>
+      </div>
+
+      {/* Decorative gradient overlay */}
+      <div className="absolute top-0 right-0 w-24 h-24 opacity-5 dark:opacity-[0.02]">
+        <div className={`w-full h-full rounded-full blur-2xl ${styles.iconBg}`} />
+      </div>
+    </div>
   );
 }
 
@@ -124,22 +155,24 @@ export function AccountAnalytics({ account, className }: AccountAnalyticsProps) 
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 md:space-y-6 ${className}`}>
       {/* Date Range Banner */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
-          <Calendar className="w-4 h-4" />
-          <span className="text-sm font-medium">
-            Transaction History: {startDate} to {endDate}
-          </span>
-          <span className="ml-auto text-sm text-blue-700 dark:text-blue-300">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 md:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-blue-900 dark:text-blue-100">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium">
+              Transaction History: {startDate} to {endDate}
+            </span>
+          </div>
+          <span className="sm:ml-auto text-xs sm:text-sm text-blue-700 dark:text-blue-300">
             {stats.transactionCount} transactions
           </span>
         </div>
       </div>
 
       {/* Summary Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
         <StatsCard
           label="Total Income"
           value={formatCurrency(stats.totalIncome)}
@@ -161,9 +194,17 @@ export function AccountAnalytics({ account, className }: AccountAnalyticsProps) 
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BalanceTrendChart data={balanceTrendData} />
-        <IncomeExpenseChart data={monthlyData} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <BalanceTrendChart
+          data={balanceTrendData}
+          startDate={startDate}
+          endDate={endDate}
+        />
+        <IncomeExpenseChart
+          data={monthlyData}
+          startDate={startDate}
+          endDate={endDate}
+        />
       </div>
 
       {/* Recent Transactions */}
