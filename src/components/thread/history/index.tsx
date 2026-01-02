@@ -187,7 +187,7 @@ export default function ThreadHistory() {
           open={!!chatHistoryOpen && !isLargeScreen}
           onOpenChange={(open) => {
             if (isLargeScreen) return;
-            setQuery({ chatHistoryOpen: true });
+            setQuery({ chatHistoryOpen: open });
           }}
         >
           <SheetContent

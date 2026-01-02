@@ -127,9 +127,19 @@ export const createConsentRequestV3 = async (
     });
 
     if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      if (process.env.NODE_ENV === "development") {
+        console.error("---MoneyOne V3 API Error Response:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorBody,
+          requestBody: JSON.parse(body),
+          headers: moneyOneAuthHeaders,
+        });
+      }
       if (response.status === 503)
         throw new Error("503 Service Temporarily Unavailable");
-      throw await response.json();
+      throw errorBody;
     }
 
     const res: ConsentRequestV3Response = await response.json();

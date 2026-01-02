@@ -37,7 +37,7 @@ export function BankAccountsTable({
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <tr>
-              <th className="px-4 py-3 w-12"></th> {/* Expand/Collapse column */}
+              <th className="px-4 py-3 w-12" aria-label="Expand/Collapse"></th>
               <th className="px-4 py-3 text-left font-medium text-gray-900 dark:text-gray-100">
                 Bank Name
               </th>
