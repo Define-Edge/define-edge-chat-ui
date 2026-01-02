@@ -4,7 +4,7 @@
  */
 
 import { Transaction } from "@/modules/import-data/types/bank-accounts";
-import { format, parseISO, startOfMonth, isWithinInterval } from "date-fns";
+import { format, parseISO, startOfMonth, isWithinInterval, differenceInDays, differenceInMonths, differenceInYears } from "date-fns";
 
 /**
  * Balance data point for trend chart
@@ -55,6 +55,31 @@ export function formatCurrency(amount: number): string {
     currency: "INR",
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+/**
+ * Format duration between two dates as a compact string (e.g., "6d", "6m", "1y")
+ */
+export function formatDuration(startDate: string, endDate: string): string {
+  try {
+    const start = parseISO(startDate);
+    const end = parseISO(endDate);
+
+    const years = differenceInYears(end, start);
+    if (years >= 1) {
+      return `${years}y`;
+    }
+
+    const months = differenceInMonths(end, start);
+    if (months >= 1) {
+      return `${months}m`;
+    }
+
+    const days = differenceInDays(end, start);
+    return `${days}d`;
+  } catch {
+    return "";
+  }
 }
 
 /**

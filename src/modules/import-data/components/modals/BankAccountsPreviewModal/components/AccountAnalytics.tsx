@@ -8,14 +8,21 @@ import { BankAccount } from "@/modules/import-data/types/bank-accounts";
 import {
   ArrowRightLeft,
   Calendar,
+  Info,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { useMemo } from "react";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   aggregateMonthlyData,
   calculateTransactionStats,
   formatCurrency,
+  formatDuration,
   prepareBalanceTrendData,
   processTransactionsForDisplay,
 } from "../utils/transaction-analytics";
@@ -37,12 +44,14 @@ function StatsCard({
   value,
   icon: Icon,
   trend,
+  tooltip,
   className = "",
 }: {
   label: string;
   value: string;
   icon: React.ComponentType<{ className?: string }>;
   trend?: "up" | "down" | "neutral";
+  tooltip?: string;
   className?: string;
 }) {
   // Use theme colors based on trend
@@ -90,9 +99,27 @@ function StatsCard({
 
       {/* Content */}
       <div className="space-y-1">
-        <p className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          {label}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            {label}
+          </p>
+          {tooltip && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center hover:opacity-70 transition-opacity"
+                  aria-label={`Information about ${label}`}
+                >
+                  <Info className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs md:max-w-sm">
+                <p className="text-xs leading-relaxed">{tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
         <p
           className={`text-xl md:text-3xl font-bold ${styles.value} break-words`}
         >
@@ -143,6 +170,14 @@ export function AccountAnalytics({ account, className }: AccountAnalyticsProps) 
   const startDate = account.Transactions?.startDate;
   const endDate = account.Transactions?.endDate;
 
+  // Calculate duration
+  const duration = useMemo(() => {
+    if (startDate && endDate) {
+      return formatDuration(startDate, endDate);
+    }
+    return "";
+  }, [startDate, endDate]);
+
   if (!transactions || transactions.length === 0) {
     return (
       <div className={`p-8 text-center ${className}`}>
@@ -177,18 +212,21 @@ export function AccountAnalytics({ account, className }: AccountAnalyticsProps) 
           value={formatCurrency(stats.totalIncome)}
           icon={TrendingUp}
           trend="up"
+          tooltip={`Sum of all positive transactions (credits) during the period from ${startDate} to ${endDate}${duration ? ` (${duration})` : ""}. This represents money that came into your account, including salary deposits, transfers received, refunds, and other income.`}
         />
         <StatsCard
           label="Total Expenses"
           value={formatCurrency(stats.totalExpenses)}
           icon={TrendingDown}
           trend="down"
+          tooltip={`Sum of all negative transactions (debits) during the period from ${startDate} to ${endDate}${duration ? ` (${duration})` : ""}. This represents money that went out of your account, including purchases, withdrawals, bill payments, and other expenses.`}
         />
         <StatsCard
           label="Net Cash Flow"
           value={formatCurrency(stats.netFlow)}
           icon={ArrowRightLeft}
           trend={stats.netFlow >= 0 ? "up" : "down"}
+          tooltip={`The difference between Total Income and Total Expenses (Income - Expenses) for the period from ${startDate} to ${endDate}${duration ? ` (${duration})` : ""}. A positive value indicates you received more money than you spent, while a negative value means you spent more than you received.`}
         />
       </div>
 
