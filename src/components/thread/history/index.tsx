@@ -10,8 +10,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Database, PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
+import { Database, History, PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
 import {
   parseAsBoolean,
   parseAsString,
@@ -37,10 +43,7 @@ function ThreadList({
 
   return (
     <div>
-      <div className="px-4 pb-1">
-        <p className="text-muted-foreground text-sm">Recents</p>
-      </div>
-      <div className="scrollbar-thin flex h-full w-full flex-col items-start justify-start gap-2 overflow-y-auto">
+      <div className="flex w-full flex-col items-start justify-start gap-2">
         {threads.map((t) => {
           let itemText = t.thread_id;
           if (
@@ -151,7 +154,7 @@ export default function ThreadHistory() {
         <div className="flex w-full flex-col gap-2 px-4">
           <Button
             variant="outline"
-            className="w-full justify-start gap-2"
+            className="w-full justify-start gap-2 shadow-md"
             onClick={() => {
               setQuery({
                 importViewOpen: null,
@@ -164,7 +167,7 @@ export default function ThreadHistory() {
           </Button>
           <Button
             variant="outline"
-            className="w-full justify-start gap-2"
+            className="w-full justify-start gap-2 shadow-md"
             onClick={() => {
               setQuery({
                 importViewOpen: true,
@@ -176,11 +179,31 @@ export default function ThreadHistory() {
             Import
           </Button>
         </div>
-        {threadsLoading ? (
-          <ThreadHistoryLoading />
-        ) : (
-          <ThreadList threads={threads} />
-        )}
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="chat-history"
+          className="w-full px-4"
+        >
+          <AccordionItem
+            value="chat-history"
+            className="rounded-md shadow-md"
+          >
+            <AccordionTrigger className="px-4 py-2 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                <span>Chat History</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="scrollbar-thin pb-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+              {threadsLoading ? (
+                <ThreadHistoryLoading />
+              ) : (
+                <ThreadList threads={threads} />
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
       <div className="lg:hidden">
         <Sheet
@@ -197,10 +220,10 @@ export default function ThreadHistory() {
             <SheetHeader>
               <SheetTitle className="sr-only">Thread History</SheetTitle>
             </SheetHeader>
-            <div className="flex w-full flex-col gap-2 px-4 pb-4">
+            <div className="flex w-full flex-col gap-2 px-4">
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2"
+                className="w-full justify-start gap-2 shadow-md"
                 onClick={() => {
                   setQuery({
                     importViewOpen: null,
@@ -214,7 +237,7 @@ export default function ThreadHistory() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2"
+                className="w-full justify-start gap-2 shadow-md"
                 onClick={() => {
                   setQuery({
                     importViewOpen: true,
@@ -227,12 +250,32 @@ export default function ThreadHistory() {
                 Import
               </Button>
             </div>
-            <ThreadList
-              threads={threads}
-              onThreadClick={() =>
-                setQuery((p) => ({ chatHistoryOpen: !p.chatHistoryOpen }))
-              }
-            />
+            <Accordion
+              type="single"
+              collapsible
+              defaultValue="chat-history"
+              className="w-full px-4"
+            >
+              <AccordionItem
+                value="chat-history"
+                className="rounded-md shadow-md"
+              >
+                <AccordionTrigger className="px-4 py-2 hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <History className="h-4 w-4" />
+                    <span>Chat History</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="scrollbar-thin pb-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                  <ThreadList
+                    threads={threads}
+                    onThreadClick={() =>
+                      setQuery((p) => ({ chatHistoryOpen: !p.chatHistoryOpen }))
+                    }
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </SheetContent>
         </Sheet>
       </div>
