@@ -111,17 +111,10 @@ export interface BankAccountsFormData {
 }
 
 /**
- * Bank account markdown format for chat import
+ * Note: AccountInsights interface is now defined in
+ * src/modules/import-data/components/modals/BankAccountsPreviewModal/utils/bank-accounts-transformer.ts
+ * It excludes sensitive information (bank name, account number, IFSC) for chat analysis
  */
-export interface BankAccountMarkdownFormat {
-  "Bank Name": string;
-  "Account Type": string;
-  "Account Number": string;
-  "Current Balance": string;
-  "Branch": string;
-  "IFSC Code": string;
-  "Status": string;
-}
 
 /**
  * Column configurations for bank accounts table

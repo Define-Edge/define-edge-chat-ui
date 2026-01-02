@@ -5,13 +5,15 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
 import { useStreamContext } from "@/providers/Stream";
-import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
 import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
 import { Message } from "@langchain/langgraph-sdk";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { BankAccountsFiDataResponse } from "@/modules/import-data/types/bank-accounts";
-import { transformBankAccountsToMarkdownFormat } from "../utils/bank-accounts-transformer";
+import {
+  transformBankAccountsToInsights,
+  formatAccountsAsText,
+} from "../utils/bank-accounts-transformer";
 
 interface ImportBankAccountsParams {
   data: BankAccountsFiDataResponse;
@@ -30,13 +32,13 @@ export function useImportBankAccountsMutation() {
         throw new Error("No bank accounts found in the imported data");
       }
 
-      // Transform to markdown format
-      const formattedAccounts = transformBankAccountsToMarkdownFormat(data);
+      // Transform to insights format (excludes sensitive info)
+      const accountInsights = transformBankAccountsToInsights(data);
 
-      // Create markdown table
-      const markdownTable = convertToMarkdownTable(formattedAccounts);
+      // Format as natural text
+      const formattedText = formatAccountsAsText(accountInsights);
 
-      const messageText = `I've imported my Bank Accounts. Here's the data:\n\n${markdownTable}\n\nPlease analyze my accounts and provide insights.`;
+      const messageText = `I've imported my Bank Accounts. Here's the data:\n\n${formattedText}\nPlease analyze my accounts and provide insights on my financial health, spending patterns, and cash flow.`;
 
       // Create a human message
       const newHumanMessage: Message = {
