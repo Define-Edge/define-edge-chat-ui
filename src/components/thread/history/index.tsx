@@ -63,7 +63,7 @@ function ThreadList({
             >
               <Button
                 variant="ghost"
-                className="w-[280px] items-start justify-start text-left font-normal"
+                className="w-[250px] md:w-[280px] items-start justify-start text-left font-normal"
                 onClick={(e) => {
                   e.preventDefault();
                   onThreadClick?.(t.thread_id);
