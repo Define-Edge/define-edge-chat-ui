@@ -191,26 +191,38 @@ export function AssistantMessage({
   if (hasToolCalls && !hideToolCalls) {
     return (
       <CitationProvider>
-        {(hasToolCalls && toolCallsHaveContents && (
-          <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
-        )) ||
-          (hasAnthropicToolCalls && (
-            <ToolCalls toolCalls={anthropicStreamedToolCalls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
-          )) ||
-          (hasToolCalls && (
-            <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
-          ))}
-        <Interrupt
-          interruptValue={threadInterrupt?.value}
-          isLastMessage={isLastMessage}
-          hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-        />
-        {message && (
-          <CustomComponent
-            message={message}
-            thread={thread}
-          />
-        )}
+        <div className="chat-message-table group mr-auto flex items-start w-full">
+          <div className="flex flex-col w-full">
+            {contentString.length > 0 && (
+              <div className="py-1">
+                <MarkdownText>{contentString}</MarkdownText>
+                <CitationsList content={contentString} />
+              </div>
+            )}
+
+            {(hasToolCalls && toolCallsHaveContents && (
+              <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+            )) ||
+              (hasAnthropicToolCalls && (
+                <ToolCalls toolCalls={anthropicStreamedToolCalls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+              )) ||
+              (hasToolCalls && (
+                <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+              ))}
+
+            <Interrupt
+              interruptValue={threadInterrupt?.value}
+              isLastMessage={isLastMessage}
+              hasNoAIOrToolMessages={hasNoAIOrToolMessages}
+            />
+            {message && (
+              <CustomComponent
+                message={message}
+                thread={thread}
+              />
+            )}
+          </div>
+        </div>
       </CitationProvider>
     );
   }
