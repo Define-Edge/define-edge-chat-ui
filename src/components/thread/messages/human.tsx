@@ -1,3 +1,4 @@
+import { MarkdownText } from "@/components/thread/markdown-text";
 import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
 import { TodoList } from "@/components/thread/TodoList";
 import { Textarea } from "@/components/ui/textarea";
@@ -116,9 +117,9 @@ export function HumanMessage({
               )}
               {/* Render text if present, otherwise fallback to file/image name */}
               {contentString ? (
-                <p className="bg-muted ml-auto w-fit rounded-3xl px-4 py-2 text-right whitespace-pre-wrap">
-                  {contentString}
-                </p>
+                <div className="bg-muted ml-auto w-fit rounded-3xl px-4 py-2 text-right">
+                  <MarkdownText>{contentString}</MarkdownText>
+                </div>
               ) : null}
             </div>
           )}

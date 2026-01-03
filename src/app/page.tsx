@@ -1,10 +1,10 @@
 "use client";
 
 import { Thread } from "@/components/thread";
-import { StreamProvider } from "@/providers/Stream";
-import { ThreadProvider } from "@/providers/Thread";
 import { ArtifactProvider } from "@/components/thread/artifact";
 import { Toaster } from "@/components/ui/sonner";
+import { StreamProvider } from "@/providers/Stream";
+import { ThreadProvider } from "@/providers/Thread";
 import React from "react";
 
 export default function DemoPage(): React.ReactNode {
@@ -13,7 +13,7 @@ export default function DemoPage(): React.ReactNode {
       <Toaster />
       <ThreadProvider>
         <StreamProvider>
-          <ArtifactProvider>
+          <ArtifactProvider>       
             <Thread />
           </ArtifactProvider>
         </StreamProvider>

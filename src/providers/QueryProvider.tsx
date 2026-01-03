@@ -1,6 +1,10 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { QueryClient } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { del, get, set } from 'idb-keyval';
 import { useState } from 'react';
 
 type QueryProviderProps = {
@@ -8,22 +12,65 @@ type QueryProviderProps = {
 };
 
 export function QueryProvider({ children }: QueryProviderProps) {
-    const [queryClient] = useState(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        staleTime: 60 * 1000, // 1 minute
-                        retry: 1,
-                        refetchOnWindowFocus: false,
-                    },
+    const [queryClient] = useState(() => {
+        const client = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    gcTime: 0, // Don't persist queries by default
+                    staleTime: 60 * 1000, // 1 minute
+                    retry: 1,
+                    refetchOnWindowFocus: false,
                 },
-            })
+            },
+        });
+
+        // Set specific defaults for FI data queries to ensure proper caching
+        client.setQueryDefaults(['fi-data'], {
+            gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+            staleTime: Infinity, // Never refetch automatically
+            retry: false,
+            refetchOnWindowFocus: false,
+        });
+
+        return client;
+    });
+
+    const [persister] = useState(() =>
+        createAsyncStoragePersister({
+            storage: {
+                getItem: async (key) => await get(key),
+                setItem: async (key, value) => await set(key, value),
+                removeItem: async (key) => await del(key),
+            },
+            throttleTime: 1000, // Throttle persistence writes to once per second
+        })
     );
 
     return (
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{
+                persister,
+                maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days max
+                buster: '', // Empty string = no cache busting (persistent across app versions)
+                // Persist specific queries by matching query key patterns
+                dehydrateOptions: {
+                    shouldDehydrateQuery: (query) => {
+                        const queryKey = query.queryKey;
+
+                        // Only persist FI data queries with consent IDs: ["fi-data", consentID]
+                        // Excludes the disabled placeholder: ["fi-data-disabled"]
+                        return (
+                            Array.isArray(queryKey) &&
+                            queryKey[0] === 'fi-data' &&
+                            queryKey.length > 1
+                        );
+                    },
+                },
+            }}
+        >
             {children}
-        </QueryClientProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+        </PersistQueryClientProvider>
     );
 }

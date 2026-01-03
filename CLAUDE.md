@@ -205,11 +205,79 @@ TypeScript configured with `@/*` alias mapping to `./src/*` (see `tsconfig.json`
 - **ESLint Config**: TypeScript ESLint with React Hooks and React Refresh plugins
 - **No Unused Vars**: Configured to allow `_` prefix for intentionally unused variables
 
+## Module Structure
+
+The application follows a feature-based module architecture for better organization and scalability:
+
+### Module Organization Principles
+
+Modules are organized by feature in `src/modules/` with the following structure:
+```
+src/modules/
+  [module-name]/
+    components/       # Module-specific UI components
+      modals/        # Modal components
+      forms/         # Form components
+      shared/        # Reusable components within the module
+    hooks/           # Custom hooks for the module
+    types/           # TypeScript type definitions
+    constants/       # Constants and configuration
+    utils/           # Utility functions (if needed)
+    index.ts         # Public API exports
+```
+
+### Import Data Module
+
+Located at `src/modules/import-data/`, this module handles importing financial data from various sources including:
+- **MoneyOne Account Aggregator**: Equity and Mutual Fund holdings (RBI-approved framework)
+- **Manual Entry Forms**: Fixed Deposits, Insurance, Real Estate, Commodities, Other Investments
+
+**Components Structure:**
+- `ImportDataPage.tsx` - Main entry component (~200 lines, orchestrates all parts)
+- `account-types/MoneyOneHoldingsCard.tsx` - Reusable card for MoneyOne-connected holdings
+- `account-types/AccountTypeCard.tsx` - Generic card for manual/pending integrations
+- `modals/HoldingsPreviewModal/` - Modular holdings preview and editing system
+- `forms/` - Form components for manual investment entry (150-500 lines each)
+- `shared/` - Shared components like `ImportMethod.tsx`, `CollapsibleInstructions.tsx`
+
+**Hooks:**
+- `useConsentQuery.ts` - Real-time localStorage tracking for consent status
+- `useFiData.ts` - FI data fetching and consent flow management
+- `useImportHoldingsMutation.ts` - Import holdings to chat as markdown table
+- `useMoneyOneStatus.ts` - MoneyOne connection status tracking
+- `useRefreshFiData` - Manual FI data refresh functionality
+
+**Integration:**
+- Import view toggled via `importViewOpen` URL query state (using nuqs)
+- Accessible from Thread History sidebar via "Import" button
+- Closes active thread when switched to import view
+- State automatically cleaned up when switching back to chat
+
+### Component Decomposition Guidelines
+
+When creating or modifying components:
+- **Soft limit**: Aim for 150-200 lines per file (not a strict requirement)
+- **Extract logic**: Move complex state management to custom hooks
+- **Reusable components**: Place in `shared/` or component-specific folders
+- **Single responsibility**: Each component should have one clear purpose
+- **Co-locate related code**: Keep component-specific types, utils near components
+
+### Adding New Modules
+
+1. Create folder structure in `src/modules/[module-name]/`
+2. Implement components following decomposition guidelines
+3. Create custom hooks for state management
+4. Define TypeScript types in `types/` folder
+5. Export public API through `index.ts`
+6. Import and integrate in main application components
+7. Update this documentation with module details
+
 ## Customization
 
 The application has been customized from the original LangChain Agent Chat UI:
 - App name changed to "FinSharpe GPT" in `src/configs/app.config.ts`
 - Custom client components can be added to the registry in `src/components/thread/messages/client-components/`
+- Modular architecture for features like import data management
 
 ## Production Deployment
 
