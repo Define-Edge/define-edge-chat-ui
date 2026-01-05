@@ -22,6 +22,7 @@ import {
 } from "@/lib/ensure-tool-responses";
 import { cn } from "@/lib/utils";
 import { ImportDataPage } from "@/modules/import-data";
+import { DiscoverPage } from "@/modules/discover";
 import { useStreamContext } from "@/providers/Stream";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { motion } from "framer-motion";
@@ -142,6 +143,10 @@ export function Thread() {
     "importViewOpen",
     parseAsBoolean.withDefault(false),
   );
+  const [discoverViewOpen, setDiscoverViewOpen] = useQueryState(
+    "discoverViewOpen",
+    parseAsBoolean.withDefault(false),
+  );
   // const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
   const [selectedModel, setSelectedModel] = useState<PlannerModels>(
@@ -172,8 +177,9 @@ export function Thread() {
     closeArtifact();
     setArtifactContext({});
 
-    // close import view when switching threads
+    // close import and discover views when switching threads
     setImportViewOpen(false);
+    setDiscoverViewOpen(false);
   };
 
   useEffect(() => {
@@ -362,7 +368,13 @@ export function Thread() {
               <ImportDataPage />
             </div>
           )}
-          {chatStarted && !importViewOpen && (
+          {/* Render Discover Page if discover view is open */}
+          {discoverViewOpen && (
+            <div className="w-full overflow-y-auto">
+              <DiscoverPage />
+            </div>
+          )}
+          {chatStarted && !importViewOpen && !discoverViewOpen && (
             <div className="relative z-10 flex items-center justify-between gap-3 p-2">
               <div className="relative flex items-center justify-start gap-2">
                 <div className="absolute left-0 z-10">
@@ -428,7 +440,7 @@ export function Thread() {
             </div>
           )}
 
-          {!importViewOpen && (
+          {!importViewOpen && !discoverViewOpen && (
             <StickToBottom className="relative flex-1 overflow-hidden">
               <StickyToBottomContent
                 className={cn(

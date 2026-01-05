@@ -17,7 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Database, History, PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
+import { Compass, Database, History, PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
 import {
   parseAsBoolean,
   parseAsString,
@@ -35,6 +35,7 @@ function ThreadList({
   const [{ threadId }, setQuery] = useQueryStates(
     {
       importViewOpen: parseAsBoolean.withDefault(false),
+      discoverViewOpen: parseAsBoolean.withDefault(false),
       threadId: parseAsString,
     },
     { shallow: false },
@@ -104,6 +105,7 @@ export default function ThreadHistory() {
     {
       chatHistoryOpen: parseAsBoolean.withDefault(false),
       importViewOpen: parseAsBoolean.withDefault(false),
+      discoverViewOpen: parseAsBoolean.withDefault(false),
       threadId: parseAsString,
     },
     { shallow: false },
@@ -178,6 +180,19 @@ export default function ThreadHistory() {
             <Database className="h-4 w-4" />
             Import
           </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-2 shadow-md"
+            onClick={() => {
+              setQuery({
+                discoverViewOpen: true,
+                threadId: null,
+              });
+            }}
+          >
+            <Compass className="h-4 w-4" />
+            Discover
+          </Button>
         </div>
         <Accordion
           type="single"
@@ -248,6 +263,20 @@ export default function ThreadHistory() {
               >
                 <Database className="h-4 w-4" />
                 Import
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 shadow-md"
+                onClick={() => {
+                  setQuery({
+                    discoverViewOpen: true,
+                    threadId: null,
+                    chatHistoryOpen: false,
+                  });
+                }}
+              >
+                <Compass className="h-4 w-4" />
+                Discover
               </Button>
             </div>
             <Accordion
