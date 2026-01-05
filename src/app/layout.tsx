@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Inter } from "next/font/google";
-import React from "react";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { ClientProviders } from "@/components/providers/ClientProviders";
 import { QueryProvider } from "@/providers/QueryProvider";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import React from "react";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,9 +12,10 @@ const inter = Inter({
   display: "swap",
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const metadata: Metadata = {
-  title: "Agent Chat",
-  description: "Agent Chat UX by LangChain",
+  title: "FinSharpeGPT",
+  description: "Finance Agents by FinSharpe",
 };
 
 export default function RootLayout({
@@ -25,7 +27,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-gray-50`}>
         <QueryProvider>
-          <NuqsAdapter>{children}</NuqsAdapter>
+          <NuqsAdapter>
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <ClientProviders>{children}</ClientProviders>
+            </React.Suspense>
+          </NuqsAdapter>
         </QueryProvider>
       </body>
     </html>

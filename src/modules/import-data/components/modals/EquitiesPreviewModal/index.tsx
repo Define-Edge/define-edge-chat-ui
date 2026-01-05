@@ -13,13 +13,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { BarChart3, TrendingUp } from "lucide-react";
-import { parseAsBoolean, useQueryState } from "nuqs";
 import useModalState from "@/hooks/useModalState";
 import { BaseAnalysisModalProps } from "@/modules/import-data/types";
+import { BarChart3, TrendingUp } from "lucide-react";
+import { EquitiesPreviewForm } from "./EquitiesPreviewForm";
 import { useEquitiesData } from "./hooks/useEquitiesData";
 import { useImportEquitiesMutation } from "./hooks/useImportEquitiesMutation";
-import { EquitiesPreviewForm } from "./EquitiesPreviewForm";
 
 /**
  * Modal component for equity holdings preview
@@ -30,11 +29,6 @@ export function EquitiesPreviewModal({ consent }: BaseAnalysisModalProps) {
 
   const consentID = consent?.consentID;
   const isDataReady = consent?.isDataReady;
-
-  const [, setImportViewOpen] = useQueryState(
-    "importViewOpen",
-    parseAsBoolean.withDefault(false),
-  );
 
   const importMutation = useImportEquitiesMutation();
 
@@ -47,8 +41,6 @@ export function EquitiesPreviewModal({ consent }: BaseAnalysisModalProps) {
   const handleSubmit = (modifiedFiData: typeof fiData) => {
     if (!modifiedFiData) return;
 
-    // Navigate to chat view immediately
-    setImportViewOpen(false);
     handleClose();
 
     // Call mutation to import equities to chat

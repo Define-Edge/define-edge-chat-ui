@@ -2,22 +2,11 @@
 
 import { Thread } from "@/components/thread";
 import { ArtifactProvider } from "@/components/thread/artifact";
-import { Toaster } from "@/components/ui/sonner";
-import { StreamProvider } from "@/providers/Stream";
-import { ThreadProvider } from "@/providers/Thread";
-import React from "react";
 
-export default function DemoPage(): React.ReactNode {
+export default function ChatPage() {
   return (
-    <React.Suspense fallback={<div>Loading (layout)...</div>}>
-      <Toaster />
-      <ThreadProvider>
-        <StreamProvider>
-          <ArtifactProvider>       
-            <Thread />
-          </ArtifactProvider>
-        </StreamProvider>
-      </ThreadProvider>
-    </React.Suspense>
+    <ArtifactProvider>
+      <Thread />
+    </ArtifactProvider>
   );
 }

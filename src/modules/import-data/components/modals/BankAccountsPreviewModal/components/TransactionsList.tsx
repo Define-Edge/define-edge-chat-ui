@@ -133,7 +133,7 @@ export function TransactionsList({
         >
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {transactions.map((transaction, index) => (
-              <TransactionRow key={transaction.txnId || index} transaction={transaction} />
+              <TransactionRow key={`${transaction.txnId}-${index}`} transaction={transaction} />
             ))}
           </div>
         </div>

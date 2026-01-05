@@ -8,13 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { BarChart3, TrendingUp } from "lucide-react";
-import { parseAsBoolean, useQueryState } from "nuqs";
 import useModalState from "@/hooks/useModalState";
 import { ConsentData } from "@/lib/moneyone/moneyone.storage";
+import { BarChart3, TrendingUp } from "lucide-react";
 import { useImportHoldingsMutation } from "../../../hooks/useImportHoldingsMutation";
-import { useHoldingsData } from "./hooks/useHoldingsData";
 import { HoldingsPreviewForm } from "./HoldingsPreviewForm";
+import { useHoldingsData } from "./hooks/useHoldingsData";
 import { getAssetTypeName } from "./utils/holdings-transformer";
 
 type HoldingsPreviewModalProps = {
@@ -32,11 +31,6 @@ export function HoldingsPreviewModal({ consent }: HoldingsPreviewModalProps) {
   const consentType = consent?.type;
   const isDataReady = consent?.isDataReady;
 
-  const [, setImportViewOpen] = useQueryState(
-    "importViewOpen",
-    parseAsBoolean.withDefault(false),
-  );
-
   const importHoldingsMut = useImportHoldingsMutation();
 
   // Fetch and transform holdings data
@@ -52,8 +46,6 @@ export function HoldingsPreviewModal({ consent }: HoldingsPreviewModalProps) {
     _convertedHoldings: any,
     modifiedFiData: any,
   ) => {
-    // Navigate to chat view immediately
-    setImportViewOpen(false);
     handleClose();
 
     // Call mutation to import holdings to chat

@@ -521,7 +521,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { BarChart3, Building, Loader2 } from "lucide-react";
-import { parseAsBoolean, useQueryState } from "nuqs";
 import useModalState from "@/hooks/useModalState";
 import { BaseAnalysisModalProps } from "@/modules/import-data/types";
 import { useNpsData } from "./hooks/useNpsData";
@@ -536,19 +535,11 @@ export function NpsPreviewModal({ consent }: BaseAnalysisModalProps) {
   const consentID = consent?.consentID;
   const isDataReady = consent?.isDataReady;
 
-  const [, setImportViewOpen] = useQueryState(
-    "importViewOpen",
-    parseAsBoolean.withDefault(false),
-  );
-
   const importMutation = useImportNpsMutation();
   const { holdings, isLoading, fiData } = useNpsData(consentID, !!isDataReady);
 
   const handleImport = () => {
     if (!fiData) return;
-
-    // Navigate to chat view immediately
-    setImportViewOpen(false);
     handleClose();
 
     // Call mutation to import NPS to chat

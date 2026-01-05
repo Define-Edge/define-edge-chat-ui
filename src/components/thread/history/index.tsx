@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useThreads } from "@/providers/Thread";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useEffect } from "react";
+import Link from "next/link";
 
 import {
   Sheet,
@@ -17,31 +18,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Compass, Database, History, PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
 import {
-  parseAsBoolean,
-  parseAsString,
-  useQueryStates,
-} from "nuqs";
+  Compass,
+  Database,
+  History,
+  PanelRightClose,
+  PanelRightOpen,
+  Plus,
+} from "lucide-react";
+import { parseAsBoolean, useQueryStates } from "nuqs";
 import { getContentString } from "../utils";
 
-function ThreadList({
-  threads,
-  onThreadClick,
-}: {
-  threads: Thread[];
-  onThreadClick?: (threadId: string) => void;
-}) {
-  const [{ threadId }, setQuery] = useQueryStates(
-    {
-      importViewOpen: parseAsBoolean.withDefault(false),
-      discoverViewOpen: parseAsBoolean.withDefault(false),
-      threadId: parseAsString,
-    },
-    { shallow: false },
-  );
-  // const [threadId, setThreadId] = useQueryState("threadId");
-
+function ThreadList({ threads }: { threads: Thread[] }) {
   return (
     <div>
       <div className="flex w-full flex-col items-start justify-start gap-2">
@@ -64,19 +52,12 @@ function ThreadList({
             >
               <Button
                 variant="ghost"
-                className="w-[250px] md:w-[280px] items-start justify-start text-left font-normal"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onThreadClick?.(t.thread_id);
-                  if (t.thread_id === threadId) return;
-                  // setThreadId(t.thread_id);
-                  setQuery({
-                    importViewOpen: null,
-                    threadId: t.thread_id,
-                  });
-                }}
+                className="w-[250px] items-start justify-start text-left font-normal md:w-[280px]"
+                asChild
               >
-                <p className="truncate text-ellipsis">{itemText}</p>
+                <Link href={`/?threadId=${t.thread_id}`}>
+                  <p className="truncate text-ellipsis">{itemText}</p>
+                </Link>
               </Button>
             </div>
           );
@@ -104,27 +85,14 @@ export default function ThreadHistory() {
   const [{ chatHistoryOpen }, setQuery] = useQueryStates(
     {
       chatHistoryOpen: parseAsBoolean.withDefault(false),
-      importViewOpen: parseAsBoolean.withDefault(false),
-      discoverViewOpen: parseAsBoolean.withDefault(false),
-      threadId: parseAsString,
     },
     { shallow: false },
   );
-  // const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
-  //   "chatHistoryOpen",
-  //   parseAsBoolean.withDefault(false),
-  // );
-  // const [_threadId, setThreadId] = useQueryState("threadId");
-  // const [_importViewOpen, setImportViewOpen] = useQueryState(
-  //   "importViewOpen",
-  //   parseAsBoolean.withDefault(false),
-  // );
 
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } =
     useThreads();
 
   // Handle import holdings by adding message to existing thread or creating new one
-
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -157,41 +125,32 @@ export default function ThreadHistory() {
           <Button
             variant="outline"
             className="w-full justify-start gap-2 shadow-md"
-            onClick={() => {
-              setQuery({
-                importViewOpen: null,
-                threadId: null,
-              });
-            }}
+            asChild
           >
-            <Plus className="h-4 w-4" />
-            New chat
+            <Link href="/">
+              <Plus className="h-4 w-4" />
+              New chat
+            </Link>
           </Button>
           <Button
             variant="outline"
             className="w-full justify-start gap-2 shadow-md"
-            onClick={() => {
-              setQuery({
-                importViewOpen: true,
-                threadId: null,
-              });
-            }}
+            asChild
           >
-            <Database className="h-4 w-4" />
-            Import
+            <Link href="/import">
+              <Database className="h-4 w-4" />
+              Import
+            </Link>
           </Button>
           <Button
             variant="outline"
             className="w-full justify-start gap-2 shadow-md"
-            onClick={() => {
-              setQuery({
-                discoverViewOpen: true,
-                threadId: null,
-              });
-            }}
+            asChild
           >
-            <Compass className="h-4 w-4" />
-            Discover
+            <Link href="/discover">
+              <Compass className="h-4 w-4" />
+              Discover
+            </Link>
           </Button>
         </div>
         <Accordion
@@ -210,7 +169,7 @@ export default function ThreadHistory() {
                 <span>Chat History</span>
               </div>
             </AccordionTrigger>
-            <AccordionContent className="scrollbar-thin pb-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+            <AccordionContent className="scrollbar-thin max-h-[calc(100vh-300px)] overflow-y-auto pb-2">
               {threadsLoading ? (
                 <ThreadHistoryLoading />
               ) : (
@@ -239,44 +198,32 @@ export default function ThreadHistory() {
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2 shadow-md"
-                onClick={() => {
-                  setQuery({
-                    importViewOpen: null,
-                    threadId: null,
-                    chatHistoryOpen: false,
-                  });
-                }}
+                asChild
               >
-                <Plus className="h-4 w-4" />
-                New chat
+                <Link href="/">
+                  <Plus className="h-4 w-4" />
+                  New chat
+                </Link>
               </Button>
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2 shadow-md"
-                onClick={() => {
-                  setQuery({
-                    importViewOpen: true,
-                    threadId: null,
-                    chatHistoryOpen: false,
-                  });
-                }}
+                asChild
               >
-                <Database className="h-4 w-4" />
-                Import
+                <Link href="/import">
+                  <Database className="h-4 w-4" />
+                  Import
+                </Link>
               </Button>
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2 shadow-md"
-                onClick={() => {
-                  setQuery({
-                    discoverViewOpen: true,
-                    threadId: null,
-                    chatHistoryOpen: false,
-                  });
-                }}
+                asChild
               >
-                <Compass className="h-4 w-4" />
-                Discover
+                <Link href="/discover">
+                  <Compass className="h-4 w-4" />
+                  Discover
+                </Link>
               </Button>
             </div>
             <Accordion
@@ -295,13 +242,8 @@ export default function ThreadHistory() {
                     <span>Chat History</span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="scrollbar-thin pb-2 max-h-[calc(100vh-300px)] overflow-y-auto">
-                  <ThreadList
-                    threads={threads}
-                    onThreadClick={() =>
-                      setQuery((p) => ({ chatHistoryOpen: !p.chatHistoryOpen }))
-                    }
-                  />
+                <AccordionContent className="scrollbar-thin max-h-[calc(100vh-300px)] overflow-y-auto pb-2">
+                  <ThreadList threads={threads} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

@@ -13,12 +13,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { BarChart3, TrendingUp } from "lucide-react";
-import { parseAsBoolean, useQueryState } from "nuqs";
 import useModalState from "@/hooks/useModalState";
 import { BaseAnalysisModalProps } from "@/modules/import-data/types";
-import { useMutualFundsData } from "./hooks/useMutualFundsData";
+import { BarChart3, TrendingUp } from "lucide-react";
 import { useImportMutualFundsMutation } from "./hooks/useImportMutualFundsMutation";
+import { useMutualFundsData } from "./hooks/useMutualFundsData";
 import { MutualFundsPreviewForm } from "./MutualFundsPreviewForm";
 
 /**
@@ -31,11 +30,6 @@ export function MutualFundsPreviewModal({ consent }: BaseAnalysisModalProps) {
   const consentID = consent?.consentID;
   const isDataReady = consent?.isDataReady;
 
-  const [, setImportViewOpen] = useQueryState(
-    "importViewOpen",
-    parseAsBoolean.withDefault(false),
-  );
-
   const importMutation = useImportMutualFundsMutation();
 
   // Fetch and transform mutual funds data
@@ -47,8 +41,6 @@ export function MutualFundsPreviewModal({ consent }: BaseAnalysisModalProps) {
   const handleSubmit = (modifiedFiData: typeof fiData) => {
     if (!modifiedFiData) return;
 
-    // Navigate to chat view immediately
-    setImportViewOpen(false);
     handleClose();
 
     // Call mutation to import mutual funds to chat
