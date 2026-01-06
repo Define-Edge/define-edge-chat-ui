@@ -76,6 +76,7 @@ export interface DropdownSectionProps {
   isExpanded: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  className?: string;
 }
 
 /**

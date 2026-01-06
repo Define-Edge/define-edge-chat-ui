@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DropdownSectionProps } from "../../types/discover.types";
 
@@ -15,9 +15,11 @@ export function DropdownSection({
   isExpanded,
   onToggle,
   children,
+  className = "",
+  isLoading = false,
 }: DropdownSectionProps) {
   return (
-    <div className="border border-border-default rounded-xl overflow-hidden bg-bg-card">
+    <div className={`border border-border-default rounded-xl overflow-hidden bg-bg-card ${className}`}>
       <button
         onClick={onToggle}
         className="w-full p-4 flex items-center justify-between hover:bg-bg-hover transition-colors"
@@ -27,14 +29,27 @@ export function DropdownSection({
           <div className="text-left">
             <h3 className="font-medium text-text-primary">{title}</h3>
             <p className="text-sm text-text-tertiary">
-              {count} {count === 1 ? "strategy" : "strategies"}
+              {isLoading ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Loading...
+                </span>
+              ) : (
+                <>
+                  {count} {count === 1 ? "strategy" : "strategies"}
+                </>
+              )}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs">
-            {count}
-          </Badge>
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-text-muted" />
+          ) : (
+            <Badge variant="secondary" className="text-xs">
+              {count}
+            </Badge>
+          )}
           {isExpanded ? (
             <ChevronUp className="w-4 h-4 text-text-muted" />
           ) : (

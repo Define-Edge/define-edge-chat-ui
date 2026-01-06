@@ -61,22 +61,137 @@ export function DiscoverPage() {
     }));
   };
 
-  const handleAdvisorStrategyClick = (strategy: StrategyMasterDetail) => {
-    setSelectedAdvisorStrategy(strategy);
-  };
+  // Define all sections with their properties
+  const allSections = [
+    {
+      id: "advisorStrategies",
+      title: "Created by Advisors",
+      icon: Users,
+      iconColor: "text-accent-purple",
+      count: advisorStrategies.length,
+      content: (
+        <>
+          {isLoading && (
+            <div className="text-center py-4 text-text-secondary">
+              Loading strategies...
+            </div>
+          )}
+          {error ? (
+            <div className="text-center py-4 text-red-500">
+              Failed to load strategies. Please try again later.
+            </div>
+          ) : null}
+          {!isLoading && !error && (
+            <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+              {advisorStrategies.map((strategy, index) => (
+                <AdvisorStrategyCard
+                  key={strategy.strategy || `advisor-${index}`}
+                  strategy={strategy}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      ),
+    },
+    {
+      id: "specialOpportunities",
+      title: "Special Investment Opportunities",
+      icon: AlertTriangle,
+      iconColor: "text-accent-red",
+      count: specialBaskets.length,
+      content: (
+        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+          {specialBaskets.map((basket, index) => (
+            <InvestmentBasketCard key={`special-${index}`} {...basket} />
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "newsBasedBaskets",
+      title: "News-Based Investment Baskets",
+      icon: Newspaper,
+      iconColor: "text-accent-blue",
+      count: newsBasedBaskets.length,
+      content: (
+        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+          {newsBasedBaskets.map((basket, index) => (
+            <InvestmentBasketCard key={`news-${index}`} {...basket} />
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "researchPaperBaskets",
+      title: "Ideas from Research Papers",
+      icon: BookOpen,
+      iconColor: "text-accent-indigo",
+      count: researchPaperBaskets.length,
+      content: (
+        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+          {researchPaperBaskets.map((basket, index) => (
+            <InvestmentBasketCard key={`research-${index}`} {...basket} />
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "curatedBaskets",
+      title: "Curated Investment Baskets",
+      icon: Star,
+      iconColor: "text-accent-yellow",
+      count: curatedBaskets.length,
+      content: (
+        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+          {curatedBaskets.map((basket, index) => (
+            <InvestmentBasketCard key={`curated-${index}`} {...basket} />
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "thematicThemes",
+      title: "Trending Investment Themes",
+      icon: Layers,
+      iconColor: "text-accent-purple",
+      count: thematicBaskets.length,
+      content: (
+        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+          {thematicBaskets.map((basket, index) => (
+            <ThematicBasketCard key={`thematic-${index}`} {...basket} />
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "investorStrategies",
+      title: "Famous Investor Strategies",
+      icon: Crown,
+      iconColor: "text-accent-amber",
+      count: investorBaskets.length,
+      content: (
+        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+          {investorBaskets.map((basket, index) => (
+            <InvestorBasketCard key={`investor-${index}`} {...basket} />
+          ))}
+        </div>
+      ),
+    },
+  ];
 
-  const handleBackFromDetails = () => {
-    setSelectedAdvisorStrategy(null);
-  };
+  // Reorder sections: if an odd-indexed section is expanded, move it to even index
+  const orderedSections = [...allSections];
+  const expandedIndex = orderedSections.findIndex(
+    (section) => expandedSections[section.id]
+  );
 
-  // Show Advisor Strategy Details page if a strategy is selected
-  if (selectedAdvisorStrategy) {
-    return (
-      <AdvisorStrategyDetailsPage
-        strategy={selectedAdvisorStrategy}
-        onBack={handleBackFromDetails}
-      />
-    );
+  // If an odd-indexed section is expanded, swap it with the previous one
+  if (expandedIndex > 0 && expandedIndex % 2 === 1) {
+    [orderedSections[expandedIndex - 1], orderedSections[expandedIndex]] = [
+      orderedSections[expandedIndex],
+      orderedSections[expandedIndex - 1],
+    ];
   }
 
   return (
@@ -96,113 +211,22 @@ export function DiscoverPage() {
 
       <CustomBasketBuilderCard />
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        {orderedSections.map((section) => (
         <DropdownSection
-          title="Created by Advisors"
-          icon={Users}
-          iconColor="text-accent-purple"
-          count={advisorStrategies.length}
-          isExpanded={expandedSections.advisorStrategies}
-          onToggle={() => toggleSection("advisorStrategies")}
-        >
-          {isLoading && (
-            <div className="text-center py-4 text-text-secondary">
-              Loading strategies...
-            </div>
-          )}
-          {error ? (
-            <div className="text-center py-4 text-red-500">
-              Failed to load strategies. Please try again later.
-            </div>
-          ) : null}
-          {!isLoading && !error && advisorStrategies.map((strategy, index) => (
-            <AdvisorStrategyCard
-              key={strategy.strategy || `advisor-${index}`}
-              strategy={strategy}
-              onClick={() => handleAdvisorStrategyClick(strategy)}
-            />
-          ))}
+            key={section.id}
+            title={section.title}
+            icon={section.icon}
+            iconColor={section.iconColor}
+            count={section.count}
+            isExpanded={expandedSections[section.id]}
+            onToggle={() => toggleSection(section.id)}
+            className={expandedSections[section.id] ? "md:col-span-2" : ""}
+            isLoading={section.id === "advisorStrategies" ? isLoading : false}
+          >
+            {section.content}
         </DropdownSection>
-
-        <DropdownSection
-          title="Special Investment Opportunities"
-          icon={AlertTriangle}
-          iconColor="text-accent-red"
-          count={specialBaskets.length}
-          isExpanded={expandedSections.specialOpportunities}
-          onToggle={() => toggleSection("specialOpportunities")}
-        >
-          {specialBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`special-${index}`} {...basket} />
-          ))}
-        </DropdownSection>
-
-        <DropdownSection
-          title="News-Based Investment Baskets"
-          icon={Newspaper}
-          iconColor="text-accent-blue"
-          count={newsBasedBaskets.length}
-          isExpanded={expandedSections.newsBasedBaskets}
-          onToggle={() => toggleSection("newsBasedBaskets")}
-        >
-          {newsBasedBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`news-${index}`} {...basket} />
-          ))}
-        </DropdownSection>
-
-        <DropdownSection
-          title="Ideas from Research Papers"
-          icon={BookOpen}
-          iconColor="text-accent-indigo"
-          count={researchPaperBaskets.length}
-          isExpanded={expandedSections.researchPaperBaskets}
-          onToggle={() => toggleSection("researchPaperBaskets")}
-        >
-          {researchPaperBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`research-${index}`} {...basket} />
-          ))}
-        </DropdownSection>
-
-        <DropdownSection
-          title="Curated Investment Baskets"
-          icon={Star}
-          iconColor="text-accent-yellow"
-          count={curatedBaskets.length}
-          isExpanded={expandedSections.curatedBaskets}
-          onToggle={() => toggleSection("curatedBaskets")}
-        >
-          {curatedBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`curated-${index}`} {...basket} />
-          ))}
-        </DropdownSection>
-
-        <DropdownSection
-          title="Trending Investment Themes"
-          icon={Layers}
-          iconColor="text-accent-purple"
-          count={thematicBaskets.length}
-          isExpanded={expandedSections.thematicThemes}
-          onToggle={() => toggleSection("thematicThemes")}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            {thematicBaskets.map((basket, index) => (
-              <ThematicBasketCard key={`thematic-${index}`} {...basket} />
-            ))}
-          </div>
-        </DropdownSection>
-
-        <DropdownSection
-          title="Famous Investor Strategies"
-          icon={Crown}
-          iconColor="text-accent-amber"
-          count={investorBaskets.length}
-          isExpanded={expandedSections.investorStrategies}
-          onToggle={() => toggleSection("investorStrategies")}
-        >
-          {investorBaskets.map((basket, index) => (
-            <InvestorBasketCard key={`investor-${index}`} {...basket} />
-          ))}
-        </DropdownSection>
+        ))}
       </div>
     </div>
   );
