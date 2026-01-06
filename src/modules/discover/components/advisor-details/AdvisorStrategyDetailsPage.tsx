@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Star, StarOff, Share, Download, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  Star,
+  StarOff,
+  Share,
+  Download,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
@@ -9,10 +16,10 @@ import { AdvisorInfoSection } from "./AdvisorInfoSection";
 import { StrategyOverviewTab } from "./StrategyOverviewTab";
 import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
 import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
+import Link from "next/link";
 
 interface AdvisorStrategyDetailsPageProps {
   strategy: StrategyMasterDetail;
-  onBack: () => void;
 }
 
 /**
@@ -23,7 +30,6 @@ interface AdvisorStrategyDetailsPageProps {
  */
 export function AdvisorStrategyDetailsPage({
   strategy,
-  onBack,
 }: AdvisorStrategyDetailsPageProps) {
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -31,42 +37,43 @@ export function AdvisorStrategyDetailsPage({
   return (
     <div className="bg-bg-subtle mx-auto max-w-5xl">
       {/* Header */}
-      <div className="bg-bg-card px-6 py-4 border-b border-border-subtle relative z-50">
+      <div className="bg-bg-card border-border-subtle relative z-50 border-b px-6 py-4">
         <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-2 hover:bg-bg-hover rounded-full transition-colors cursor-pointer"
+          <Link
+            href="/discover"
+            className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5 text-text-secondary" />
-          </button>
+            <ArrowLeft className="text-text-secondary h-5 w-5" />
+          </Link>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsWatchlisted(!isWatchlisted)}
-              className="p-2 hover:bg-bg-hover rounded-full transition-colors cursor-pointer"
-              aria-label={isWatchlisted ? "Remove from watchlist" : "Add to watchlist"}
+              className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
+              aria-label={
+                isWatchlisted ? "Remove from watchlist" : "Add to watchlist"
+              }
             >
               {isWatchlisted ? (
-                <Star className="w-5 h-5 text-accent-yellow fill-current" />
+                <Star className="text-accent-yellow h-5 w-5 fill-current" />
               ) : (
-                <StarOff className="w-5 h-5 text-text-muted" />
+                <StarOff className="text-text-muted h-5 w-5" />
               )}
             </button>
             <button
               type="button"
-              className="p-2 hover:bg-bg-hover rounded-full transition-colors cursor-pointer"
+              className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
               aria-label="Share strategy"
             >
-              <Share className="w-5 h-5 text-text-muted" />
+              <Share className="text-text-muted h-5 w-5" />
             </button>
             <button
               type="button"
-              className="p-2 hover:bg-bg-hover rounded-full transition-colors cursor-pointer"
+              className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
               aria-label="Download strategy"
             >
-              <Download className="w-5 h-5 text-text-muted" />
+              <Download className="text-text-muted h-5 w-5" />
             </button>
           </div>
         </div>
@@ -77,15 +84,28 @@ export function AdvisorStrategyDetailsPage({
 
       {/* Content Tabs */}
       <div className="px-6 py-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="overview" className="text-xs">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <TabsList className="mb-6 grid w-full grid-cols-3">
+            <TabsTrigger
+              value="overview"
+              className="text-xs"
+            >
               Overview
             </TabsTrigger>
-            <TabsTrigger value="holdings" className="text-xs">
+            <TabsTrigger
+              value="holdings"
+              className="text-xs"
+            >
               Holdings
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="text-xs">
+            <TabsTrigger
+              value="analytics"
+              className="text-xs"
+            >
               Analytics
             </TabsTrigger>
           </TabsList>
@@ -105,10 +125,10 @@ export function AdvisorStrategyDetailsPage({
       </div>
 
       {/* Action Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-default shadow-lg z-40">
-        <div className="max-w-md mx-auto px-6 py-4">
-          <Button className="w-full bg-accent-blue hover:bg-info-icon text-white py-3">
-            <MessageSquare className="w-4 h-4 mr-2" />
+      <div className="bg-bg-card border-border-default fixed right-0 bottom-0 left-0 z-40 border-t shadow-lg">
+        <div className="mx-auto max-w-md px-6 py-4">
+          <Button className="bg-accent-blue hover:bg-info-icon w-full py-3 text-white">
+            <MessageSquare className="mr-2 h-4 w-4" />
             Add to chat & analyze
           </Button>
         </div>

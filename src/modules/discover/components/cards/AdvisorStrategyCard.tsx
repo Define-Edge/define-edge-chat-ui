@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowUpRight, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,7 +6,6 @@ import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
 
 interface AdvisorStrategyCardProps {
   strategy: StrategyMasterDetail;
-  onClick?: () => void;
 }
 
 /**
@@ -15,7 +15,6 @@ interface AdvisorStrategyCardProps {
  */
 export function AdvisorStrategyCard({
   strategy,
-  onClick,
 }: AdvisorStrategyCardProps) {
   const riskColors = {
     Low: "bg-risk-low-bg text-risk-low-fg border-risk-low-border",
@@ -24,10 +23,10 @@ export function AdvisorStrategyCard({
   };
 
   return (
-    <Card
-      className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-border-default"
-      onClick={onClick}
-    >
+    <Link href={`/discover/${strategy.strategy}`}>
+      <Card
+        className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-border-default"
+      >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <Badge className="text-xs bg-info-icon-bg text-accent-purple border-info-border">
@@ -61,5 +60,6 @@ export function AdvisorStrategyCard({
         </div>
       </div>
     </Card>
+    </Link>
   );
 }

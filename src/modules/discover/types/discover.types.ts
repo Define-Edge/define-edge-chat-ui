@@ -77,6 +77,7 @@ export interface DropdownSectionProps {
   onToggle: () => void;
   children: React.ReactNode;
   className?: string;
+  isLoading?: boolean;
 }
 
 /**

@@ -18,8 +18,6 @@ import { AdvisorStrategyCard } from "./cards/AdvisorStrategyCard";
 import { InvestmentBasketCard } from "./cards/InvestmentBasketCard";
 import { ThematicBasketCard } from "./cards/ThematicBasketCard";
 import { InvestorBasketCard } from "./cards/InvestorBasketCard";
-import { AdvisorStrategyDetailsPage } from "./advisor-details/AdvisorStrategyDetailsPage";
-import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
 import { useGetAllStrategiesApiStrategiesGet } from "@/api/generated/strategy-apis/strategy-apis/strategy-apis";
 import {
   curatedBaskets,
@@ -36,8 +34,6 @@ import {
  * Displays investment baskets organized by categories with collapsible sections
  */
 export function DiscoverPage() {
-  const [selectedAdvisorStrategy, setSelectedAdvisorStrategy] =
-    useState<StrategyMasterDetail | null>(null);
   const [expandedSections, setExpandedSections] = useState<{
     [key: string]: boolean;
   }>({
@@ -213,7 +209,7 @@ export function DiscoverPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         {orderedSections.map((section) => (
-        <DropdownSection
+          <DropdownSection
             key={section.id}
             title={section.title}
             icon={section.icon}
@@ -225,7 +221,7 @@ export function DiscoverPage() {
             isLoading={section.id === "advisorStrategies" ? isLoading : false}
           >
             {section.content}
-        </DropdownSection>
+          </DropdownSection>
         ))}
       </div>
     </div>
