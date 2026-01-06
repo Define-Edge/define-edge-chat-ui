@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
-import { AdvisorStrategy } from "../../types/discover.types";
+import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
 
 interface AdvisorInfoSectionProps {
-  strategy: AdvisorStrategy;
+  strategy: StrategyMasterDetail;
 }
 
 /**
@@ -30,22 +30,22 @@ export function AdvisorInfoSection({ strategy }: AdvisorInfoSectionProps) {
             <Badge variant="secondary" className="text-xs">
               {strategy.category}
             </Badge>
-            <Badge className={`text-xs ${riskColors[strategy.riskLevel]}`}>
-              {strategy.riskLevel} Risk
+            <Badge className={`text-xs ${riskColors[strategy.risk_level as keyof typeof riskColors] || riskColors.Medium}`}>
+              {strategy.risk_level} Risk
             </Badge>
           </div>
           <h1 className="text-xl font-semibold text-text-primary mb-2">
-            {strategy.title}
+            {strategy.display_name}
           </h1>
           <p className="text-sm text-text-secondary mb-2">{strategy.description}</p>
-          <p className="text-xs text-accent-blue">{strategy.methodology}</p>
+          <p className="text-xs text-accent-blue">{strategy.keywords}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 items-center gap-4">
         <div className="text-center">
           <div className="text-lg font-semibold text-text-primary">
-            {strategy.stocks}
+            {strategy.stock_count}
           </div>
           <div className="text-xs text-text-tertiary">Holdings</div>
         </div>

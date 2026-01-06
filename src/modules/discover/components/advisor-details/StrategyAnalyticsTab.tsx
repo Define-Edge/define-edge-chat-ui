@@ -1,7 +1,5 @@
-import { RiskLevel } from "../../types/discover.types";
-
 interface StrategyAnalyticsTabProps {
-  riskLevel: RiskLevel;
+  riskLevel: string;
 }
 
 /**

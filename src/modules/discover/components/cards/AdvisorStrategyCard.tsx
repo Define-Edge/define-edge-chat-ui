@@ -1,9 +1,10 @@
 import { ArrowUpRight, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AdvisorStrategy } from "../../types/discover.types";
+import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
 
-interface AdvisorStrategyCardProps extends AdvisorStrategy {
+interface AdvisorStrategyCardProps {
+  strategy: StrategyMasterDetail;
   onClick?: () => void;
 }
 
@@ -13,14 +14,7 @@ interface AdvisorStrategyCardProps extends AdvisorStrategy {
  * Includes FinSharpe branding badge and advisor information
  */
 export function AdvisorStrategyCard({
-  title,
-  description,
-  returns,
-  riskLevel,
-  stocks,
-  category,
-  performance,
-  methodology,
+  strategy,
   onClick,
 }: AdvisorStrategyCardProps) {
   const riskColors = {
@@ -41,28 +35,28 @@ export function AdvisorStrategyCard({
             FinSharpe
           </Badge>
           <Badge variant="secondary" className="text-xs">
-            {category}
+            {strategy.category}
           </Badge>
         </div>
         <ArrowUpRight className="w-4 h-4 text-text-muted" />
       </div>
 
-      <h3 className="font-medium text-text-primary mb-2">{title}</h3>
-      <p className="text-sm text-text-secondary mb-2">{description}</p>
-      <p className="text-xs text-accent-blue mb-3">{methodology}</p>
+      <h3 className="font-medium text-text-primary mb-2">{strategy.display_name}</h3>
+      <p className="text-sm text-text-secondary mb-2">{strategy.description}</p>
+      <p className="text-xs text-accent-blue mb-3">{strategy.keywords}</p>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-tertiary">Risk Level</span>
-          <Badge className={`text-xs ${riskColors[riskLevel]}`}>
-            {riskLevel}
+          <Badge className={`text-xs ${riskColors[strategy.risk_level as keyof typeof riskColors] || riskColors.Medium}`}>
+            {strategy.risk_level}
           </Badge>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-tertiary">Holdings</span>
           <span className="text-sm font-medium text-text-primary">
-            {stocks} stocks
+            {strategy.stock_count} stocks
           </span>
         </div>
       </div>

@@ -4,14 +4,14 @@ import { useState } from "react";
 import { ArrowLeft, Star, StarOff, Share, Download, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AdvisorStrategy } from "../../types/discover.types";
+import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
 import { AdvisorInfoSection } from "./AdvisorInfoSection";
 import { StrategyOverviewTab } from "./StrategyOverviewTab";
 import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
 import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
 
 interface AdvisorStrategyDetailsPageProps {
-  strategy: AdvisorStrategy;
+  strategy: StrategyMasterDetail;
   onBack: () => void;
 }
 
@@ -99,7 +99,7 @@ export function AdvisorStrategyDetailsPage({
           </TabsContent>
 
           <TabsContent value="analytics">
-            <StrategyAnalyticsTab riskLevel={strategy.riskLevel} />
+            <StrategyAnalyticsTab riskLevel={strategy.risk_level} />
           </TabsContent>
         </Tabs>
       </div>

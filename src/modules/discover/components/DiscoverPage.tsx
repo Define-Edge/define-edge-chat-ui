@@ -19,9 +19,9 @@ import { InvestmentBasketCard } from "./cards/InvestmentBasketCard";
 import { ThematicBasketCard } from "./cards/ThematicBasketCard";
 import { InvestorBasketCard } from "./cards/InvestorBasketCard";
 import { AdvisorStrategyDetailsPage } from "./advisor-details/AdvisorStrategyDetailsPage";
-import { AdvisorStrategy } from "../types/discover.types";
+import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
+import { useGetAllStrategiesApiStrategiesGet } from "@/api/generated/strategy-apis/strategy-apis/strategy-apis";
 import {
-  advisorStrategies,
   curatedBaskets,
   investorBaskets,
   newsBasedBaskets,
@@ -37,7 +37,7 @@ import {
  */
 export function DiscoverPage() {
   const [selectedAdvisorStrategy, setSelectedAdvisorStrategy] =
-    useState<AdvisorStrategy | null>(null);
+    useState<StrategyMasterDetail | null>(null);
   const [expandedSections, setExpandedSections] = useState<{
     [key: string]: boolean;
   }>({
@@ -50,6 +50,10 @@ export function DiscoverPage() {
     investorStrategies: false,
   });
 
+  // Fetch advisor strategies from API
+  const { data, isLoading, error } = useGetAllStrategiesApiStrategiesGet();
+  const advisorStrategies = data?.data.strategies || [];
+
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -57,7 +61,7 @@ export function DiscoverPage() {
     }));
   };
 
-  const handleAdvisorStrategyClick = (strategy: AdvisorStrategy) => {
+  const handleAdvisorStrategyClick = (strategy: StrategyMasterDetail) => {
     setSelectedAdvisorStrategy(strategy);
   };
 
@@ -101,10 +105,20 @@ export function DiscoverPage() {
           isExpanded={expandedSections.advisorStrategies}
           onToggle={() => toggleSection("advisorStrategies")}
         >
-          {advisorStrategies.map((strategy, index) => (
+          {isLoading && (
+            <div className="text-center py-4 text-text-secondary">
+              Loading strategies...
+            </div>
+          )}
+          {error ? (
+            <div className="text-center py-4 text-red-500">
+              Failed to load strategies. Please try again later.
+            </div>
+          ) : null}
+          {!isLoading && !error && advisorStrategies.map((strategy, index) => (
             <AdvisorStrategyCard
-              key={`advisor-${index}`}
-              {...strategy}
+              key={strategy.strategy || `advisor-${index}`}
+              strategy={strategy}
               onClick={() => handleAdvisorStrategyClick(strategy)}
             />
           ))}
