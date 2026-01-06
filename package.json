@@ -17,7 +17,8 @@
     "postinstall": "node scripts/postinstall.mjs",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "generate:api": "node scripts/filter-openapi-spec.mjs && orval --config ./orval.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -98,6 +99,7 @@
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
     "next": "15.2.6",
+    "orval": "^7.17.2",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
