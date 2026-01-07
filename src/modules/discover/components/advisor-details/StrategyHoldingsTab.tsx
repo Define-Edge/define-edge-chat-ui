@@ -35,6 +35,7 @@ export function StrategyHoldingsTab({ holdings }: StrategyHoldingsTabProps) {
                 <TableHead className="text-left">Stock</TableHead>
                 <TableHead className="hidden md:table-cell text-left">Industry</TableHead>
                 <TableHead className="hidden md:table-cell text-left">Size</TableHead>
+                <TableHead className="hidden lg:table-cell text-right">Market Cap</TableHead>
                 <TableHead className="text-right">Weight</TableHead>
               </TableRow>
             </TableHeader>
@@ -54,24 +55,24 @@ export function StrategyHoldingsTab({ holdings }: StrategyHoldingsTabProps) {
                   <TableCell className="hidden md:table-cell text-text-secondary">
                     {holding.Industry || "N/A"}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <div>
-                      <div className="text-text-secondary">
-                        {holding.Size || "N/A"}
-                      </div>
-                      {holding.T3M_Avg_Mcap && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="text-xs text-text-tertiary cursor-help">
-                              ₹{(holding.T3M_Avg_Mcap / 1000).toFixed(2)}K Cr
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>3-Month Average Market Capitalization</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
+                  <TableCell className="hidden md:table-cell text-text-secondary">
+                    {holding.Size || "N/A"}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-right text-text-secondary">
+                    {holding.T3M_Avg_Mcap ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">
+                            ₹{(holding.T3M_Avg_Mcap / 1000).toFixed(2)}K Cr
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>3-Month Average Market Capitalization</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      "N/A"
+                    )}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {holding.weight.toFixed(2)}%
