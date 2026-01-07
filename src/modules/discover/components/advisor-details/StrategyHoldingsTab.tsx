@@ -7,14 +7,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { mockHoldings } from "../../constants/advisor-strategy-mock-data";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { PortfolioHolding } from "@/api/generated/strategy-apis/models";
+
+interface StrategyHoldingsTabProps {
+  holdings: PortfolioHolding[];
+}
 
 /**
  * Strategy Holdings Tab Component
  * Displays portfolio holdings in a table with weights, prices, and changes
  * Component size: ~120 lines
  */
-export function StrategyHoldingsTab() {
+export function StrategyHoldingsTab({ holdings }: StrategyHoldingsTabProps) {
   return (
     <div className="space-y-6 pb-28">
       <Card className="p-4">
@@ -24,24 +33,48 @@ export function StrategyHoldingsTab() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-left">Stock</TableHead>
+                <TableHead className="hidden md:table-cell text-left">Industry</TableHead>
+                <TableHead className="hidden md:table-cell text-left">Size</TableHead>
                 <TableHead className="text-right">Weight</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockHoldings.map((holding, index) => (
+              {holdings.map((holding, index) => (
                 <TableRow key={index}>
                   <TableCell>
                     <div>
                       <div className="font-medium text-text-primary">
-                        {holding.symbol}
+                        {holding.Ticker}
                       </div>
                       <div className="text-xs text-text-tertiary truncate">
-                        {holding.name}
+                        {holding.Company_Name || "N/A"}
                       </div>
                     </div>
                   </TableCell>
+                  <TableCell className="hidden md:table-cell text-text-secondary">
+                    {holding.Industry || "N/A"}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <div>
+                      <div className="text-text-secondary">
+                        {holding.Size || "N/A"}
+                      </div>
+                      {holding.T3M_Avg_Mcap && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="text-xs text-text-tertiary cursor-help">
+                              ₹{(holding.T3M_Avg_Mcap / 1000).toFixed(2)}K Cr
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>3-Month Average Market Capitalization</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right font-medium">
-                    {holding.weight}%
+                    {holding.weight.toFixed(2)}%
                   </TableCell>
                 </TableRow>
               ))}

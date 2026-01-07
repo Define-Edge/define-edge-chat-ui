@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
+import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 import { AdvisorInfoSection } from "./AdvisorInfoSection";
 import { StrategyOverviewTab } from "./StrategyOverviewTab";
 import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
@@ -19,7 +19,7 @@ import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
 import Link from "next/link";
 
 interface AdvisorStrategyDetailsPageProps {
-  strategy: StrategyMasterDetail;
+  strategy: StrategyAnalyticsResponse;
 }
 
 /**
@@ -111,15 +111,23 @@ export function AdvisorStrategyDetailsPage({
           </TabsList>
 
           <TabsContent value="overview">
-            <StrategyOverviewTab />
+            <StrategyOverviewTab
+              industryDistribution={strategy.industry_distribution}
+              sizeDistribution={strategy.size_distribution}
+            />
           </TabsContent>
 
           <TabsContent value="holdings">
-            <StrategyHoldingsTab />
+            <StrategyHoldingsTab holdings={strategy.holdings} />
           </TabsContent>
 
           <TabsContent value="analytics">
-            <StrategyAnalyticsTab riskLevel={strategy.risk_level} />
+            <StrategyAnalyticsTab
+              riskLevel={strategy.risk_level}
+              returnsChartData={strategy.returns_chart_data}
+              overallScoreChartData={strategy.overall_score_chart_data}
+              riskScoreChartData={strategy.risk_score_chart_data}
+            />
           </TabsContent>
         </Tabs>
       </div>

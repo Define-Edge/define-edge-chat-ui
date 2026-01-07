@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
-import { StrategyMasterDetail } from "@/api/generated/strategy-apis/models";
+import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 
 interface AdvisorInfoSectionProps {
-  strategy: StrategyMasterDetail;
+  strategy: StrategyAnalyticsResponse;
 }
 
 /**
@@ -45,7 +45,7 @@ export function AdvisorInfoSection({ strategy }: AdvisorInfoSectionProps) {
       <div className="grid grid-cols-2 items-center gap-4">
         <div className="text-center">
           <div className="text-lg font-semibold text-text-primary">
-            {strategy.stock_count}
+            {strategy.total_stock_count}
           </div>
           <div className="text-xs text-text-tertiary">Holdings</div>
         </div>

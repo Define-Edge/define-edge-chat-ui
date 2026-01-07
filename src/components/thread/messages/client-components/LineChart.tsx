@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { cn } from "@/lib/utils";
 
 type Props = {
   data?: any[];
@@ -23,6 +24,7 @@ type Props = {
   title?: string;
   description?: string;
   analysis?: string;
+  className?: string;
 };
 
 export default function LineChart({
@@ -31,10 +33,11 @@ export default function LineChart({
   title,
   description,
   analysis,
+  className,
 }: Props) {
   const isMobile = useIsMobile();
   return (
-    <div className="mx-auto grid min-w-[calc(100dvw-2rem)] grid-rows-[1fr_auto] gap-2 md:min-w-3xl">
+    <div className={cn("mx-auto grid min-w-[calc(100dvw-2rem)] grid-rows-[1fr_auto] gap-2 md:min-w-3xl", className)}>
       <div className="overflow-hidden rounded-lg border border-gray-200">
         <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
           <h3 className="font-medium text-gray-900">{title}</h3>

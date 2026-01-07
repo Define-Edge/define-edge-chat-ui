@@ -1,42 +1,38 @@
-"use client";
-
-import { useGetAllStrategiesApiStrategiesGet } from "@/api/generated/strategy-apis/strategy-apis/strategy-apis";
 import { PageHeader } from "@/components/layouts/PageHeader";
 import { AdvisorStrategyDetailsPage } from "@/modules/discover/components/advisor-details/AdvisorStrategyDetailsPage";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 
-export default function StrategyDetailsPage() {
-  const params = useParams();
-  const strategyId = params.strategy as string;
+type PageProps = {
+  params: Promise<{ strategy: string }>;
+};
 
-  const { data, isLoading, error } = useGetAllStrategiesApiStrategiesGet();
-  const strategy = data?.data.strategies.find((s) => s.strategy === strategyId);
+export default async function StrategyDetailsPage({ params }: PageProps) {
+  const { strategy: strategyId } = await params;
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full w-full flex-col overflow-hidden">
-        <PageHeader title="Strategy Details" />
-        <div className="flex flex-1 items-center justify-center">
-          <div className="text-text-secondary py-8 text-center">
-            Loading strategy details...
-          </div>
-        </div>
-      </div>
-    );
+  // For server-side rendering, construct the full URL
+  const baseUrl = process.env.LANGGRAPH_API_URL || "http://127.0.0.1:2024";
+  const url = `${baseUrl}/api/strategies/${strategyId}`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Error response:", errorText);
+
+    if (res.status === 404) {
+      notFound();
+    }
+    // For other errors, throw to trigger error boundary
+    throw new Error(`Failed to fetch strategy: ${res.status} ${res.statusText}`);
   }
 
-  if (error || !strategy) {
-    return (
-      <div className="flex h-full w-full flex-col overflow-hidden">
-        <PageHeader title="Strategy Details" />
-        <div className="flex flex-1 items-center justify-center">
-          <div className="py-8 text-center text-red-500">
-            Failed to load strategy details. Please try again later.
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const strategy: StrategyAnalyticsResponse = await res.json();
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden">
