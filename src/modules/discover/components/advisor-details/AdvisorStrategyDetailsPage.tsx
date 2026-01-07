@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { AdvisorInfoSection } from "./AdvisorInfoSection";
+import { MissingHoldingsWarning } from "./MissingHoldingsWarning";
 import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
 import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
 import { StrategyOverviewTab } from "./StrategyOverviewTab";
@@ -88,6 +89,11 @@ export function AdvisorStrategyDetailsPage({
 
       {/* Strategy Info Section */}
       <AdvisorInfoSection strategy={strategy} />
+
+      {/* Missing Holdings Warning */}
+      {strategy.missing_holdings && strategy.missing_holdings.length > 0 && (
+        <MissingHoldingsWarning missingHoldings={strategy.missing_holdings} />
+      )}
 
       {/* Content Tabs */}
       <div className="px-6 py-4">

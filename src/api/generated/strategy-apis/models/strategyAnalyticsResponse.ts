@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { PortfolioHolding } from "./portfolioHolding";
+import type { MissingHolding } from "./missingHolding";
 import type { DistributionItem } from "./distributionItem";
 import type { ReturnsChartData } from "./returnsChartData";
 import type { ScoreChartDataItem } from "./scoreChartDataItem";
@@ -32,6 +33,8 @@ export interface StrategyAnalyticsResponse {
   holdings: PortfolioHolding[];
   /** Total number of stocks in the strategy portfolio */
   total_stock_count: number;
+  /** List of holdings that are missing from closing or screener data and excluded from analytics */
+  missing_holdings?: MissingHolding[];
   /** Industry distribution by weight (Recharts pie chart format) */
   industry_distribution: DistributionItem[];
   /** Size distribution by weight (Recharts pie chart format) */
