@@ -18,7 +18,11 @@ import type {
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { GetAllStrategiesResponse } from ".././models";
+import type {
+  GetAllStrategiesResponse,
+  HTTPValidationError,
+  StrategyAnalyticsResponse,
+} from ".././models";
 
 /**
  * Get all available strategies with master details.
@@ -219,6 +223,298 @@ export function useGetAllStrategiesApiStrategiesGet<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getGetAllStrategiesApiStrategiesGetQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Get strategy analytics with portfolio holdings and screener enrichment.
+
+This endpoint retrieves detailed analytics for a specific strategy, including:
+- Strategy master details (description, risk_level, category, etc.)
+- Portfolio holdings enriched with screener data (Company_Name, Industry, etc.)
+- Holdings are sorted by weight in descending order
+
+Args:
+    strategy_name: Name of the strategy to retrieve
+
+Returns:
+    StrategyAnalyticsResponse with strategy details and enriched holdings
+
+Raises:
+    HTTPException: 404 if strategy not found, 500 for other errors
+
+Example:
+    GET /api/strategies/conservative_equity
+    Response:
+    {
+        "strategy": "conservative_equity",
+        "description": "A conservative equity portfolio...",
+        "risk_level": "Low",
+        "keywords": "conservative, equity, low risk",
+        "display_name": "Conservative Equity Portfolio",
+        "category": "Equity",
+        "holdings": [
+            {
+                "Ticker": "RELIANCE",
+                "weight": 15.5,
+                "quantity": 100,
+                "value": 250000,
+                "CMP": 2500,
+                "Company_Name": "Reliance Industries Ltd",
+                "Industry": "Oil & Gas",
+                "Size": "Large"
+            }
+        ],
+        "total_stock_count": 25
+    }
+ * @summary Get Strategy Analytics
+ */
+export type getStrategyAnalyticsApiStrategiesStrategyNameGetResponse200 = {
+  data: StrategyAnalyticsResponse;
+  status: 200;
+};
+
+export type getStrategyAnalyticsApiStrategiesStrategyNameGetResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type getStrategyAnalyticsApiStrategiesStrategyNameGetResponseSuccess =
+  getStrategyAnalyticsApiStrategiesStrategyNameGetResponse200 & {
+    headers: Headers;
+  };
+export type getStrategyAnalyticsApiStrategiesStrategyNameGetResponseError =
+  getStrategyAnalyticsApiStrategiesStrategyNameGetResponse422 & {
+    headers: Headers;
+  };
+
+export type getStrategyAnalyticsApiStrategiesStrategyNameGetResponse =
+  | getStrategyAnalyticsApiStrategiesStrategyNameGetResponseSuccess
+  | getStrategyAnalyticsApiStrategiesStrategyNameGetResponseError;
+
+export const getGetStrategyAnalyticsApiStrategiesStrategyNameGetUrl = (
+  strategyName: string,
+) => {
+  return `/api/utilities/strategies/${strategyName}`;
+};
+
+export const getStrategyAnalyticsApiStrategiesStrategyNameGet = async (
+  strategyName: string,
+  options?: RequestInit,
+): Promise<getStrategyAnalyticsApiStrategiesStrategyNameGetResponse> => {
+  const res = await fetch(
+    getGetStrategyAnalyticsApiStrategiesStrategyNameGetUrl(strategyName),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getStrategyAnalyticsApiStrategiesStrategyNameGetResponse["data"] =
+    body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getStrategyAnalyticsApiStrategiesStrategyNameGetResponse;
+};
+
+export const getGetStrategyAnalyticsApiStrategiesStrategyNameGetQueryKey = (
+  strategyName?: string,
+) => {
+  return [`/api/utilities/strategies/${strategyName}`] as const;
+};
+
+export const getGetStrategyAnalyticsApiStrategiesStrategyNameGetQueryOptions = <
+  TData = Awaited<
+    ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+  >,
+  TError = HTTPValidationError,
+>(
+  strategyName: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+        >,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+) => {
+  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetStrategyAnalyticsApiStrategiesStrategyNameGetQueryKey(strategyName);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>>
+  > = ({ signal }) =>
+    getStrategyAnalyticsApiStrategiesStrategyNameGet(strategyName, {
+      signal,
+      ...fetchOptions,
+    });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!strategyName,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<
+      ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+    >,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetStrategyAnalyticsApiStrategiesStrategyNameGetQueryResult =
+  NonNullable<
+    Awaited<ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>>
+  >;
+export type GetStrategyAnalyticsApiStrategiesStrategyNameGetQueryError =
+  HTTPValidationError;
+
+export function useGetStrategyAnalyticsApiStrategiesStrategyNameGet<
+  TData = Awaited<
+    ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+  >,
+  TError = HTTPValidationError,
+>(
+  strategyName: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+        >,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+          >,
+          TError,
+          Awaited<
+            ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+          >
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetStrategyAnalyticsApiStrategiesStrategyNameGet<
+  TData = Awaited<
+    ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+  >,
+  TError = HTTPValidationError,
+>(
+  strategyName: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+        >,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+          >,
+          TError,
+          Awaited<
+            ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+          >
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetStrategyAnalyticsApiStrategiesStrategyNameGet<
+  TData = Awaited<
+    ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+  >,
+  TError = HTTPValidationError,
+>(
+  strategyName: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+        >,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Strategy Analytics
+ */
+
+export function useGetStrategyAnalyticsApiStrategiesStrategyNameGet<
+  TData = Awaited<
+    ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+  >,
+  TError = HTTPValidationError,
+>(
+  strategyName: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getStrategyAnalyticsApiStrategiesStrategyNameGet>
+        >,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions =
+    getGetStrategyAnalyticsApiStrategiesStrategyNameGetQueryOptions(
+      strategyName,
+      options,
+    );
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

@@ -6,5 +6,22 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from "./distributionItem";
 export * from "./getAllStrategiesResponse";
+export * from "./hTTPValidationError";
+export * from "./portfolioHolding";
+export * from "./portfolioHoldingCMP";
+export * from "./portfolioHoldingCompanyName";
+export * from "./portfolioHoldingIndustry";
+export * from "./portfolioHoldingQuantity";
+export * from "./portfolioHoldingSize";
+export * from "./portfolioHoldingT3MAvgMcap";
+export * from "./portfolioHoldingValue";
+export * from "./returnsChartData";
+export * from "./returnsChartDataColors";
+export * from "./returnsChartDataDataItem";
+export * from "./scoreChartDataItem";
+export * from "./strategyAnalyticsResponse";
 export * from "./strategyMasterDetail";
+export * from "./validationError";
+export * from "./validationErrorLocItem";
