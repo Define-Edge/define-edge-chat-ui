@@ -9,6 +9,7 @@
 export * from "./distributionItem";
 export * from "./getAllStrategiesResponse";
 export * from "./hTTPValidationError";
+export * from "./missingHolding";
 export * from "./portfolioHolding";
 export * from "./portfolioHoldingCMP";
 export * from "./portfolioHoldingCompanyName";
