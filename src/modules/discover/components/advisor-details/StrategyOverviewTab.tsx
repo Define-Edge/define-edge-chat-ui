@@ -61,43 +61,45 @@ export function StrategyOverviewTab({
         <h3 className="font-medium text-text-primary mb-4">
           Industry Allocation
         </h3>
-        <div className="h-48">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={industryWithColors}
-                cx="50%"
-                cy="50%"
-                innerRadius={40}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {industryWithColors.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value) => `${Number(value).toFixed(2)}%`} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="space-y-2 mt-4">
-          {industryWithColors.map((industry, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: industry.color }}
-                ></div>
-                <span className="text-sm text-text-secondary">
-                  {industry.name}
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="h-48 md:w-48 flex-shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={industryWithColors}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {industryWithColors.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${Number(value).toFixed(2)}%`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 flex-1">
+            {industryWithColors.map((industry, index) => (
+              <div key={index} className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: industry.color }}
+                  ></div>
+                  <span className="text-sm text-text-secondary">
+                    {industry.name}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-text-primary">
+                  {industry.value.toFixed(2)}%
                 </span>
               </div>
-              <span className="text-sm font-medium text-text-primary">
-                {industry.value.toFixed(2)}%
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </Card>
 

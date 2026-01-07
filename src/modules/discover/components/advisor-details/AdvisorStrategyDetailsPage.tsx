@@ -1,22 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import {
-  ArrowLeft,
-  Star,
-  StarOff,
-  Share,
-  Download,
-  MessageSquare,
-} from "lucide-react";
+import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
-import { AdvisorInfoSection } from "./AdvisorInfoSection";
-import { StrategyOverviewTab } from "./StrategyOverviewTab";
-import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
-import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
+import { useImportStrategyMutation } from "@/modules/discover/hooks/useImportStrategyMutation";
+import {
+  ArrowLeft,
+  Download,
+  MessageSquare,
+  Share,
+  Star,
+  StarOff,
+} from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { AdvisorInfoSection } from "./AdvisorInfoSection";
+import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
+import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
+import { StrategyOverviewTab } from "./StrategyOverviewTab";
 
 interface AdvisorStrategyDetailsPageProps {
   strategy: StrategyAnalyticsResponse;
@@ -33,6 +34,12 @@ export function AdvisorStrategyDetailsPage({
 }: AdvisorStrategyDetailsPageProps) {
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const importMutation = useImportStrategyMutation();
+
+  const handleAddToChat = () => {
+    // Import strategy to chat
+    importMutation.mutate({ strategy });
+  };
 
   return (
     <div className="bg-bg-subtle mx-auto max-w-5xl">
@@ -135,9 +142,15 @@ export function AdvisorStrategyDetailsPage({
       {/* Action Button */}
       <div className="bg-bg-card border-border-default fixed right-0 bottom-0 left-0 z-40 border-t shadow-lg">
         <div className="mx-auto max-w-md px-6 py-4">
-          <Button className="bg-accent-blue hover:bg-info-icon w-full py-3 text-white">
+          <Button
+            className="bg-accent-blue hover:bg-info-icon w-full py-3 text-white"
+            onClick={handleAddToChat}
+            disabled={importMutation.isPending}
+          >
             <MessageSquare className="mr-2 h-4 w-4" />
-            Add to chat & analyze
+            {importMutation.isPending
+              ? "Adding to chat..."
+              : "Add to chat & analyze"}
           </Button>
         </div>
       </div>
