@@ -15,6 +15,7 @@ import {
   type UIMessage,
 } from "@langchain/langgraph-sdk/react-ui";
 import { ArrowRight } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import React, {
   createContext,
@@ -40,7 +41,7 @@ const useTypedStream = useStream<
     CustomEventType: UIMessage | RemoveUIMessage;
     ConfigurableType: {
       planner_agent_model: PlannerModels;
-    }
+    };
   }
 >;
 
@@ -84,6 +85,9 @@ const StreamSession = ({
 }) => {
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
+  const pathname = usePathname();
+  const router = useRouter();
+
   const streamValue = useTypedStream({
     apiUrl,
     apiKey: apiKey ?? undefined,
@@ -98,7 +102,14 @@ const StreamSession = ({
       }
     },
     onThreadId: (id) => {
-      setThreadId(id);
+      // If not on chat view, navigate there before setting threadId
+      if (pathname !== "/") {
+        router.push(`/?threadId=${id}`);
+      } else {
+        setThreadId(id)
+      }
+
+      // setThreadId(id);
       // Refetch threads list when thread ID changes.
       // Wait for some seconds before fetching so we're able to get the new thread that was created.
       sleep().then(() => getThreads().then(setThreads).catch(console.error));
@@ -143,8 +154,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     process.env.NEXT_PUBLIC_ASSISTANT_ID;
 
   // Use URL params with env var fallbacks
-  const [apiUrl, setApiUrl] = useApiUrl()
-  const [assistantId, setAssistantId] = useAssistantId()
+  const [apiUrl, setApiUrl] = useApiUrl();
+  const [assistantId, setAssistantId] = useAssistantId();
 
   // For API key, use localStorage with env var fallback
   const [apiKey, _setApiKey] = useState(() => {
@@ -165,7 +176,7 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   if (!finalApiUrl || !finalAssistantId) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4">
-        <div className="animate-in fade-in-0 zoom-in-95 bg-background flex chat-container flex-col rounded-lg border shadow-lg">
+        <div className="animate-in fade-in-0 zoom-in-95 bg-background chat-container flex flex-col rounded-lg border shadow-lg">
           <div className="mt-14 flex flex-col gap-2 border-b p-6">
             <div className="flex flex-col items-start gap-2">
               <LangGraphLogoSVG className="h-7" />

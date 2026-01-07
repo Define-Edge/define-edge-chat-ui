@@ -27,7 +27,7 @@ export default async function page({ params, searchParams }: Props) {
 
   const consentType = slugParts[0] as ConsentType;
   const accountID = slugParts[1];
-  const threadId = slugParts[2];
+  const _threadId = slugParts[2];
 
   if (!accountID) {
     return <div>Missing account ID in URL</div>;
@@ -83,10 +83,8 @@ export default async function page({ params, searchParams }: Props) {
       redirectUrlParams.set("consentType", consentType);
       redirectUrlParams.set("mobileNo", mobileNo);
       redirectUrlParams.set("consentCreationData", consent.consentCreationData);
-      redirectUrlParams.set("importViewOpen", "true");
-      if (threadId) redirectUrlParams.set("threadId", threadId);
 
-      redirect(`/?${redirectUrlParams.toString()}`);
+      redirect(`/import?${redirectUrlParams.toString()}`);
     } catch (error) {
       if (isRedirectError(error)) throw error;
       console.error("Error processing consent redirect:", error);

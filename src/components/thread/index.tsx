@@ -14,17 +14,14 @@ import {
 import appConfig from "@/configs/app.config";
 import { PlannerModels } from "@/configs/models";
 import { useFileUpload } from "@/hooks/use-file-upload";
-// import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
 import { cn } from "@/lib/utils";
-import { ImportDataPage } from "@/modules/import-data";
 import { useStreamContext } from "@/providers/Stream";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { motion } from "framer-motion";
 import { startCase } from "lodash";
 import {
   ArrowDown,
@@ -42,7 +39,6 @@ import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { v4 as uuidv4 } from "uuid";
-import FetchingFiDataModal from "../moneyone/FetchingFiDataModal";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
@@ -52,7 +48,6 @@ import {
   useArtifactContext,
   useArtifactOpen,
 } from "./artifact";
-import ThreadHistory from "./history";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import { TooltipIconButton } from "./tooltip-icon-button";
@@ -138,11 +133,6 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
-  const [importViewOpen, setImportViewOpen] = useQueryState(
-    "importViewOpen",
-    parseAsBoolean.withDefault(false),
-  );
-  // const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
   const [selectedModel, setSelectedModel] = useState<PlannerModels>(
     PlannerModels.SONNET_4_5,
@@ -171,9 +161,6 @@ export function Thread() {
     // close artifact and reset artifact context
     closeArtifact();
     setArtifactContext({});
-
-    // close import view when switching threads
-    setImportViewOpen(false);
   };
 
   useEffect(() => {
@@ -281,62 +268,41 @@ export function Thread() {
   );
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <FetchingFiDataModal />
-      <div className="relative hidden lg:flex">
-        <motion.div
-          className="absolute z-20 h-full overflow-hidden border-r"
-          style={{ width: 300 }}
-          animate={
-            isLargeScreen
-              ? { x: chatHistoryOpen ? 0 : -300 }
-              : { x: chatHistoryOpen ? 0 : -300 }
-          }
-          initial={{ x: -300 }}
-          transition={
-            isLargeScreen
-              ? { type: "spring", stiffness: 300, damping: 30 }
-              : { duration: 0 }
-          }
-        >
-          <div
-            className="relative h-full"
-            style={{ width: 300 }}
-          >
-            <ThreadHistory />
-          </div>
-        </motion.div>
-      </div>
-
+    <div
+      className={cn(
+        "grid w-full h-full grid-cols-[1fr_0fr] transition-all duration-500",
+        artifactOpen && "grid-cols-[3fr_2fr]",
+      )}
+    >
       <div
         className={cn(
-          "grid w-full grid-cols-[1fr_0fr] transition-all duration-500",
-          artifactOpen && "grid-cols-[3fr_2fr]",
+          "relative flex min-w-0 flex-1 flex-col overflow-hidden",
+          !chatStarted && "grid-rows-[1fr]",
         )}
       >
-        <motion.div
-          className={cn(
-            "relative flex min-w-0 flex-1 flex-col overflow-hidden",
-            !chatStarted && "grid-rows-[1fr]",
-          )}
-          layout={isLargeScreen}
-          animate={{
-            marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,
-            width: chatHistoryOpen
-              ? isLargeScreen
-                ? "calc(100% - 300px)"
-                : "100%"
-              : "100%",
-          }}
-          transition={
-            isLargeScreen
-              ? { type: "spring", stiffness: 300, damping: 30 }
-              : { duration: 0 }
-          }
-        >
-          {!chatStarted && (
-            <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
-              <div>
+        {!chatStarted && (
+          <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
+            <div>
+              {(!chatHistoryOpen || !isLargeScreen) && (
+                <Button
+                  className="hover:bg-gray-100"
+                  variant="ghost"
+                  onClick={() => setChatHistoryOpen((p) => !p)}
+                >
+                  {chatHistoryOpen ? (
+                    <PanelRightOpen className="size-5" />
+                  ) : (
+                    <PanelRightClose className="size-5" />
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+        {chatStarted && (
+          <div className="relative z-10 flex items-center justify-between gap-3 p-2">
+            <div className="relative flex items-center justify-start gap-2">
+              <div className="absolute left-0 z-10">
                 {(!chatHistoryOpen || !isLargeScreen) && (
                   <Button
                     className="hover:bg-gray-100"
@@ -351,93 +317,45 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              {/* <div className="absolute top-2 right-4 flex items-center">
-                <OpenGitHubRepo />
-              </div> */}
+              <button
+                className="flex cursor-pointer items-center gap-2 ml-12"
+                onClick={() => setThreadId(null)}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="logo"
+                  width={32}
+                  height={32}
+                />
+                <span className="text-xl font-semibold tracking-tight">
+                  {appConfig.appName}
+                </span>
+              </button>
             </div>
-          )}
-          {/* Render Import Data Page if import view is open */}
-          {importViewOpen && (
-            <div className="my-auto w-full overflow-y-auto">
-              <ImportDataPage />
+
+            <div className="flex items-center gap-4">
+              <TooltipIconButton
+                size="lg"
+                className="p-4"
+                tooltip="New thread"
+                variant="ghost"
+                onClick={() => setThreadId(null)}
+              >
+                <SquarePen className="size-5" />
+              </TooltipIconButton>
             </div>
-          )}
-          {chatStarted && !importViewOpen && (
-            <div className="relative z-10 flex items-center justify-between gap-3 p-2">
-              <div className="relative flex items-center justify-start gap-2">
-                <div className="absolute left-0 z-10">
-                  {(!chatHistoryOpen || !isLargeScreen) && (
-                    <Button
-                      className="hover:bg-gray-100"
-                      variant="ghost"
-                      onClick={() => setChatHistoryOpen((p) => !p)}
-                    >
-                      {chatHistoryOpen ? (
-                        <PanelRightOpen className="size-5" />
-                      ) : (
-                        <PanelRightClose className="size-5" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-                <motion.button
-                  className={cn(
-                    "flex cursor-pointer items-center gap-2",
-                    !chatHistoryOpen && "-ml-12",
-                  )}
-                  onClick={() => setThreadId(null)}
-                  style={{ marginLeft: !chatHistoryOpen ? 48 : 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                  }}
-                >
-                  {/* <LangGraphLogoSVG
-                    width={32}
-                    height={32}
-                  /> */}
-                  <Image
-                    src="/logo.png"
-                    alt="logo"
-                    width={32}
-                    height={32}
-                  />
-                  <span className="text-xl font-semibold tracking-tight">
-                    {appConfig.appName}
-                  </span>
-                </motion.button>
-              </div>
+          </div>
+        )}
 
-              <div className="flex items-center gap-4">
-                {/* <div className="flex items-center">
-                  <OpenGitHubRepo />
-                </div> */}
-                <TooltipIconButton
-                  size="lg"
-                  className="p-4"
-                  tooltip="New thread"
-                  variant="ghost"
-                  onClick={() => setThreadId(null)}
-                >
-                  <SquarePen className="size-5" />
-                </TooltipIconButton>
-              </div>
-
-              {/* <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" /> */}
-            </div>
-          )}
-
-          {!importViewOpen && (
-            <StickToBottom className="relative flex-1 overflow-hidden">
-              <StickyToBottomContent
-                className={cn(
-                  "scrollbar-thin absolute inset-0 overflow-y-auto",
-                  !chatStarted && "mt-[25vh] flex flex-col items-stretch",
-                  chatStarted && "grid grid-rows-[1fr_auto]",
-                )}
-                contentClassName="pt-8 pb-16 chat-container mx-auto flex flex-col gap-4 w-full"
-                content={
+        <StickToBottom className="relative flex-1 overflow-hidden">
+          <StickyToBottomContent
+            className={cn(
+              "scrollbar-thin absolute inset-0 overflow-y-auto",
+              !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+              chatStarted && "grid grid-rows-[1fr_auto]",
+            )}
+            contentClassName="pt-8 pb-16 chat-container mx-auto flex flex-col gap-4 w-full"
+            content={
                   <>
                     {messages
                       .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
@@ -679,10 +597,9 @@ export function Thread() {
                     </div>
                   </div>
                 }
-              />
-            </StickToBottom>
-          )}
-        </motion.div>
+            />
+          </StickToBottom>
+        </div>
         {artifactOpen && (
           <div className="relative flex flex-col border-l">
             <div className="absolute inset-0 flex min-w-[30vw] flex-col">
@@ -700,6 +617,5 @@ export function Thread() {
           </div>
         )}
       </div>
-    </div>
   );
 }

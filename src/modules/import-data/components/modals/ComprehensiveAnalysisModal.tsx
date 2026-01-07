@@ -4,8 +4,9 @@
  */
 
 "use client";
-import { Activity, BarChart3, PieChart, TrendingUp, CreditCard, CheckCircle, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -14,21 +15,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { parseAsBoolean, useQueryState } from "nuqs";
+import useModalState from "@/hooks/useModalState";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { getAllUserConsents } from "@/lib/moneyone/moneyone.storage";
+import { Activity, BarChart3, CheckCircle, CreditCard, PieChart, TrendingUp, XCircle } from "lucide-react";
 import { useMemo } from "react";
-import useModalState from "@/hooks/useModalState";
 import { useComprehensiveAnalysisMutation } from "../../hooks/useComprehensiveAnalysisMutation";
 
 export function ComprehensiveAnalysisModal() {
   const { open, handleClose, handleOpenChange } = useModalState();
-  const [, setImportViewOpen] = useQueryState(
-    "importViewOpen",
-    parseAsBoolean.withDefault(false),
-  );
 
   const comprehensiveAnalysisMutation = useComprehensiveAnalysisMutation();
 
@@ -67,8 +62,6 @@ export function ComprehensiveAnalysisModal() {
   const handleAnalyze = () => {
     if (!hasReadyConsents) return;
 
-    // Navigate to chat view immediately
-    setImportViewOpen(false);
     handleClose();
 
     // Collect all ready consents
