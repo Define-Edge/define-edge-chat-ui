@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePathname } from "next/navigation";
 import ThreadHistory from "@/components/thread/history";
 import FetchingFiDataModal from "@/components/moneyone/FetchingFiDataModal";
 
@@ -21,9 +22,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     parseAsBoolean.withDefault(false),
   );
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+  const pathname = usePathname();
+
+  // Check if we're on a report/download page that needs scrolling
+  const isReportPage = pathname?.includes('/download-message/');
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className={`flex w-full ${isReportPage ? 'min-h-screen' : 'h-screen overflow-hidden'}`}>
       <FetchingFiDataModal />
 
       {/* Sidebar */}
@@ -54,7 +59,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Main content area */}
       <motion.div
-        className="relative flex min-w-0 flex-1 flex-col overflow-hidden"
+        className={`relative flex min-w-0 flex-1 flex-col ${isReportPage ? 'overflow-auto' : 'overflow-hidden'}`}
         layout={isLargeScreen}
         animate={{
           marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,

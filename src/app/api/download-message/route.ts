@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Launch browser
     browser = await puppeteer.launch(launchOptions);
-
+    
     const page = await browser.newPage();
 
     // Use a consistent viewport to avoid reflow when printing to PDF
@@ -73,22 +73,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Compute full page height to preserve layout as seen on screen
-    const fullHeight = await page.evaluate(() => {
+    const heightMetrics = await page.evaluate(() => {
       const body = document.body;
       const html = document.documentElement;
-      return Math.max(
-        body.scrollHeight,
-        body.offsetHeight,
-        html.clientHeight,
-        html.scrollHeight,
-        html.offsetHeight,
-      );
+
+      // Also check the main element's height
+      const main = document.querySelector('main');
+      const mainHeight = main?.scrollHeight || 0;
+
+      return {
+        bodyScrollHeight: body.scrollHeight,
+        bodyOffsetHeight: body.offsetHeight,
+        htmlClientHeight: html.clientHeight,
+        htmlScrollHeight: html.scrollHeight,
+        htmlOffsetHeight: html.offsetHeight,
+        mainHeight: mainHeight,
+      };
     });
 
+    const fullHeight = Math.max(
+      heightMetrics.bodyScrollHeight,
+      heightMetrics.bodyOffsetHeight,
+      heightMetrics.htmlClientHeight,
+      heightMetrics.htmlScrollHeight,
+      heightMetrics.htmlOffsetHeight,
+      heightMetrics.mainHeight,
+    );
     const pdfBuffer = await page.pdf({
       printBackground: true,
       margin: { top: "0", right: "0", bottom: "0", left: "0" },
-      width: "864px",
+      width: "756px",
       height: `${fullHeight}px`,
       // height: "1123px",
       scale: 1,
@@ -100,8 +114,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("Screenshot error:", error);
-    console.error("Error stack:", error.stack);
+    console.error("=== PDF GENERATION FAILED ===");
+    console.error("Error:", error.message);
     return new NextResponse(
       `An error occurred while generating the screenshot: ${error.message}`,
       { status: 500 },

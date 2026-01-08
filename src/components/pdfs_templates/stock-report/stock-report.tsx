@@ -22,6 +22,11 @@ export default function StockAnalysisReportMessageComponent({
 }) {
   const { data } = analysis;
 
+  if (!data) {
+    console.error("No data in analysis object!");
+    return <div>No analysis data available</div>;
+  }
+
   // Helper function to check if a section should be rendered
   const shouldRenderSection = (sectionKey: string) => {
     // If no selectedSections provided, render all sections
@@ -33,7 +38,7 @@ export default function StockAnalysisReportMessageComponent({
     <>
       <Welcome analysis={analysis} />
       <div
-        className="report-compact-table mx-12 max-w-3xl space-y-8 pt-12"
+        className="report-compact-table mx-12 w-3xl space-y-8 pt-12"
         style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
       >
         {shouldRenderSection("business_overview") && (
@@ -82,9 +87,10 @@ export default function StockAnalysisReportMessageComponent({
         {shouldRenderSection("summary") && (
           <FormatSection section={data.summary} />
         )}
-        {shouldRenderSection("simulation_chart") && Boolean(data.simulation_chart) && (
-          <SimulationChart {...data.simulation_chart} />
-        )}
+        {shouldRenderSection("simulation_chart") &&
+          Boolean(data.simulation_chart) && (
+            <SimulationChart {...data.simulation_chart} />
+          )}
 
         {/* Personal Comment Section */}
         {personalComment && (
