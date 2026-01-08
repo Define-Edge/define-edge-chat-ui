@@ -1,11 +1,11 @@
 "use client";
 
-import { ReactNode } from "react";
+import FetchingFiDataModal from "@/components/moneyone/FetchingFiDataModal";
+import ThreadHistory from "@/components/thread/history";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { motion } from "framer-motion";
 import { parseAsBoolean, useQueryState } from "nuqs";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import ThreadHistory from "@/components/thread/history";
-import FetchingFiDataModal from "@/components/moneyone/FetchingFiDataModal";
+import { ReactNode } from "react";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -23,7 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className={`flex w-full h-screen overflow-hidden`}>
       <FetchingFiDataModal />
 
       {/* Sidebar */}
@@ -54,7 +54,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Main content area */}
       <motion.div
-        className="relative flex min-w-0 flex-1 flex-col overflow-hidden"
+        className={`relative flex min-w-0 flex-1 flex-col overflow-hidden`}
         layout={isLargeScreen}
         animate={{
           marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,

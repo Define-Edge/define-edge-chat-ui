@@ -25,7 +25,7 @@ function Welcome({ analysis }: { analysis: StockAnalysis }) {
 
   return (
     <div
-      className={`relative flex h-[1115px] w-[864px] flex-col bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white`}
+      className={`relative flex h-[1115px] w-[756px] flex-col bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white`}
     >
       <header />
       <main className="flex flex-1 flex-col p-14">
@@ -80,9 +80,9 @@ function Welcome({ analysis }: { analysis: StockAnalysis }) {
 }
 
 // Helper functions from StockLivePrice component
-function getTickerInitials(symbol: string): string {
-  return (symbol || "").trim().slice(0, 3).toUpperCase();
-}
+// function getTickerInitials(symbol: string): string {
+//   return (symbol || "").trim().slice(0, 3).toUpperCase();
+// }
 
 // Use Clearbit company logo as a convenient free logo CDN. If the ticker looks like
 // a domain (contains a dot and no spaces), we use it directly; otherwise, attempt

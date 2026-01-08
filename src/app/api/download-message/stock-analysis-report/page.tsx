@@ -25,47 +25,53 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
     }
   }
 
-  const client = createClient(
-    process.env.NEXT_PUBLIC_API_URL!,
-    process.env.LANGSMITH_API_KEY,
-  );
-  const state = await client.threads.getState(threadId as string);
+  try {
+    const client = createClient(
+      process.env.NEXT_PUBLIC_API_URL!,
+      process.env.LANGSMITH_API_KEY,
+    );
+    const state = await client.threads.getState(threadId as string);
 
-  const ui = (state.values as any)?.ui as UIMessage[] | undefined;
+    const ui = (state.values as any)?.ui as UIMessage[] | undefined;
 
-  const uiComponents = ui?.filter(
-    (uiItem: UIMessage) => uiItem.props?.id === analysisId,
-  );
+    const uiComponents = ui?.filter(
+      (uiItem: UIMessage) => uiItem.props?.id === analysisId,
+    );
 
-  if (!uiComponents) {
-    return null;
-  }
+    if (!uiComponents || uiComponents.length === 0) {
+      console.error("No matching component for analysisId:", analysisId);
+      return <div>No analysis found with ID: {analysisId}</div>;
+    }
 
-  return (
+    return (
     <main>
-      {uiComponents.map((uiComponent: UIMessage) => {
-        const Component =
-          ClientComponentsRegistry[
-            uiComponent.name as keyof typeof ClientComponentsRegistry
-          ];
+        {uiComponents.map((uiComponent: UIMessage) => {
+          const Component =
+            ClientComponentsRegistry[
+              uiComponent.name as keyof typeof ClientComponentsRegistry
+            ];
 
-        if (uiComponent.name === "stock_analysis")
+          if (uiComponent.name === "stock_analysis") {
+            return (
+              <StockAnalysisReportMessageComponent
+                key={uiComponent.id}
+                analysis={uiComponent.props as StockAnalysis}
+                selectedSections={selectedSections}
+                personalComment={personalComment}
+              />
+            );
+          }
           return (
-            <StockAnalysisReportMessageComponent
+            <Component
               key={uiComponent.id}
-              analysis={uiComponent.props as StockAnalysis}
-              selectedSections={selectedSections}
-              personalComment={personalComment}
+              {...(uiComponent.props as any)}
             />
           );
-        return (
-          <Component
-            key={uiComponent.id}
-            {...(uiComponent.props as any)}
-          />
-        );
-      })}
-      {/* <MarkdownText>{String(message.content ?? "")}</MarkdownText>; */}
-    </main>
-  );
+        })}
+      </main>
+    );
+  } catch (error: any) {
+    console.error("=== ERROR:", error.message);
+    return <div>Error loading report: {error.message}</div>;
+  }
 }

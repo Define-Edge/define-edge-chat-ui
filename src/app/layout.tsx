@@ -1,4 +1,3 @@
-import { ClientProviders } from "@/components/providers/ClientProviders";
 import { QueryProvider } from "@/providers/QueryProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -27,11 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-gray-50`}>
         <QueryProvider>
-          <NuqsAdapter>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <ClientProviders>{children}</ClientProviders>
-            </React.Suspense>
-          </NuqsAdapter>
+          <NuqsAdapter>{children}</NuqsAdapter>
         </QueryProvider>
       </body>
     </html>
