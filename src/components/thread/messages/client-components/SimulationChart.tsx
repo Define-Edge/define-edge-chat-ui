@@ -165,7 +165,7 @@ const SimulationChart = React.memo(
       string | null
     >(null);
     return (
-      <div className="mx-auto grid min-w-[calc(100dvw-2rem)] grid-rows-[1fr_auto] gap-2 md:min-w-3xl">
+      <div className="mx-auto grid w-full grid-rows-[1fr_auto] gap-2 max-w-3xl">
         <div className="overflow-hidden rounded-lg border border-gray-100">
           {/* Title */}
           <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
