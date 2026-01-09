@@ -38,17 +38,17 @@ import { FixedDepositsForm } from "./forms/FixedDepositsForm";
 import { InsuranceForm } from "./forms/InsuranceForm";
 import { OtherInvestmentsForm } from "./forms/OtherInvestmentsForm";
 import { RealEstateForm } from "./forms/RealEstateForm";
-import { ImportHeader } from "./ImportHeader";
 import { NetworthGraph } from "./NetworthGraph";
 import { QuickUpload } from "./QuickUpload";
 import { CollapsibleInstructions } from "./shared/CollapsibleInstructions";
 
 export function ImportDataPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6 pb-24">
-      <ImportHeader />
+    <div className="mx-auto max-w-5xl pb-24">
+      <div className="space-y-6 p-6">
+        <p className="text-sm text-center text-gray-600">Connect your financial accounts for personalized insights</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* What is Import Section */}
         <CollapsibleInstructions
           title="Personal Investment Data Import"
@@ -213,6 +213,7 @@ export function ImportDataPage() {
 
       {/* How We Use Your Data Section */}
       <DataSecurityInfo />
+      </div>
 
       {/* FetchingFiDataModal - MoneyOne import flow */}
       <FetchingFiDataModal />

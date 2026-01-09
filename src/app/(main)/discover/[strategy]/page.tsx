@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/layouts/PageHeader";
 import { AdvisorStrategyDetailsPage } from "@/modules/discover/components/advisor-details/AdvisorStrategyDetailsPage";
 import { notFound } from "next/navigation";
 import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
@@ -35,8 +34,7 @@ export default async function StrategyDetailsPage({ params }: PageProps) {
   const strategy: StrategyAnalyticsResponse = await res.json();
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden">
-      <PageHeader title="Strategy Details" />
+    <div className="flex flex-col">
       <div className="flex-1 overflow-y-auto">
         <AdvisorStrategyDetailsPage strategy={strategy} />
       </div>

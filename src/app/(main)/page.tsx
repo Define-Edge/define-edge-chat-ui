@@ -5,8 +5,10 @@ import { ArtifactProvider } from "@/components/thread/artifact";
 
 export default function ChatPage() {
   return (
-    <ArtifactProvider>
-      <Thread />
-    </ArtifactProvider>
+    <div className="h-screen">
+      <ArtifactProvider>
+        <Thread />
+      </ArtifactProvider>
+    </div>
   );
 }
