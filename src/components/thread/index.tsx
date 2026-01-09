@@ -14,7 +14,6 @@ import {
 import appConfig from "@/configs/app.config";
 import { PlannerModels } from "@/configs/models";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
@@ -28,7 +27,6 @@ import {
   LoaderCircle,
   MoreVertical,
   PanelRightClose,
-  PanelRightOpen,
   Plus,
   SquarePen,
   XIcon,
@@ -129,7 +127,7 @@ export function Thread() {
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
-  const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
+  const [, setSidebarOpen] = useQueryState(
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
@@ -147,7 +145,6 @@ export function Thread() {
     handlePaste,
   } = useFileUpload();
   const [_firstTokenReceived, setFirstTokenReceived] = useState(false);
-  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
   const messages = stream.messages;
@@ -280,45 +277,20 @@ export function Thread() {
           !chatStarted && "grid-rows-[1fr]",
         )}
       >
-        {!chatStarted && (
-          <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
-            <div>
-              {(!chatHistoryOpen || !isLargeScreen) && (
-                <Button
-                  className="hover:bg-gray-100"
-                  variant="ghost"
-                  onClick={() => setChatHistoryOpen((p) => !p)}
-                >
-                  {chatHistoryOpen ? (
-                    <PanelRightOpen className="size-5" />
-                  ) : (
-                    <PanelRightClose className="size-5" />
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-        {chatStarted && (
-          <div className="relative z-10 flex items-center justify-between gap-3 p-2">
-            <div className="relative flex items-center justify-start gap-2">
-              <div className="absolute left-0 z-10">
-                {(!chatHistoryOpen || !isLargeScreen) && (
-                  <Button
-                    className="hover:bg-gray-100"
-                    variant="ghost"
-                    onClick={() => setChatHistoryOpen((p) => !p)}
-                  >
-                    {chatHistoryOpen ? (
-                      <PanelRightOpen className="size-5" />
-                    ) : (
-                      <PanelRightClose className="size-5" />
-                    )}
-                  </Button>
-                )}
-              </div>
+        {/* Header - always visible */}
+        <div className="relative z-10 flex items-center justify-between gap-3 p-2 pt-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(true)}
+              className="hover:bg-gray-100"
+            >
+              <PanelRightClose className="size-5" />
+            </Button>
+            {chatStarted && (
               <button
-                className="flex cursor-pointer items-center gap-2 ml-12"
+                className="flex cursor-pointer items-center gap-2"
                 onClick={() => setThreadId(null)}
               >
                 <Image
@@ -331,8 +303,10 @@ export function Thread() {
                   {appConfig.appName}
                 </span>
               </button>
-            </div>
+            )}
+          </div>
 
+          {chatStarted && (
             <div className="flex items-center gap-4">
               <TooltipIconButton
                 size="lg"
@@ -344,8 +318,8 @@ export function Thread() {
                 <SquarePen className="size-5" />
               </TooltipIconButton>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <StickToBottom className="relative flex-1 overflow-hidden">
           <StickyToBottomContent

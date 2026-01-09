@@ -10,7 +10,6 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import { DiscoverHeader } from "./DiscoverHeader";
 import { CollapsibleInfo } from "./shared/CollapsibleInfo";
 import { CustomBasketBuilderCard } from "./cards/CustomBasketBuilderCard";
 import { DropdownSection } from "./sections/DropdownSection";
@@ -191,10 +190,11 @@ export function DiscoverPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6 pb-24 space-y-6">
-      <DiscoverHeader />
+    <div className="mx-auto max-w-5xl pb-24">
+      <div className="space-y-6 p-6">
+        <p className="text-sm text-center text-text-secondary">Explore curated investment opportunities</p>
 
-      <CollapsibleInfo
+        <CollapsibleInfo
         title="Investment Discovery"
         description="Explore thematic baskets, trending investment themes, curated portfolios, and news-based investment opportunities tailored to your financial goals."
         icon={Lightbulb}
@@ -223,6 +223,7 @@ export function DiscoverPage() {
             {section.content}
           </DropdownSection>
         ))}
+      </div>
       </div>
     </div>
   );
