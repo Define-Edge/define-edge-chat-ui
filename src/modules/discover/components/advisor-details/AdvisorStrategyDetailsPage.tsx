@@ -41,6 +41,9 @@ export function AdvisorStrategyDetailsPage({
     strategy.holdings &&
     strategy.missing_holdings.length === strategy.holdings.length;
 
+  // Check if this is a long-short strategy
+  const isLongShort = strategy.portfolio_type === "long_short";
+
   // Set default tab based on whether all stocks are missing
   const [activeTab, setActiveTab] = useState(
     allStocksMissing ? "holdings" : "overview"
@@ -88,7 +91,10 @@ export function AdvisorStrategyDetailsPage({
       {/* Content */}
       <div className="bg-bg-subtle mx-auto max-w-5xl">
         {/* Strategy Info Section */}
-        <AdvisorInfoSection strategy={strategy} />
+        <AdvisorInfoSection
+          strategy={strategy}
+          isLongShort={isLongShort}
+        />
 
       {/* Missing Holdings Warning - only show if some (not all) stocks are missing */}
       {strategy.missing_holdings &&
@@ -127,6 +133,7 @@ export function AdvisorStrategyDetailsPage({
               <StrategyOverviewTab
                 industryDistribution={strategy.industry_distribution}
                 sizeDistribution={strategy.size_distribution}
+                isLongShort={isLongShort}
               />
             </TabsContent>
           )}
