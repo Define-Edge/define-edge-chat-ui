@@ -33,8 +33,18 @@ export function AdvisorStrategyDetailsPage({
   strategy,
 }: AdvisorStrategyDetailsPageProps) {
   const [isWatchlisted, setIsWatchlisted] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
   const importMutation = useImportStrategyMutation();
+
+  // Check if all stocks are missing
+  const allStocksMissing =
+    strategy.missing_holdings &&
+    strategy.holdings &&
+    strategy.missing_holdings.length === strategy.holdings.length;
+
+  // Set default tab based on whether all stocks are missing
+  const [activeTab, setActiveTab] = useState(
+    allStocksMissing ? "holdings" : "overview"
+  );
 
   const handleAddToChat = () => {
     // Import strategy to chat
@@ -80,10 +90,12 @@ export function AdvisorStrategyDetailsPage({
         {/* Strategy Info Section */}
         <AdvisorInfoSection strategy={strategy} />
 
-      {/* Missing Holdings Warning */}
-      {strategy.missing_holdings && strategy.missing_holdings.length > 0 && (
-        <MissingHoldingsWarning missingHoldings={strategy.missing_holdings} />
-      )}
+      {/* Missing Holdings Warning - only show if some (not all) stocks are missing */}
+      {strategy.missing_holdings &&
+        strategy.missing_holdings.length > 0 &&
+        !allStocksMissing && (
+          <MissingHoldingsWarning missingHoldings={strategy.missing_holdings} />
+        )}
 
       {/* Content Tabs */}
       <div className="px-6 py-4">
@@ -92,46 +104,47 @@ export function AdvisorStrategyDetailsPage({
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="mb-6 grid w-full grid-cols-3">
-            <TabsTrigger
-              value="overview"
-              className="text-xs"
-            >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="holdings"
-              className="text-xs"
-            >
+          <TabsList
+            className={`mb-6 grid w-full ${allStocksMissing ? "grid-cols-1 max-w-xs mx-auto" : "grid-cols-3"}`}
+          >
+            {!allStocksMissing && (
+              <TabsTrigger value="overview" className="text-xs">
+                Overview
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="holdings" className="text-xs">
               Holdings
             </TabsTrigger>
-            <TabsTrigger
-              value="analytics"
-              className="text-xs"
-            >
-              Analytics
-            </TabsTrigger>
+            {!allStocksMissing && (
+              <TabsTrigger value="analytics" className="text-xs">
+                Analytics
+              </TabsTrigger>
+            )}
           </TabsList>
 
-          <TabsContent value="overview">
-            <StrategyOverviewTab
-              industryDistribution={strategy.industry_distribution}
-              sizeDistribution={strategy.size_distribution}
-            />
-          </TabsContent>
+          {!allStocksMissing && (
+            <TabsContent value="overview">
+              <StrategyOverviewTab
+                industryDistribution={strategy.industry_distribution}
+                sizeDistribution={strategy.size_distribution}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent value="holdings">
             <StrategyHoldingsTab holdings={strategy.holdings} />
           </TabsContent>
 
-          <TabsContent value="analytics">
-            <StrategyAnalyticsTab
-              riskLevel={strategy.risk_level}
-              returnsChartData={strategy.returns_chart_data}
-              overallScoreChartData={strategy.overall_score_chart_data}
-              riskScoreChartData={strategy.risk_score_chart_data}
-            />
-          </TabsContent>
+          {!allStocksMissing && (
+            <TabsContent value="analytics">
+              <StrategyAnalyticsTab
+                riskLevel={strategy.risk_level}
+                returnsChartData={strategy.returns_chart_data}
+                overallScoreChartData={strategy.overall_score_chart_data}
+                riskScoreChartData={strategy.risk_score_chart_data}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
