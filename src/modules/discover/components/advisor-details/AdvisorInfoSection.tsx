@@ -4,6 +4,7 @@ import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models"
 
 interface AdvisorInfoSectionProps {
   strategy: StrategyAnalyticsResponse;
+  isLongShort: boolean;
 }
 
 /**
@@ -11,7 +12,7 @@ interface AdvisorInfoSectionProps {
  * Displays strategy header with badges, title, description, and key stats
  * Component size: ~100 lines
  */
-export function AdvisorInfoSection({ strategy }: AdvisorInfoSectionProps) {
+export function AdvisorInfoSection({ strategy, isLongShort }: AdvisorInfoSectionProps) {
   const riskColors = {
     Low: "bg-risk-low-bg text-risk-low-fg border-risk-low-border",
     Medium: "bg-risk-medium-bg text-risk-medium-fg border-risk-medium-border",
@@ -42,18 +43,47 @@ export function AdvisorInfoSection({ strategy }: AdvisorInfoSectionProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 items-center gap-4">
-        <div className="text-center">
-          <div className="text-lg font-semibold text-text-primary">
-            {strategy.total_stock_count}
+      {isLongShort ? (
+        // Long-Short: Show Holdings, Net Exposure, and Gross Exposure
+        <div className="grid grid-cols-3 items-center gap-4">
+          <div className="text-center">
+            <div className="text-lg font-semibold text-text-primary">
+              {strategy.total_stock_count}
+            </div>
+            <div className="text-xs text-text-tertiary">Holdings</div>
           </div>
-          <div className="text-xs text-text-tertiary">Holdings</div>
+          <div className="text-center">
+            <div className="text-lg font-semibold text-text-primary">
+              {strategy.net_exposure !== null && strategy.net_exposure !== undefined
+                ? `${strategy.net_exposure.toFixed(1)}%`
+                : "N/A"}
+            </div>
+            <div className="text-xs text-text-tertiary">Net Exposure</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-semibold text-text-primary">
+              {strategy.gross_exposure !== null && strategy.gross_exposure !== undefined
+                ? `${strategy.gross_exposure.toFixed(1)}%`
+                : "N/A"}
+            </div>
+            <div className="text-xs text-text-tertiary">Gross Exposure</div>
+          </div>
         </div>
-        <div className="text-center">
-          <div className="text-lg font-semibold text-text-primary">₹50L+</div>
-          <div className="text-xs text-text-tertiary">Min Investment</div>
+      ) : (
+        // Long-Only: Show Holdings and Min Investment
+        <div className="grid grid-cols-2 items-center gap-4">
+          <div className="text-center">
+            <div className="text-lg font-semibold text-text-primary">
+              {strategy.total_stock_count}
+            </div>
+            <div className="text-xs text-text-tertiary">Holdings</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-semibold text-text-primary">₹50L+</div>
+            <div className="text-xs text-text-tertiary">Min Investment</div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
