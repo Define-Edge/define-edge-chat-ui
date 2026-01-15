@@ -23,19 +23,13 @@ type StockAnalysisSection = {
 };
 
 const STOCK_SECTIONS: StockAnalysisSection[] = [
-  { key: "business_overview", label: "Business Overview" },
-  { key: "management_strategy", label: "Management Strategy" },
-  { key: "sector_outlook", label: "Sector Outlook" },
   { key: "technical_analysis", label: "Technical Analysis" },
   { key: "fundamental_analysis", label: "Fundamental Analysis" },
   { key: "peer_comparison", label: "Peer Comparison" },
-  { key: "conference_call_analysis", label: "Conference Call Analysis" },
-  { key: "shareholding_pattern", label: "Shareholding Pattern" },
   { key: "corporate_actions", label: "Corporate Actions" },
   { key: "news_sentiment", label: "News Sentiment" },
   { key: "red_flags", label: "Red Flags" },
   { key: "summary", label: "Summary" },
-  { key: "simulation_chart", label: "Simulation Chart" },
 ];
 
 interface StockAnalysisDownloadDialogProps {

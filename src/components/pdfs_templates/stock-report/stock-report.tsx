@@ -8,7 +8,6 @@ import {
   NewsSourcesContent,
 } from "@/types/stock-analysis";
 import Welcome from "../Welcome";
-import SimulationChart from "@/components/thread/messages/client-components/SimulationChart";
 import { ChevronRightIcon } from "lucide-react";
 
 export default function StockAnalysisReportMessageComponent({
@@ -29,6 +28,65 @@ export default function StockAnalysisReportMessageComponent({
     return selectedSections.includes(sectionKey);
   };
 
+  // Define all sections with their rendering components
+  const sections = [
+    {
+      key: "technical_analysis",
+      render: (seqNumber: number) => (
+        <FormatTechnicalSection
+          section={data.technical_analysis}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "fundamental_analysis",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.fundamental_analysis}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "peer_comparison",
+      render: (seqNumber: number) => (
+        <FormatSection section={data.peer_comparison} seqNumber={seqNumber} />
+      ),
+    },
+    {
+      key: "corporate_actions",
+      render: (seqNumber: number) => (
+        <FormatSection section={data.corporate_actions} seqNumber={seqNumber} />
+      ),
+    },
+    {
+      key: "news_sentiment",
+      render: (seqNumber: number) => (
+        <FormatSection section={data.news_sentiment} seqNumber={seqNumber} />
+      ),
+    },
+    {
+      key: "red_flags",
+      render: (seqNumber: number) => (
+        <FormatSection section={data.red_flags} seqNumber={seqNumber} />
+      ),
+    },
+    {
+      key: "summary",
+      render: (seqNumber: number) => (
+        <FormatSection section={data.summary} seqNumber={seqNumber} />
+      ),
+    },
+  ];
+
+  // Filter sections based on selection and render with dynamic sequence numbers
+  const renderedSections = sections
+    .filter(({ key }) => shouldRenderSection(key))
+    .map(({ render }, index) => (
+      <div key={index}>{render(index + 1)}</div>
+    ));
+
   return (
     <>
       <Welcome analysis={analysis} />
@@ -36,55 +94,7 @@ export default function StockAnalysisReportMessageComponent({
         className="report-compact-table mx-12 max-w-3xl space-y-8 pt-12"
         style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
       >
-        {shouldRenderSection("business_overview") && (
-          <FormatSection section={data.business_overview} />
-        )}
-        {shouldRenderSection("management_strategy") && (
-          <FormatSection
-            section={data.management_strategy}
-            displaySources
-          />
-        )}
-        {shouldRenderSection("sector_outlook") && (
-          <FormatSection section={data.sector_outlook} />
-        )}
-        {shouldRenderSection("technical_analysis") && (
-          <FormatTechnicalSection section={data.technical_analysis} />
-        )}
-        {shouldRenderSection("fundamental_analysis") && (
-          <FormatSection section={data.fundamental_analysis} />
-        )}
-        {/* <FormatSection section={data.stats_analysis} /> */}
-        {shouldRenderSection("peer_comparison") && (
-          <FormatSection section={data.peer_comparison} />
-        )}
-        {shouldRenderSection("conference_call_analysis") && (
-          <FormatSection
-            section={data.conference_call_analysis}
-            displaySources
-          />
-        )}
-        {shouldRenderSection("shareholding_pattern") && (
-          <FormatSection
-            section={data.shareholding_pattern}
-            displaySources
-          />
-        )}
-        {shouldRenderSection("corporate_actions") && (
-          <FormatSection section={data.corporate_actions} />
-        )}
-        {shouldRenderSection("news_sentiment") && (
-          <FormatSection section={data.news_sentiment} />
-        )}
-        {shouldRenderSection("red_flags") && (
-          <FormatSection section={data.red_flags} />
-        )}
-        {shouldRenderSection("summary") && (
-          <FormatSection section={data.summary} />
-        )}
-        {shouldRenderSection("simulation_chart") && Boolean(data.simulation_chart) && (
-          <SimulationChart {...data.simulation_chart} />
-        )}
+        {renderedSections}
 
         {/* Personal Comment Section */}
         {personalComment && (
@@ -113,7 +123,6 @@ export default function StockAnalysisReportMessageComponent({
           {[
             { section: data.technical_analysis, key: "technical_analysis" },
             { section: data.fundamental_analysis, key: "fundamental_analysis" },
-            // { section: data.stats_analysis, key: "stats_analysis" },
             { section: data.peer_comparison, key: "peer_comparison" },
             { section: data.corporate_actions, key: "corporate_actions" },
             { section: data.news_sentiment, key: "news_sentiment" },
@@ -298,11 +307,13 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
 function FormatTechnicalSection({
   section,
   returns_line_chart,
+  seqNumber,
 }: {
   section: Section;
   returns_line_chart?: Record<string, any>;
+  seqNumber?: number;
 }) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;
   const anchorId = formatter.getAnchorId();
@@ -350,11 +361,13 @@ function FormatTechnicalSection({
 function FormatSection({
   section,
   displaySources = false,
+  seqNumber,
 }: {
   section: Section;
   displaySources?: boolean;
+  seqNumber?: number;
 }) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;
   const sources = formatter.getSourcesMarkdown();
