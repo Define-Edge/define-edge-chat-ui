@@ -18,19 +18,19 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
 
   return (
     <div ref={topRef}>
-      <FormatSection section={data.business_overview} />
-      <FormatSection section={data.management_strategy} />
-      <FormatSection section={data.sector_outlook} />
-      <FormatTechnicalAnalysis section={data.technical_analysis} />
-      <FormatSection section={data.fundamental_analysis} />
+      <FormatSection section={data.business_overview} seqNumber={1} />
+      <FormatSection section={data.management_strategy} seqNumber={2} />
+      <FormatSection section={data.sector_outlook} seqNumber={3} />
+      <FormatTechnicalAnalysis section={data.technical_analysis} seqNumber={4} />
+      <FormatSection section={data.fundamental_analysis} seqNumber={5} />
       {/* <FormatSection section={data.stats_analysis} /> */}
-      <FormatSection section={data.peer_comparison} />
-      <FormatSection section={data.conference_call_analysis} />
-      <FormatSection section={data.shareholding_pattern} />
-      <FormatSection section={data.corporate_actions} />
-      <FormatNewsSentiment section={data.news_sentiment} />
-      <FormatSection section={data.red_flags} />
-      <FormatSection section={data.summary} />
+      <FormatSection section={data.peer_comparison} seqNumber={6} />
+      <FormatSection section={data.conference_call_analysis} seqNumber={7} />
+      <FormatSection section={data.shareholding_pattern} seqNumber={8} />
+      <FormatSection section={data.corporate_actions} seqNumber={9} />
+      <FormatNewsSentiment section={data.news_sentiment} seqNumber={10} />
+      <FormatSection section={data.red_flags} seqNumber={11} />
+      <FormatSection section={data.summary} seqNumber={12} />
       {data.simulation_chart && <SimulationChart {...data.simulation_chart} />}
       <div className="flex justify-end gap-2">
         <Button
@@ -55,19 +55,21 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
   );
 }
 
-export function FormatSection({ section }: { section: Section }) {
-  const formatter = new SectionFormatter(section);
+export function FormatSection({ section, seqNumber }: { section: Section; seqNumber?: number }) {
+  const formatter = new SectionFormatter(section, seqNumber);
   return <MarkdownText>{formatter.getMarkdown()}</MarkdownText>;
 }
 
 export function FormatTechnicalAnalysis({
   section,
   returns_line_chart,
+  seqNumber,
 }: {
   section: Section;
   returns_line_chart?: Record<string, any>;
+  seqNumber?: number;
 }) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = formatter.getContentMarkdown();
   const in_depth_analysis = formatter.getInDepthAnalysisMarkdown();

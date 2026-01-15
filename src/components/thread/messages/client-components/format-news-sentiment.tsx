@@ -7,14 +7,16 @@ type FormatNewsSentimentProps = {
   section: Section;
   variant?: "default" | "pdf";
   displaySources?: boolean;
+  seqNumber?: number;
 };
 
 export function FormatNewsSentiment({
   section,
   variant = "default",
   displaySources = false,
+  seqNumber,
 }: FormatNewsSentimentProps) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = variant === "pdf"
     ? `${formatter.getContentMarkdown()}\n---\n`
