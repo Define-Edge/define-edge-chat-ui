@@ -7,9 +7,8 @@ import { useQueryState } from "nuqs";
 import { useRef } from "react";
 import { MarkdownText } from "../../markdown-text";
 import { FormatNewsSentiment } from "./format-news-sentiment";
-import ClientComponentsRegistry from "./registry";
-import SimulationChart from "./SimulationChart";
 import { StockAnalysisDownloadDialog } from "./stock-analysis-download-dialog";
+import ClientComponentsRegistry from "./registry";
 
 export default function StockAnalysisComponent(analysis: StockAnalysis) {
   const [threadId] = useQueryState("threadId");
@@ -18,20 +17,13 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
 
   return (
     <div ref={topRef}>
-      <FormatSection section={data.business_overview} />
-      <FormatSection section={data.management_strategy} />
-      <FormatSection section={data.sector_outlook} />
-      <FormatTechnicalAnalysis section={data.technical_analysis} />
-      <FormatSection section={data.fundamental_analysis} />
-      {/* <FormatSection section={data.stats_analysis} /> */}
-      <FormatSection section={data.peer_comparison} />
-      <FormatSection section={data.conference_call_analysis} />
-      <FormatSection section={data.shareholding_pattern} />
-      <FormatSection section={data.corporate_actions} />
-      <FormatNewsSentiment section={data.news_sentiment} />
-      <FormatSection section={data.red_flags} />
-      <FormatSection section={data.summary} />
-      {data.simulation_chart && <SimulationChart {...data.simulation_chart} />}
+      <FormatTechnicalAnalysis section={data.technical_analysis} seqNumber={1} />
+      <FormatSection section={data.fundamental_analysis} seqNumber={2} />
+      <FormatSection section={data.peer_comparison} seqNumber={3} />
+      <FormatSection section={data.corporate_actions} seqNumber={4} />
+      <FormatNewsSentiment section={data.news_sentiment} seqNumber={5} />
+      <FormatSection section={data.red_flags} seqNumber={6} />
+      <FormatSection section={data.summary} seqNumber={7} />
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -55,19 +47,21 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
   );
 }
 
-export function FormatSection({ section }: { section: Section }) {
-  const formatter = new SectionFormatter(section);
+export function FormatSection({ section, seqNumber }: { section: Section; seqNumber?: number }) {
+  const formatter = new SectionFormatter(section, seqNumber);
   return <MarkdownText>{formatter.getMarkdown()}</MarkdownText>;
 }
 
 export function FormatTechnicalAnalysis({
   section,
   returns_line_chart,
+  seqNumber,
 }: {
   section: Section;
   returns_line_chart?: Record<string, any>;
+  seqNumber?: number;
 }) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = formatter.getContentMarkdown();
   const in_depth_analysis = formatter.getInDepthAnalysisMarkdown();
