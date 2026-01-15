@@ -1,15 +1,15 @@
 import { MarkdownText } from "@/components/thread/markdown-text";
 import ClientComponentsRegistry from "@/components/thread/messages/client-components/registry";
+import SimulationChart from "@/components/thread/messages/client-components/SimulationChart";
 import { SectionFormatter } from "@/lib/section-formatter";
 import {
-  Section,
-  StockAnalysis,
   NewsSource,
   NewsSourcesContent,
+  Section,
+  StockAnalysis,
 } from "@/types/stock-analysis";
-import Welcome from "../Welcome";
-import SimulationChart from "@/components/thread/messages/client-components/SimulationChart";
 import { ChevronRightIcon } from "lucide-react";
+import Welcome from "../Welcome";
 
 export default function StockAnalysisReportMessageComponent({
   analysis,
@@ -34,6 +34,123 @@ export default function StockAnalysisReportMessageComponent({
     return selectedSections.includes(sectionKey);
   };
 
+  // Define all sections with their rendering components
+  const sections = [
+    {
+      key: "business_overview",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.business_overview}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "management_strategy",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.management_strategy}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "sector_outlook",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.sector_outlook}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "technical_analysis",
+      render: (seqNumber: number) => (
+        <FormatTechnicalSection
+          section={data.technical_analysis}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "fundamental_analysis",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.fundamental_analysis}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "peer_comparison",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.peer_comparison}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "conference_call_analysis",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.conference_call_analysis}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "shareholding_pattern",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.shareholding_pattern}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "corporate_actions",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.corporate_actions}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "news_sentiment",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.news_sentiment}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "red_flags",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.red_flags}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+    {
+      key: "summary",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.summary}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
+  ];
+
+  // Filter sections based on selection and render with dynamic sequence numbers
+  const renderedSections = sections
+    .filter(({ key }) => shouldRenderSection(key))
+    .map(({ render }, index) => <div key={index}>{render(index + 1)}</div>);
+
   return (
     <>
       <Welcome analysis={analysis} />
@@ -41,52 +158,7 @@ export default function StockAnalysisReportMessageComponent({
         className="report-compact-table mx-12 w-3xl space-y-8 pt-12"
         style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
       >
-        {shouldRenderSection("business_overview") && (
-          <FormatSection section={data.business_overview} />
-        )}
-        {shouldRenderSection("management_strategy") && (
-          <FormatSection
-            section={data.management_strategy}
-            displaySources
-          />
-        )}
-        {shouldRenderSection("sector_outlook") && (
-          <FormatSection section={data.sector_outlook} />
-        )}
-        {shouldRenderSection("technical_analysis") && (
-          <FormatTechnicalSection section={data.technical_analysis} />
-        )}
-        {shouldRenderSection("fundamental_analysis") && (
-          <FormatSection section={data.fundamental_analysis} />
-        )}
-        {/* <FormatSection section={data.stats_analysis} /> */}
-        {shouldRenderSection("peer_comparison") && (
-          <FormatSection section={data.peer_comparison} />
-        )}
-        {shouldRenderSection("conference_call_analysis") && (
-          <FormatSection
-            section={data.conference_call_analysis}
-            displaySources
-          />
-        )}
-        {shouldRenderSection("shareholding_pattern") && (
-          <FormatSection
-            section={data.shareholding_pattern}
-            displaySources
-          />
-        )}
-        {shouldRenderSection("corporate_actions") && (
-          <FormatSection section={data.corporate_actions} />
-        )}
-        {shouldRenderSection("news_sentiment") && (
-          <FormatSection section={data.news_sentiment} />
-        )}
-        {shouldRenderSection("red_flags") && (
-          <FormatSection section={data.red_flags} />
-        )}
-        {shouldRenderSection("summary") && (
-          <FormatSection section={data.summary} />
-        )}
+        {renderedSections}
         {shouldRenderSection("simulation_chart") &&
           Boolean(data.simulation_chart) && (
             <SimulationChart {...data.simulation_chart} />
@@ -117,10 +189,17 @@ export default function StockAnalysisReportMessageComponent({
         <h3 className="text-3xl font-semibold tracking-tight">Data Sources</h3>
         <span className="report-compact-table">
           {[
+            { section: data.business_overview, key: "business_overview" },
+            { section: data.management_strategy, key: "management_strategy" },
+            { section: data.sector_outlook, key: "sector_outlook" },
             { section: data.technical_analysis, key: "technical_analysis" },
             { section: data.fundamental_analysis, key: "fundamental_analysis" },
-            // { section: data.stats_analysis, key: "stats_analysis" },
             { section: data.peer_comparison, key: "peer_comparison" },
+            {
+              section: data.conference_call_analysis,
+              key: "conference_call_analysis",
+            },
+            { section: data.shareholding_pattern, key: "shareholding_pattern" },
             { section: data.corporate_actions, key: "corporate_actions" },
             { section: data.news_sentiment, key: "news_sentiment" },
           ]
@@ -304,11 +383,13 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
 function FormatTechnicalSection({
   section,
   returns_line_chart,
+  seqNumber,
 }: {
   section: Section;
   returns_line_chart?: Record<string, any>;
+  seqNumber?: number;
 }) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;
   const anchorId = formatter.getAnchorId();
@@ -356,11 +437,13 @@ function FormatTechnicalSection({
 function FormatSection({
   section,
   displaySources = false,
+  seqNumber,
 }: {
   section: Section;
   displaySources?: boolean;
+  seqNumber?: number;
 }) {
-  const formatter = new SectionFormatter(section);
+  const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;
   const sources = formatter.getSourcesMarkdown();
