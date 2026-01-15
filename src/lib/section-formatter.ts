@@ -2,9 +2,11 @@ import { Section, NewsSourcesContent } from "@/types/stock-analysis";
 
 export class SectionFormatter {
     private section: Section;
+    private seqNumber?: number;
 
-    constructor(section: Section) {
+    constructor(section: Section, seqNumber?: number) {
         this.section = section;
+        this.seqNumber = seqNumber;
     }
 
     getAnchorId() {
@@ -74,6 +76,9 @@ export class SectionFormatter {
     }
 
     getTitleMarkdown() {
+        if (this.seqNumber !== undefined) {
+            return `## ${this.seqNumber}. ${this.section.title}\n`;
+        }
         return `## ${this.section.title}\n`;
     }
 
