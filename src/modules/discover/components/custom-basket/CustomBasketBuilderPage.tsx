@@ -1,22 +1,49 @@
 "use client";
 
 import { BasketBuilderProvider } from "../../providers/BasketBuilderProvider";
+import { StockBasketBuilderProvider } from "../../providers/StockBasketBuilderProvider";
+import { MutualFundBasketBuilderProvider } from "../../providers/MutualFundBasketBuilderProvider";
 import { useBasketBuilderContext } from "../../hooks/useBasketBuilderContext";
-import { CustomBasketForm } from "./CustomBasketForm";
-import { CustomBasketResults } from "./CustomBasketResults";
+import { InvestmentTypeSelector } from "./InvestmentTypeSelector";
+import { StockBasketFlow } from "./stock/StockBasketFlow";
+import { MutualFundBasketFlow } from "./mutual-fund/MutualFundBasketFlow";
 
 /**
- * Main orchestrator for custom basket builder
- * Conditionally renders form or results based on state
+ * Main orchestrator component for basket builder
+ * Routes to correct flow based on investment type selection
  */
 function BasketBuilderContent() {
-  const { showResults } = useBasketBuilderContext();
+  const { investmentType } = useBasketBuilderContext();
 
-  return showResults ? <CustomBasketResults /> : <CustomBasketForm />;
+  // Step 0: Investment type selection
+  if (!investmentType) {
+    return <InvestmentTypeSelector />;
+  }
+
+  // Stock flow
+  if (investmentType === "stocks") {
+    return (
+      <StockBasketBuilderProvider>
+        <StockBasketFlow />
+      </StockBasketBuilderProvider>
+    );
+  }
+
+  // Mutual fund flow
+  if (investmentType === "mutualFunds") {
+    return (
+      <MutualFundBasketBuilderProvider>
+        <MutualFundBasketFlow />
+      </MutualFundBasketBuilderProvider>
+    );
+  }
+
+  return null;
 }
 
 /**
  * Custom basket builder page with provider wrapper
+ * Entry point for the basket builder feature
  */
 export function CustomBasketBuilderPage() {
   return (
