@@ -5,8 +5,8 @@
  * LangGraph-based multi-agent system for financial market analysis
  * OpenAPI spec version: 1.0.0
  */
+import type { ValidationError } from "./validationError";
 
-/**
- * 3-month average market capitalization
- */
-export type PortfolioHoldingT3MAvgMcap = number | null;
+export interface HTTPValidationError {
+  detail?: ValidationError[];
+}

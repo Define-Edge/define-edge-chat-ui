@@ -6,7 +6,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Current Market Price
- */
-export type PortfolioHoldingCMP = number | null;
+export type ReturnsChartDataDataItem = { [key: string]: unknown };

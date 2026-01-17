@@ -6,7 +6,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Value of holding
- */
-export type PortfolioHoldingValue = number | null;
+export type PortfolioAnalyticsHoldingsItem = { [key: string]: unknown };

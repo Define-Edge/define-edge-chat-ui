@@ -7,6 +7,8 @@
  */
 
 /**
- * Quantity of shares
+ * Custom market cap range in Crores [min, max]. Takes precedence over marketCap if both are provided.
  */
-export type PortfolioHoldingQuantity = number | null;
+export type CreateCustomPortfolioRequestCustomMarketCapRange =
+  | [number, number]
+  | null;

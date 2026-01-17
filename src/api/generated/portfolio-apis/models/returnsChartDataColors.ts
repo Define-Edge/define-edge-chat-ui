@@ -7,6 +7,6 @@
  */
 
 /**
- * Portfolio type: 'long_only' or 'long_short'
+ * Map of symbol/portfolio names to color hex codes for chart lines
  */
-export type StrategyAnalyticsResponsePortfolioType = string | null;
+export type ReturnsChartDataColors = { [key: string]: string };
