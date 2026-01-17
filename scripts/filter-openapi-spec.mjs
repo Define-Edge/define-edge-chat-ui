@@ -1,14 +1,26 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const OPENAPI_URL = process.env.LANGGRAPH_API_URL || 'http://127.0.0.1:2024';
-const TAGS_TO_INCLUDE = ['Strategy APIs'];
-const OUTPUT_PATH = path.join(__dirname, '../openapi-filtered.json');
+const OPENAPI_URL = process.env.LANGGRAPH_API_URL || "http://127.0.0.1:2024";
+
+// Generate separate specs for each API group
+const API_GROUPS = [
+  {
+    name: "Strategy APIs",
+    tags: ["Strategy APIs"],
+    outputPath: path.join(__dirname, "../openapi-strategy.json"),
+  },
+  {
+    name: "Portfolio APIs",
+    tags: ["Portfolio APIs"],
+    outputPath: path.join(__dirname, "../openapi-portfolio.json"),
+  },
+];
 
 async function fetchOpenAPISpec() {
   console.log(`Fetching OpenAPI spec from ${OPENAPI_URL}/openapi.json...`);
@@ -26,14 +38,12 @@ function filterPaths(spec, tags) {
   // Filter paths by tags
   for (const [pathKey, pathValue] of Object.entries(spec.paths || {})) {
     for (const [method, operation] of Object.entries(pathValue)) {
-      if (typeof operation === 'object' && operation.tags) {
-        const hasMatchingTag = operation.tags.some((tag) =>
-          tags.includes(tag),
-        );
+      if (typeof operation === "object" && operation.tags) {
+        const hasMatchingTag = operation.tags.some((tag) => tags.includes(tag));
         if (hasMatchingTag) {
           // Strip /api prefix from paths for proxy compatibility
           // /api/strategies -> /strategies
-          const normalizedPath = pathKey.replace(/^\/api/, '');
+          const normalizedPath = pathKey.replace(/^\/api/, "");
 
           if (!filteredPaths[normalizedPath]) {
             filteredPaths[normalizedPath] = {};
@@ -51,9 +61,9 @@ function filterPaths(spec, tags) {
 }
 
 function collectSchemaRefs(obj, usedSchemas) {
-  if (!obj || typeof obj !== 'object') return;
+  if (!obj || typeof obj !== "object") return;
 
-  if (obj.$ref && typeof obj.$ref === 'string') {
+  if (obj.$ref && typeof obj.$ref === "string") {
     const match = obj.$ref.match(/#\/components\/schemas\/(.+)/);
     if (match) {
       usedSchemas.add(match[1]);
@@ -61,7 +71,7 @@ function collectSchemaRefs(obj, usedSchemas) {
   }
 
   for (const value of Object.values(obj)) {
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       collectSchemaRefs(value, usedSchemas);
     }
   }
@@ -99,30 +109,34 @@ function filterSchemas(spec, usedSchemas) {
 async function main() {
   try {
     const spec = await fetchOpenAPISpec();
-    const { filteredPaths, usedSchemas } = filterPaths(spec, TAGS_TO_INCLUDE);
-    const filteredSchemas = filterSchemas(spec, usedSchemas);
 
-    const filteredSpec = {
-      ...spec,
-      paths: filteredPaths,
-      components: {
-        schemas: filteredSchemas,
-        // Only include component sections that are actually needed
-        // Omit responses, requestBodies, etc. to avoid unused schema references
-        securitySchemes: spec.components?.securitySchemes || {},
-      },
-    };
+    // Generate a separate spec file for each API group
+    for (const group of API_GROUPS) {
+      const { filteredPaths, usedSchemas } = filterPaths(spec, group.tags);
+      const filteredSchemas = filterSchemas(spec, usedSchemas);
 
-    fs.writeFileSync(OUTPUT_PATH, JSON.stringify(filteredSpec, null, 2));
-    console.log(`✅ Filtered OpenAPI spec written to ${OUTPUT_PATH}`);
-    console.log(
-      `   Included ${Object.keys(filteredPaths).length} paths with tags: ${TAGS_TO_INCLUDE.join(', ')}`,
-    );
-    console.log(
-      `   Included ${Object.keys(filteredSchemas).length} schemas (down from ${Object.keys(spec.components?.schemas || {}).length})`,
-    );
+      const filteredSpec = {
+        ...spec,
+        paths: filteredPaths,
+        components: {
+          schemas: filteredSchemas,
+          // Only include component sections that are actually needed
+          // Omit responses, requestBodies, etc. to avoid unused schema references
+          securitySchemes: spec.components?.securitySchemes || {},
+        },
+      };
+
+      fs.writeFileSync(group.outputPath, JSON.stringify(filteredSpec, null, 2));
+      console.log(`✅ ${group.name} spec written to ${group.outputPath}`);
+      console.log(
+        `   Included ${Object.keys(filteredPaths).length} paths with tags: ${group.tags.join(", ")}`,
+      );
+      console.log(
+        `   Included ${Object.keys(filteredSchemas).length} schemas (down from ${Object.keys(spec.components?.schemas || {}).length})`,
+      );
+    }
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error("Error:", error.message);
     process.exit(1);
   }
 }

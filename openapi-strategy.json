@@ -1,0 +1,493 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Define Edge Agents API",
+    "version": "1.0.0",
+    "description": "LangGraph-based multi-agent system for financial market analysis"
+  },
+  "tags": [
+    {
+      "name": "Assistants",
+      "description": "An assistant is a configured instance of a graph."
+    },
+    {
+      "name": "Threads",
+      "description": "A thread contains the accumulated outputs of a group of runs."
+    },
+    {
+      "name": "Thread Runs",
+      "description": "A run is an invocation of a graph / assistant on a thread. It updates the state of the thread."
+    },
+    {
+      "name": "Stateless Runs",
+      "description": "A run is an invocation of a graph / assistant, with no state or memory persistence."
+    },
+    {
+      "name": "Crons (Plus tier)",
+      "description": "A cron is a periodic run that recurs on a given schedule. The repeats can be isolated, or share state in a thread"
+    },
+    {
+      "name": "Store",
+      "description": "Store is an API for managing persistent key-value store (long-term memory) that is available from any thread."
+    },
+    {
+      "name": "A2A",
+      "description": "Agent-to-Agent Protocol related endpoints for exposing assistants as A2A-compliant agents."
+    },
+    {
+      "name": "MCP",
+      "description": "Model Context Protocol related endpoints for exposing an agent as an MCP server."
+    },
+    {
+      "name": "System",
+      "description": "System endpoints for health checks, metrics, and server information."
+    }
+  ],
+  "paths": {
+    "/strategies": {
+      "get": {
+        "tags": [
+          "Strategy APIs"
+        ],
+        "summary": "Get All Strategies",
+        "description": "Get all available strategies with master details.\n\nThis endpoint retrieves all strategy master records from the portfolio master file,\nincluding strategy metadata such as description, risk level, keywords, and display name.\n\nReturns:\n    GetAllStrategiesResponse with all strategies and their master details\n\nRaises:\n    HTTPException: If loading strategies fails\n\nExample:\n    GET /api/strategies\n    Response:\n    {\n        \"strategies\": [\n            {\n                \"strategy\": \"conservative_equity\",\n                \"description\": \"A conservative equity portfolio...\",\n                \"risk_level\": \"Low\",\n                \"keywords\": \"conservative, equity, low risk\",\n                \"display_name\": \"Conservative Equity Portfolio\",\n                \"category\": \"Equity\",\n                \"stock_count\": 25\n            }\n        ],\n        \"total_count\": 1\n    }",
+        "operationId": "get_all_strategies_api_strategies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllStrategiesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategies/{strategy_name}": {
+      "get": {
+        "tags": [
+          "Strategy APIs"
+        ],
+        "summary": "Get Strategy Analytics",
+        "description": "Get strategy analytics with portfolio holdings and screener enrichment.\n\nThis endpoint retrieves detailed analytics for a specific strategy, including:\n- Strategy master details (description, risk_level, category, etc.)\n- Portfolio holdings enriched with screener data (Company_Name, Industry, etc.)\n- Holdings are sorted by weight in descending order\n\nArgs:\n    strategy_name: Name of the strategy to retrieve\n\nReturns:\n    StrategyAnalyticsResponse with strategy details and enriched holdings\n\nRaises:\n    HTTPException: 404 if strategy not found, 500 for other errors\n\nExample:\n    GET /api/strategies/conservative_equity\n    Response:\n    {\n        \"strategy\": \"conservative_equity\",\n        \"description\": \"A conservative equity portfolio...\",\n        \"risk_level\": \"Low\",\n        \"keywords\": \"conservative, equity, low risk\",\n        \"display_name\": \"Conservative Equity Portfolio\",\n        \"category\": \"Equity\",\n        \"holdings\": [\n            {\n                \"Ticker\": \"RELIANCE\",\n                \"weight\": 15.5,\n                \"quantity\": 100,\n                \"value\": 250000,\n                \"CMP\": 2500,\n                \"Company_Name\": \"Reliance Industries Ltd\",\n                \"Industry\": \"Oil & Gas\",\n                \"Size\": \"Large\"\n            }\n        ],\n        \"total_stock_count\": 25\n    }",
+        "operationId": "get_strategy_analytics_api_strategies__strategy_name__get",
+        "parameters": [
+          {
+            "name": "strategy_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Strategy Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyAnalyticsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "StrategyAnalyticsResponse": {
+        "properties": {
+          "strategy": {
+            "type": "string",
+            "title": "Strategy",
+            "description": "Unique strategy identifier"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Detailed description of the strategy"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level",
+            "description": "Risk level of the strategy (e.g., Low, Medium, High)"
+          },
+          "keywords": {
+            "type": "string",
+            "title": "Keywords",
+            "description": "Comma-separated keywords associated with the strategy"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name",
+            "description": "User-friendly display name for the strategy"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Strategy category or classification"
+          },
+          "analytics": {
+            "$ref": "#/components/schemas/PortfolioAnalytics",
+            "description": "Comprehensive portfolio analytics including holdings, distributions, returns, scores, and exposures"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategy",
+          "description",
+          "risk_level",
+          "keywords",
+          "display_name",
+          "category",
+          "analytics"
+        ],
+        "title": "StrategyAnalyticsResponse",
+        "description": "Response model for strategy analytics endpoint.\n\nContains strategy master details and comprehensive analytics including holdings."
+      },
+      "PortfolioAnalytics": {
+        "properties": {
+          "holdings": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Holdings",
+            "description": "List of portfolio holdings with ticker, weight, and screener enrichment (Company_Name, Industry, Size, etc.). Uses flexible dict format to accommodate future screener columns."
+          },
+          "total_stocks": {
+            "type": "integer",
+            "title": "Total Stocks",
+            "description": "Total number of stocks in the portfolio"
+          },
+          "industry_distribution": {
+            "items": {
+              "$ref": "#/components/schemas/DistributionItem"
+            },
+            "type": "array",
+            "title": "Industry Distribution",
+            "description": "Industry distribution by net weight (can be negative for long-short portfolios)"
+          },
+          "size_distribution": {
+            "items": {
+              "$ref": "#/components/schemas/DistributionItem"
+            },
+            "type": "array",
+            "title": "Size Distribution",
+            "description": "Size distribution by net weight (can be negative for long-short portfolios)"
+          },
+          "returns_chart_data": {
+            "$ref": "#/components/schemas/ReturnsChartData",
+            "description": "Cumulative returns chart data over time (Recharts line chart format)"
+          },
+          "overall_score_chart_data": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreChartDataItem"
+            },
+            "type": "array",
+            "title": "Overall Score Chart Data",
+            "description": "Overall score chart data for gauge/progress charts"
+          },
+          "risk_score_chart_data": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreChartDataItem"
+            },
+            "type": "array",
+            "title": "Risk Score Chart Data",
+            "description": "Risk score chart data for gauge/progress charts"
+          },
+          "portfolio_type": {
+            "type": "string",
+            "title": "Portfolio Type",
+            "description": "Portfolio type: 'long_only' or 'long_short'",
+            "default": "long_only"
+          },
+          "net_exposure": {
+            "type": "number",
+            "title": "Net Exposure",
+            "description": "Net exposure (sum of signed weights) for long-short portfolios"
+          },
+          "gross_exposure": {
+            "type": "number",
+            "title": "Gross Exposure",
+            "description": "Gross exposure (sum of absolute weights) for long-short portfolios"
+          },
+          "missing_holdings": {
+            "items": {
+              "$ref": "#/components/schemas/MissingHolding"
+            },
+            "type": "array",
+            "title": "Missing Holdings",
+            "description": "List of holdings that are missing from closing or screener data and excluded from analytics",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "holdings",
+          "total_stocks",
+          "industry_distribution",
+          "size_distribution",
+          "returns_chart_data",
+          "overall_score_chart_data",
+          "risk_score_chart_data",
+          "net_exposure",
+          "gross_exposure"
+        ],
+        "title": "PortfolioAnalytics",
+        "description": "Reusable portfolio analytics model.\n\nThis model contains comprehensive portfolio analytics that can be embedded\nin any portfolio response (strategy portfolios, custom portfolios, etc.).\n\nIt provides a consistent structure for frontend components to display\nportfolio analytics regardless of the portfolio type."
+      },
+      "MissingHolding": {
+        "properties": {
+          "Ticker": {
+            "type": "string",
+            "title": "Ticker",
+            "description": "Stock ticker symbol"
+          },
+          "weight": {
+            "type": "number",
+            "title": "Weight",
+            "description": "Weight in original portfolio (percentage)"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Reason for exclusion: 'missing_in_closing', 'missing_in_screener', or 'missing_in_both'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "Ticker",
+          "weight",
+          "reason"
+        ],
+        "title": "MissingHolding",
+        "description": "Ticker that is missing from closing or screener data.\n\nTracks holdings from the portfolio that could not be included in analytics\ndue to missing price or screener data."
+      },
+      "ScoreChartDataItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Label for the data item (e.g., 'Overall Score', 'Total')"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value",
+            "description": "Value for the data item"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "ScoreChartDataItem",
+        "description": "Score chart data item for gauge/progress charts.\n\nUsed for displaying scores on gauge charts or progress bars."
+      },
+      "ReturnsChartData": {
+        "properties": {
+          "data": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of data points with 'date' (timestamp in ms) and return values for each symbol/portfolio"
+          },
+          "colors": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Colors",
+            "description": "Map of symbol/portfolio names to color hex codes for chart lines"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Chart title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Chart description with date range information"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "colors",
+          "title",
+          "description"
+        ],
+        "title": "ReturnsChartData",
+        "description": "Returns chart data for line charts (Recharts format).\n\nContains time-series data for cumulative returns visualization."
+      },
+      "DistributionItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Category name (e.g., 'IT', 'Large', 'Finance')"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value",
+            "description": "Weight percentage for this category"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "DistributionItem",
+        "description": "Distribution item for pie charts (Recharts format).\n\nThis format is compatible with Recharts pie chart components."
+      },
+      "GetAllStrategiesResponse": {
+        "properties": {
+          "strategies": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyMasterDetail"
+            },
+            "type": "array",
+            "title": "Strategies",
+            "description": "List of all available strategies with their master details"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count",
+            "description": "Total number of strategies returned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategies",
+          "total_count"
+        ],
+        "title": "GetAllStrategiesResponse",
+        "description": "Response model for getting all strategies with master details."
+      },
+      "StrategyMasterDetail": {
+        "properties": {
+          "strategy": {
+            "type": "string",
+            "title": "Strategy",
+            "description": "Unique strategy identifier"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Detailed description of the strategy"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level",
+            "description": "Risk level of the strategy (e.g., Low, Medium, High)"
+          },
+          "keywords": {
+            "type": "string",
+            "title": "Keywords",
+            "description": "Comma-separated keywords associated with the strategy"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name",
+            "description": "User-friendly display name for the strategy"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Strategy category or classification"
+          },
+          "stock_count": {
+            "type": "integer",
+            "title": "Stock Count",
+            "description": "Number of unique stocks in the strategy portfolio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategy",
+          "description",
+          "risk_level",
+          "keywords",
+          "display_name",
+          "category",
+          "stock_count"
+        ],
+        "title": "StrategyMasterDetail",
+        "description": "Individual strategy master detail record."
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}
