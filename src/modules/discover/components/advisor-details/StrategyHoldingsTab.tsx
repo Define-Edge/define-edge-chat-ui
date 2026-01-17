@@ -12,10 +12,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PortfolioHolding } from "@/api/generated/strategy-apis/models";
+import { PortfolioAnalyticsHoldingsItem } from "@/api/generated/strategy-apis/models";
 
 interface StrategyHoldingsTabProps {
-  holdings: PortfolioHolding[];
+  holdings: PortfolioAnalyticsHoldingsItem[];
 }
 
 /**
@@ -45,25 +45,25 @@ export function StrategyHoldingsTab({ holdings }: StrategyHoldingsTabProps) {
                   <TableCell>
                     <div>
                       <div className="font-medium text-text-primary">
-                        {holding.Ticker}
+                        {String(holding.Ticker ?? "")}
                       </div>
                       <div className="text-xs text-text-tertiary truncate">
-                        {holding.Company_Name || "N/A"}
+                        {String(holding.Company_Name ?? "N/A")}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-text-secondary">
-                    {holding.Industry || "N/A"}
+                    {String(holding.Industry ?? "N/A")}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-text-secondary">
-                    {holding.Size || "N/A"}
+                    {String(holding.Size ?? "N/A")}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-right text-text-secondary">
                     {holding.T3M_Avg_Mcap ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="cursor-help">
-                            ₹{(holding.T3M_Avg_Mcap / 1000).toFixed(2)}K Cr
+                            ₹{(Number(holding.T3M_Avg_Mcap) / 1000).toFixed(2)}K Cr
                           </span>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -75,7 +75,7 @@ export function StrategyHoldingsTab({ holdings }: StrategyHoldingsTabProps) {
                     )}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {holding.weight.toFixed(2)}%
+                    {Number(holding.weight ?? 0).toFixed(2)}%
                   </TableCell>
                 </TableRow>
               ))}

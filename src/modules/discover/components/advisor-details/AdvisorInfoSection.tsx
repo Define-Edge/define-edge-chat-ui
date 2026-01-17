@@ -48,22 +48,22 @@ export function AdvisorInfoSection({ strategy, isLongShort }: AdvisorInfoSection
         <div className="grid grid-cols-3 items-center gap-4">
           <div className="text-center">
             <div className="text-lg font-semibold text-text-primary">
-              {strategy.total_stock_count}
+              {strategy.analytics.total_stocks}
             </div>
             <div className="text-xs text-text-tertiary">Holdings</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-text-primary">
-              {strategy.net_exposure !== null && strategy.net_exposure !== undefined
-                ? `${strategy.net_exposure.toFixed(1)}%`
+              {strategy.analytics.net_exposure !== null && strategy.analytics.net_exposure !== undefined
+                ? `${strategy.analytics.net_exposure.toFixed(1)}%`
                 : "N/A"}
             </div>
             <div className="text-xs text-text-tertiary">Net Exposure</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-text-primary">
-              {strategy.gross_exposure !== null && strategy.gross_exposure !== undefined
-                ? `${strategy.gross_exposure.toFixed(1)}%`
+              {strategy.analytics.gross_exposure !== null && strategy.analytics.gross_exposure !== undefined
+                ? `${strategy.analytics.gross_exposure.toFixed(1)}%`
                 : "N/A"}
             </div>
             <div className="text-xs text-text-tertiary">Gross Exposure</div>
@@ -74,7 +74,7 @@ export function AdvisorInfoSection({ strategy, isLongShort }: AdvisorInfoSection
         <div className="grid grid-cols-2 items-center gap-4">
           <div className="text-center">
             <div className="text-lg font-semibold text-text-primary">
-              {strategy.total_stock_count}
+              {strategy.analytics.total_stocks}
             </div>
             <div className="text-xs text-text-tertiary">Holdings</div>
           </div>
