@@ -6,17 +6,21 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from "./createCustomPortfolioRequest";
+export * from "./createCustomPortfolioRequestCustomMarketCapRange";
+export * from "./createCustomPortfolioRequestMarketCap";
+export * from "./createCustomPortfolioResponse";
 export * from "./distributionItem";
-export * from "./getAllStrategiesResponse";
 export * from "./hTTPValidationError";
+export * from "./investmentStyle";
+export * from "./marketCap";
 export * from "./missingHolding";
+export * from "./portfolioAllocation";
 export * from "./portfolioAnalytics";
 export * from "./portfolioAnalyticsHoldingsItem";
 export * from "./returnsChartData";
 export * from "./returnsChartDataColors";
 export * from "./returnsChartDataDataItem";
 export * from "./scoreChartDataItem";
-export * from "./strategyAnalyticsResponse";
-export * from "./strategyMasterDetail";
 export * from "./validationError";
 export * from "./validationErrorLocItem";

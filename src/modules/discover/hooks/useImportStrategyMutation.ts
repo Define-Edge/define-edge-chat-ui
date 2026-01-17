@@ -22,14 +22,14 @@ interface ImportStrategyParams {
 function transformStrategyHoldingsToMarkdown(
   strategy: StrategyAnalyticsResponse,
 ) {
-  return strategy.holdings.map((holding) => ({
-    Ticker: holding.Ticker,
-    "Company Name": holding.Company_Name || "N/A",
-    Industry: holding.Industry || "N/A",
-    Size: holding.Size || "N/A",
-    "Weight (%)": holding.weight.toFixed(2),
+  return strategy.analytics.holdings.map((holding) => ({
+    Ticker: String(holding.Ticker ?? ""),
+    "Company Name": String(holding.Company_Name ?? "N/A"),
+    Industry: String(holding.Industry ?? "N/A"),
+    Size: String(holding.Size ?? "N/A"),
+    "Weight (%)": Number(holding.weight ?? 0).toFixed(2),
     "Market Cap (Cr)": holding.T3M_Avg_Mcap
-      ? `₹${(holding.T3M_Avg_Mcap / 1000).toFixed(2)}K`
+      ? `₹${(Number(holding.T3M_Avg_Mcap) / 1000).toFixed(2)}K`
       : "N/A",
   }));
 }
@@ -43,7 +43,7 @@ export function useImportStrategyMutation() {
 
   return useMutation({
     mutationFn: async ({ strategy }: ImportStrategyParams) => {
-      if (!strategy.holdings || strategy.holdings.length === 0) {
+      if (!strategy.analytics.holdings || strategy.analytics.holdings.length === 0) {
         throw new Error("No holdings found in the strategy");
       }
 
@@ -61,7 +61,7 @@ export function useImportStrategyMutation() {
 - **Category:** ${strategy.category}
 - **Risk Level:** ${strategy.risk_level}
 - **Description:** ${strategy.description}
-- **Total Stocks:** ${strategy.total_stock_count}
+- **Total Stocks:** ${strategy.analytics.total_stocks}
 
 **Portfolio Holdings:**
 
@@ -101,7 +101,7 @@ Please analyze this strategy and provide insights on:
 
       return {
         strategyName: strategy.display_name,
-        holdingsCount: strategy.holdings.length,
+        holdingsCount: strategy.analytics.holdings.length,
       };
     },
     onSuccess: (result) => {

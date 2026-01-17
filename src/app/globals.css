@@ -90,6 +90,7 @@
   --accent-orange: #f97316;
   --accent-orange-bg: #fff7ed;
   --accent-orange-border: #fed7aa;
+  --accent-green: #10b981;
 }
 
 .dark {
@@ -174,6 +175,7 @@
   --accent-orange: #fb923c;
   --accent-orange-bg: #7c2d12;
   --accent-orange-border: #c2410c;
+  --accent-green: #34d399;
 }
 
 @theme inline {
@@ -262,6 +264,7 @@
   --color-accent-orange: var(--accent-orange);
   --color-accent-orange-bg: var(--accent-orange-bg);
   --color-accent-orange-border: var(--accent-orange-border);
+  --color-accent-green: var(--accent-green);
 }
 
 @layer base {

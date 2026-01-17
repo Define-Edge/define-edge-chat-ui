@@ -5,19 +5,12 @@
  * LangGraph-based multi-agent system for financial market analysis
  * OpenAPI spec version: 1.0.0
  */
-import type { PortfolioHolding } from "./portfolioHolding";
-import type { MissingHolding } from "./missingHolding";
-import type { DistributionItem } from "./distributionItem";
-import type { ReturnsChartData } from "./returnsChartData";
-import type { ScoreChartDataItem } from "./scoreChartDataItem";
-import type { StrategyAnalyticsResponsePortfolioType } from "./strategyAnalyticsResponsePortfolioType";
-import type { StrategyAnalyticsResponseNetExposure } from "./strategyAnalyticsResponseNetExposure";
-import type { StrategyAnalyticsResponseGrossExposure } from "./strategyAnalyticsResponseGrossExposure";
+import type { PortfolioAnalytics } from "./portfolioAnalytics";
 
 /**
  * Response model for strategy analytics endpoint.
 
-Contains strategy master details and enriched portfolio holdings.
+Contains strategy master details and comprehensive analytics including holdings.
  */
 export interface StrategyAnalyticsResponse {
   /** Unique strategy identifier */
@@ -32,26 +25,6 @@ export interface StrategyAnalyticsResponse {
   display_name: string;
   /** Strategy category or classification */
   category: string;
-  /** List of portfolio holdings with screener enrichment, sorted by weight descending */
-  holdings: PortfolioHolding[];
-  /** Total number of stocks in the strategy portfolio */
-  total_stock_count: number;
-  /** List of holdings that are missing from closing or screener data and excluded from analytics */
-  missing_holdings?: MissingHolding[];
-  /** Industry distribution by net weight (can be negative for long-short portfolios) */
-  industry_distribution: DistributionItem[];
-  /** Size distribution by net weight (can be negative for long-short portfolios) */
-  size_distribution: DistributionItem[];
-  /** Cumulative returns chart data over time (Recharts line chart format) */
-  returns_chart_data: ReturnsChartData;
-  /** Overall score chart data for gauge/progress charts */
-  overall_score_chart_data: ScoreChartDataItem[];
-  /** Risk score chart data for gauge/progress charts */
-  risk_score_chart_data: ScoreChartDataItem[];
-  /** Portfolio type: 'long_only' or 'long_short' */
-  portfolio_type?: StrategyAnalyticsResponsePortfolioType;
-  /** Net exposure (sum of signed weights) for long-short portfolios */
-  net_exposure?: StrategyAnalyticsResponseNetExposure;
-  /** Gross exposure (sum of absolute weights) for long-short portfolios */
-  gross_exposure?: StrategyAnalyticsResponseGrossExposure;
+  /** Comprehensive portfolio analytics including holdings, distributions, returns, scores, and exposures */
+  analytics: PortfolioAnalytics;
 }

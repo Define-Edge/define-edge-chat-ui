@@ -5,8 +5,10 @@
  * LangGraph-based multi-agent system for financial market analysis
  * OpenAPI spec version: 1.0.0
  */
+import type { ValidationErrorLocItem } from "./validationErrorLocItem";
 
-/**
- * Company size (Large/Mid/Small)
- */
-export type PortfolioHoldingSize = string | null;
+export interface ValidationError {
+  loc: ValidationErrorLocItem[];
+  msg: string;
+  type: string;
+}

@@ -2,22 +2,12 @@
 
 import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/layouts/PageHeader";
 import { useImportStrategyMutation } from "@/modules/discover/hooks/useImportStrategyMutation";
-import {
-  Download,
-  MessageSquare,
-  Share,
-  Star,
-  StarOff,
-} from "lucide-react";
+import { PortfolioAnalyticsTabs } from "@/modules/core/portfolio/components";
+import { Download, MessageSquare, Share, Star, StarOff } from "lucide-react";
 import { useState } from "react";
 import { AdvisorInfoSection } from "./AdvisorInfoSection";
-import { MissingHoldingsWarning } from "./MissingHoldingsWarning";
-import { StrategyAnalyticsTab } from "./StrategyAnalyticsTab";
-import { StrategyHoldingsTab } from "./StrategyHoldingsTab";
-import { StrategyOverviewTab } from "./StrategyOverviewTab";
 
 interface AdvisorStrategyDetailsPageProps {
   strategy: StrategyAnalyticsResponse;
@@ -35,20 +25,6 @@ export function AdvisorStrategyDetailsPage({
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const importMutation = useImportStrategyMutation();
 
-  // Check if all stocks are missing
-  const allStocksMissing =
-    strategy.missing_holdings &&
-    strategy.holdings &&
-    strategy.missing_holdings.length === strategy.holdings.length;
-
-  // Check if this is a long-short strategy
-  const isLongShort = strategy.portfolio_type === "long_short";
-
-  // Set default tab based on whether all stocks are missing
-  const [activeTab, setActiveTab] = useState(
-    allStocksMissing ? "holdings" : "overview"
-  );
-
   const handleAddToChat = () => {
     // Import strategy to chat
     importMutation.mutate({ strategy });
@@ -57,7 +33,9 @@ export function AdvisorStrategyDetailsPage({
   return (
     <>
       {/* Header with action buttons */}
-      <PageHeader title={strategy.display_name || strategy.strategy || "Strategy Details"}>
+      <PageHeader
+        title={strategy.display_name || strategy.strategy || "Strategy Details"}
+      >
         <button
           type="button"
           onClick={() => setIsWatchlisted(!isWatchlisted)}
@@ -93,67 +71,11 @@ export function AdvisorStrategyDetailsPage({
         {/* Strategy Info Section */}
         <AdvisorInfoSection
           strategy={strategy}
-          isLongShort={isLongShort}
+          isLongShort={strategy.analytics.portfolio_type === "long_short"}
         />
 
-      {/* Missing Holdings Warning - only show if some (not all) stocks are missing */}
-      {strategy.missing_holdings &&
-        strategy.missing_holdings.length > 0 &&
-        !allStocksMissing && (
-          <MissingHoldingsWarning missingHoldings={strategy.missing_holdings} />
-        )}
-
-      {/* Content Tabs */}
-      <div className="px-6 py-4">
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList
-            className={`mb-6 grid w-full ${allStocksMissing ? "grid-cols-1 max-w-xs mx-auto" : "grid-cols-3"}`}
-          >
-            {!allStocksMissing && (
-              <TabsTrigger value="overview" className="text-xs">
-                Overview
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="holdings" className="text-xs">
-              Holdings
-            </TabsTrigger>
-            {!allStocksMissing && (
-              <TabsTrigger value="analytics" className="text-xs">
-                Analytics
-              </TabsTrigger>
-            )}
-          </TabsList>
-
-          {!allStocksMissing && (
-            <TabsContent value="overview">
-              <StrategyOverviewTab
-                industryDistribution={strategy.industry_distribution}
-                sizeDistribution={strategy.size_distribution}
-                isLongShort={isLongShort}
-              />
-            </TabsContent>
-          )}
-
-          <TabsContent value="holdings">
-            <StrategyHoldingsTab holdings={strategy.holdings} />
-          </TabsContent>
-
-          {!allStocksMissing && (
-            <TabsContent value="analytics">
-              <StrategyAnalyticsTab
-                riskLevel={strategy.risk_level}
-                returnsChartData={strategy.returns_chart_data}
-                overallScoreChartData={strategy.overall_score_chart_data}
-                riskScoreChartData={strategy.risk_score_chart_data}
-              />
-            </TabsContent>
-          )}
-        </Tabs>
-      </div>
+        {/* Portfolio Analytics Tabs */}
+        <PortfolioAnalyticsTabs analytics={strategy.analytics} />
 
         {/* Action Button */}
         <div className="bg-bg-card border-border-default fixed right-0 bottom-0 left-0 z-40 border-t shadow-lg">

@@ -6,7 +6,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Gross exposure (sum of absolute weights) for long-short portfolios
- */
-export type StrategyAnalyticsResponseGrossExposure = number | null;
+export type ValidationErrorLocItem = string | number;

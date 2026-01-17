@@ -6,7 +6,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Company name from screener
- */
-export type PortfolioHoldingCompanyName = string | null;
+export type PortfolioAnalyticsHoldingsItem = { [key: string]: unknown };

@@ -14,16 +14,15 @@ import {
 } from "@/components/ui/tooltip";
 import { PortfolioAnalyticsHoldingsItem } from "@/api/generated/strategy-apis/models";
 
-interface StrategyHoldingsTabProps {
+interface HoldingsTabProps {
   holdings: PortfolioAnalyticsHoldingsItem[];
 }
 
 /**
- * Strategy Holdings Tab Component
- * Displays portfolio holdings in a table with weights, prices, and changes
- * Component size: ~120 lines
+ * Portfolio Holdings Tab Component
+ * Displays portfolio holdings in a table with weights, prices, and other details
  */
-export function StrategyHoldingsTab({ holdings }: StrategyHoldingsTabProps) {
+export function HoldingsTab({ holdings }: HoldingsTabProps) {
   return (
     <div className="space-y-6 pb-28">
       <Card className="p-4">
