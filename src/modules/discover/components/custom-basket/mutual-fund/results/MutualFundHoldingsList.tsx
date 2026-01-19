@@ -1,8 +1,8 @@
-import type { MutualFund } from "../../../../types/basket-builder.types";
+import type { MFPortfolioItem } from "@/types/mf-portfolio";
 import { MutualFundHoldingCard } from "./MutualFundHoldingCard";
 
 interface MutualFundHoldingsListProps {
-  funds: MutualFund[];
+  funds: MFPortfolioItem[];
 }
 
 /**
@@ -19,7 +19,7 @@ export function MutualFundHoldingsList({
       </h3>
       <div className="space-y-3">
         {funds.map((fund) => (
-          <MutualFundHoldingCard key={fund.symbol} fund={fund} />
+          <MutualFundHoldingCard key={fund.ISIN} fund={fund} />
         ))}
       </div>
     </div>

@@ -55,7 +55,7 @@ export function CategoryPreferenceStep() {
                   <div className="mt-2 flex flex-wrap gap-1">
                     {option.categories.map((cat) => (
                       <span
-                        key={cat.id}
+                        key={cat.name}
                         className="text-xs bg-bg-subtle text-text-tertiary px-2 py-1 rounded"
                       >
                         {cat.name}: {cat.percentage}%

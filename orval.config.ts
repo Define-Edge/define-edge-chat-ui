@@ -39,4 +39,23 @@ export default defineConfig({
       },
     },
   },
+  'mf-portfolio-apis': {
+    input: {
+      target: './openapi-mf-portfolio.json',
+    },
+    output: {
+      mode: 'tags-split',
+      target: './src/api/generated/mf-portfolio-apis',
+      schemas: './src/api/generated/mf-portfolio-apis/models',
+      client: 'react-query',
+      httpClient: 'fetch',
+      mock: false,
+      clean: true,
+      prettier: true,
+      baseUrl: '/api/utilities',
+      override: {
+        useDates: false,
+      },
+    },
+  },
 });
