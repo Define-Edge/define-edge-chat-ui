@@ -27,7 +27,7 @@ export function MutualFundConfigSummary({
 
         {/* Fund Categories */}
         {basketConfig.fundCategories.map((category) => (
-          <Badge key={category.id} variant="secondary" className="text-xs">
+          <Badge key={category.name} variant="secondary" className="text-xs">
             {category.name}: {category.percentage}%
           </Badge>
         ))}

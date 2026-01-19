@@ -8,10 +8,17 @@
 
 /**
  * Cost analysis based on expense ratios.
+
+Returns monthly and annual costs for a reference portfolio value,
+along with the weighted average expense ratio for comparison.
  */
 export interface MFCostAnalysis {
-  /** Total cost in absolute value */
-  total_cost: number;
-  /** Total cost as percentage of portfolio value */
-  total_cost_percentage: number;
+  /** Base portfolio value used for calculation (e.g., 100000) */
+  portfolio_value: number;
+  /** Monthly cost amount in absolute value */
+  monthly_cost: number;
+  /** Annual cost amount (monthly * 12) */
+  annual_cost: number;
+  /** Annualized weighted average expense ratio in percentage */
+  weighted_expense_ratio: number;
 }

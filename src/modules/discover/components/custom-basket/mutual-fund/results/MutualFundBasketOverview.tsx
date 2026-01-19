@@ -1,8 +1,8 @@
 import { PieChart } from "lucide-react";
-import type { GeneratedMutualFundBasket } from "../../../../types/basket-builder.types";
+import type { CreateMFPortfolioResponse } from "@/api/generated/mf-portfolio-apis/models/createMFPortfolioResponse";
 
 interface MutualFundBasketOverviewProps {
-  basket: GeneratedMutualFundBasket;
+  response: CreateMFPortfolioResponse;
   description: string;
 }
 
@@ -11,9 +11,15 @@ interface MutualFundBasketOverviewProps {
  * Displays basket name, icon, and key metrics
  */
 export function MutualFundBasketOverview({
-  basket,
+  response,
   description,
 }: MutualFundBasketOverviewProps) {
+  // Generate basket name based on plan type
+  const basketName =
+    response.plan_type === "direct"
+      ? "Direct Plan Mutual Fund Basket"
+      : "Regular Plan Mutual Fund Basket";
+
   return (
     <div className="bg-bg-base px-6 py-6 border-b border-border-subtle">
       <div className="flex items-start gap-3 mb-4">
@@ -22,7 +28,7 @@ export function MutualFundBasketOverview({
         </div>
         <div className="flex-1">
           <h2 className="text-lg font-semibold text-text-primary mb-1">
-            {basket.name}
+            {basketName}
           </h2>
           <p className="text-sm text-text-secondary">{description}</p>
         </div>
@@ -30,14 +36,12 @@ export function MutualFundBasketOverview({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center">
-          <div className="text-xl font-semibold text-text-success">
-            {basket.expectedReturn}
-          </div>
+          <div className="text-xl font-semibold text-text-secondary">--</div>
           <div className="text-xs text-text-secondary">Expected Returns</div>
         </div>
         <div className="text-center">
           <div className="text-xl font-semibold text-text-primary">
-            {basket.funds.length}
+            {response.analytics.total_schemes}
           </div>
           <div className="text-xs text-text-secondary">Holdings</div>
         </div>

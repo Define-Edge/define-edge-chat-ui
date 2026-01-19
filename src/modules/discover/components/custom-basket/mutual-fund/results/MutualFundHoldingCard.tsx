@@ -1,50 +1,51 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { MutualFund } from "../../../../types/basket-builder.types";
+import type { MFPortfolioItem } from "@/types/mf-portfolio";
 
 interface MutualFundHoldingCardProps {
-  fund: MutualFund;
+  fund: MFPortfolioItem;
 }
 
 /**
  * Individual mutual fund holding card component
- * Displays fund details with NAV, change, and weight
+ * Displays fund details with 1-month return and weight
  */
 export function MutualFundHoldingCard({ fund }: MutualFundHoldingCardProps) {
+  // Use 1-month return as the change indicator
+  const change = fund.oneM_per ?? 0;
+
   return (
     <Card className="p-3">
       <div className="flex items-center justify-between mb-2">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0 pr-3">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-sm text-text-primary">
-              {fund.name}
+            <span className="font-medium text-sm text-text-primary truncate">
+              {fund.Scheme_Name}
             </span>
-            <Badge variant="secondary" className="text-xs">
-              {fund.weight}%
+            <Badge variant="secondary" className="text-xs shrink-0">
+              {fund.weight.toFixed(1)}%
             </Badge>
           </div>
           <div className="text-xs text-text-secondary truncate">
-            {fund.category}
+            {fund.Sebi_Category}
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-sm font-medium text-text-primary">
-            ₹{fund.nav.toFixed(2)}
-          </div>
+        <div className="text-right shrink-0">
+          <div className="text-sm font-medium text-text-primary">--</div>
           <div
             className={`flex items-center justify-end gap-1 text-xs ${
-              fund.change >= 0 ? "text-text-success" : "text-text-error"
+              change >= 0 ? "text-text-success" : "text-text-error"
             }`}
           >
-            {fund.change >= 0 ? (
+            {change >= 0 ? (
               <TrendingUp className="w-3 h-3" />
             ) : (
               <TrendingDown className="w-3 h-3" />
             )}
             <span>
-              {fund.change >= 0 ? "+" : ""}
-              {fund.change}%
+              {change >= 0 ? "+" : ""}
+              {change.toFixed(2)}%
             </span>
           </div>
         </div>

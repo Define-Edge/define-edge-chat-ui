@@ -4,21 +4,13 @@ import type {
   MarketCap,
   PortfolioAllocation,
 } from "@/api/generated/portfolio-apis/models";
+import type { PlanType } from "@/api/generated/mf-portfolio-apis/models/planType";
+import type { FundCategory } from "@/api/generated/mf-portfolio-apis/models/fundCategory";
 
 /**
  * Investment type selection (before config is created)
  */
 export type InvestmentType = "" | "stocks" | "mutualFunds";
-
-/**
- * Fund category with percentage allocation and scheme count
- */
-export interface FundCategory {
-  id: string;
-  name: string;
-  percentage: number;
-  schemesCount: number;
-}
 
 /**
  * Stock basket configuration
@@ -40,7 +32,7 @@ export interface StockBasketConfig {
  */
 export interface MutualFundBasketConfig {
   type: "mutualFunds";
-  planType: string; // "direct" | "regular"
+  planType: PlanType | "";
   categoryPreference: string; // "largecap" | "midcap" | "smallcap" | "international" | "custom"
   fundCategories: FundCategory[];
   mfPreferences: string;
@@ -101,7 +93,7 @@ export interface FundCategoryOption {
  * Plan type option for mutual funds
  */
 export interface PlanTypeOption {
-  id: string;
+  id: PlanType;
   name: string;
   description: string;
 }
@@ -131,16 +123,9 @@ export interface Stock {
 
 /**
  * Mutual fund holding in generated basket
+ * @deprecated Use MFPortfolioItem from @/types/mf-portfolio instead
  */
-export interface MutualFund {
-  symbol: string;
-  name: string;
-  weight: number;
-  nav: number;
-  change: number;
-  category: string;
-  aum: string;
-}
+// MutualFund interface removed - use MFPortfolioItem from @/types/mf-portfolio
 
 /**
  * Generated stock basket data
@@ -157,21 +142,15 @@ export interface GeneratedStockBasket {
 
 /**
  * Generated mutual fund basket data
+ * @deprecated Use CreateMFPortfolioResponse from @/api/generated/mf-portfolio-apis/models instead
  */
-export interface GeneratedMutualFundBasket {
-  type: "mutualFunds";
-  name: string;
-  funds: MutualFund[];
-  expectedReturn: string;
-  riskLevel: "Low" | "Medium" | "High";
-  volatility: string;
-  sharpeRatio: string;
-}
+// GeneratedMutualFundBasket interface removed - use CreateMFPortfolioResponse from API
 
 /**
  * Discriminated union for generated baskets
+ * Note: For mutual funds, use CreateMFPortfolioResponse directly
  */
-export type GeneratedBasket = GeneratedStockBasket | GeneratedMutualFundBasket;
+export type GeneratedBasket = GeneratedStockBasket;
 
 /**
  * Step definition for multi-step form

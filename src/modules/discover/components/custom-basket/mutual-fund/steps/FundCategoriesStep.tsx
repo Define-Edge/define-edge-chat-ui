@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Minus, Plus, X } from "lucide-react";
+import { Minus, Plus, X, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { fundCategoryOptions } from "../../../../constants/mutual-fund-basket-data";
 import { useMutualFundBasketBuilderContext } from "../../../../hooks/useMutualFundBasketBuilderContext";
+import { useGetSebiCategoriesApiMfPortfoliosSebiCategoriesGet } from "@/api/generated/mf-portfolio-apis/mf-portfolio-apis/mf-portfolio-apis";
 
 /**
  * Step 3: Fund category allocation for mutual fund baskets
@@ -20,11 +20,16 @@ export function FundCategoriesStep() {
 
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
+  // Fetch SEBI categories from API
+  const { data, isLoading, isError, error } =
+    useGetSebiCategoriesApiMfPortfoliosSebiCategoriesGet();
+
   /**
    * Get available categories (not yet selected)
    */
-  const availableCategories = fundCategoryOptions.filter(
-    (cat) => !basketConfig.fundCategories.find((fc) => fc.id === cat.id)
+  const availableCategories = (data?.data.categories || []).filter(
+    (categoryName) =>
+      !basketConfig.fundCategories.find((fc) => fc.name === categoryName)
   );
 
   return (
@@ -35,8 +40,27 @@ export function FundCategoriesStep() {
         </p>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin text-accent-blue" />
+          <span className="ml-2 text-sm text-text-secondary">
+            Loading categories...
+          </span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {isError && (
+        <div className="bg-error-bg border border-error-border rounded-lg p-4">
+          <p className="text-sm text-error-fg">
+            Failed to load categories. {typeof error === "string" ? error : "Please try again."}
+          </p>
+        </div>
+      )}
+
       {/* Add Category Dropdown */}
-      {availableCategories.length > 0 && (
+      {!isLoading && !isError && availableCategories.length > 0 && (
         <div className="space-y-2 relative">
           <label className="text-sm font-medium text-text-primary">
             Add Category
@@ -60,18 +84,18 @@ export function FundCategoriesStep() {
               ></div>
 
               {/* Dropdown options */}
-              <div className="absolute z-20 w-full mt-1 bg-bg-base border border-border-default rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                {availableCategories.map((category) => (
+              <div className="absolute z-20 w-full mt-1 bg-background border border-border-default rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {availableCategories.map((categoryName) => (
                   <button
-                    key={category.id}
+                    key={categoryName}
                     onClick={() => {
-                      addFundCategory(category.id, category.name);
+                      addFundCategory(categoryName);
                       setShowCategoryDropdown(false);
                     }}
                     className="w-full px-4 py-3 text-left hover:bg-bg-hover transition-colors border-b border-border-subtle last:border-b-0"
                   >
                     <span className="text-sm text-text-primary">
-                      {category.name}
+                      {categoryName}
                     </span>
                   </button>
                 ))}
@@ -82,14 +106,14 @@ export function FundCategoriesStep() {
       )}
 
       {/* Selected Categories */}
-      {basketConfig.fundCategories.length > 0 && (
+      {!isLoading && basketConfig.fundCategories.length > 0 && (
         <div className="space-y-3">
           <label className="text-sm font-medium text-text-primary">
             Selected Categories
           </label>
           {basketConfig.fundCategories.map((category) => (
             <Card
-              key={category.id}
+              key={category.name}
               className="p-4 border-border-default bg-bg-base"
             >
               <div className="flex items-center justify-between">
@@ -103,7 +127,7 @@ export function FundCategoriesStep() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        updateFundCategoryPercentage(category.id, -5)
+                        updateFundCategoryPercentage(category.name, -5)
                       }
                       className="w-8 h-8 rounded-full bg-bg-base border border-border-default flex items-center justify-center hover:bg-bg-hover transition-colors"
                     >
@@ -114,7 +138,7 @@ export function FundCategoriesStep() {
                     </span>
                     <button
                       onClick={() =>
-                        updateFundCategoryPercentage(category.id, 5)
+                        updateFundCategoryPercentage(category.name, 5)
                       }
                       className="w-8 h-8 rounded-full bg-bg-base border border-border-default flex items-center justify-center hover:bg-bg-hover transition-colors"
                     >
@@ -124,7 +148,7 @@ export function FundCategoriesStep() {
 
                   {/* Remove Button */}
                   <button
-                    onClick={() => removeFundCategory(category.id)}
+                    onClick={() => removeFundCategory(category.name)}
                     className="w-8 h-8 rounded-full bg-error-bg border border-error-border flex items-center justify-center hover:bg-error-fg hover:border-error-fg transition-colors"
                   >
                     <X className="w-4 h-4 text-error-fg hover:text-white" />
@@ -137,7 +161,7 @@ export function FundCategoriesStep() {
       )}
 
       {/* Empty State */}
-      {basketConfig.fundCategories.length === 0 && (
+      {!isLoading && basketConfig.fundCategories.length === 0 && (
         <div className="bg-warning-bg border border-warning-border rounded-lg p-4">
           <p className="text-sm text-warning-fg">
             Please add at least one fund category to continue
@@ -146,7 +170,7 @@ export function FundCategoriesStep() {
       )}
 
       {/* Success Indicator */}
-      {basketConfig.fundCategories.length > 0 && (
+      {!isLoading && basketConfig.fundCategories.length > 0 && (
         <div className="bg-info-bg border border-info-border rounded-lg p-3">
           <p className="text-xs text-info-foreground font-medium text-center">
             ✓ 100% weightage allocated across{" "}
@@ -159,7 +183,7 @@ export function FundCategoriesStep() {
       )}
 
       {/* Continue Button */}
-      {basketConfig.fundCategories.length > 0 && (
+      {!isLoading && basketConfig.fundCategories.length > 0 && (
         <div className="pt-4">
           <Button
             onClick={nextStep}

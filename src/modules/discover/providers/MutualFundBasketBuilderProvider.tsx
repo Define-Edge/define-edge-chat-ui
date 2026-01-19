@@ -1,10 +1,12 @@
 "use client";
 
 import { createContext, ReactNode, useState } from "react";
-import type {
-  MutualFundBasketConfig,
-  FundCategory,
-} from "../types/basket-builder.types";
+import type { MutualFundBasketConfig } from "../types/basket-builder.types";
+import type { PlanType } from "@/api/generated/mf-portfolio-apis/models/planType";
+import type { FundCategory } from "@/api/generated/mf-portfolio-apis/models/fundCategory";
+import type { CreateMFPortfolioRequest } from "@/api/generated/mf-portfolio-apis/models/createMFPortfolioRequest";
+import type { CreateMFPortfolioResponse } from "@/api/generated/mf-portfolio-apis/models/createMFPortfolioResponse";
+import { useCreateMfPortfolioApiMfPortfoliosCreatePost } from "@/api/generated/mf-portfolio-apis/mf-portfolio-apis/mf-portfolio-apis";
 
 /**
  * Context value interface for mutual fund basket builder
@@ -15,11 +17,14 @@ export interface MutualFundBasketBuilderContextValue {
     key: K,
     value: MutualFundBasketConfig[K]
   ) => void;
-  addFundCategory: (categoryId: string, categoryName: string) => void;
-  updateFundCategoryPercentage: (categoryId: string, delta: number) => void;
-  removeFundCategory: (categoryId: string) => void;
-  updateSchemesCount: (categoryId: string, delta: number) => void;
-  setCategoryPreference: (preferenceId: string, categories: FundCategory[]) => void;
+  addFundCategory: (categoryName: string) => void;
+  updateFundCategoryPercentage: (categoryName: string, delta: number) => void;
+  removeFundCategory: (categoryName: string) => void;
+  updateSchemesCount: (categoryName: string, delta: number) => void;
+  setCategoryPreference: (
+    preferenceId: string,
+    categories: FundCategory[]
+  ) => void;
   currentStep: number;
   totalSteps: number;
   nextStep: () => void;
@@ -30,6 +35,8 @@ export interface MutualFundBasketBuilderContextValue {
   setShowResults: (show: boolean) => void;
   handleComplete: () => void;
   handleModify: () => void;
+  isCreatingPortfolio: boolean;
+  portfolioResponse: CreateMFPortfolioResponse | null;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -50,6 +57,8 @@ export function MutualFundBasketBuilderProvider({
 }: MutualFundBasketBuilderProviderProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showResults, setShowResults] = useState(false);
+  const [portfolioResponse, setPortfolioResponse] =
+    useState<CreateMFPortfolioResponse | null>(null);
   const [basketConfig, setBasketConfig] = useState<MutualFundBasketConfig>({
     type: "mutualFunds",
     planType: "",
@@ -59,6 +68,10 @@ export function MutualFundBasketBuilderProvider({
   });
 
   const totalSteps = 4;
+
+  // Initialize create portfolio mutation
+  const { mutate: createPortfolio, isPending: isCreatingPortfolio } =
+    useCreateMfPortfolioApiMfPortfoliosCreatePost();
 
   /**
    * Update a single field in basket configuration
@@ -73,8 +86,8 @@ export function MutualFundBasketBuilderProvider({
   /**
    * Add a fund category with automatic percentage distribution
    */
-  const addFundCategory = (categoryId: string, categoryName: string) => {
-    if (basketConfig.fundCategories.find((c) => c.id === categoryId)) {
+  const addFundCategory = (categoryName: string) => {
+    if (basketConfig.fundCategories.find((c) => c.name === categoryName)) {
       return; // Category already exists
     }
 
@@ -92,7 +105,6 @@ export function MutualFundBasketBuilderProvider({
 
     // Add new category with default scheme count of 1
     const newCategory: FundCategory = {
-      id: categoryId,
       name: categoryName,
       percentage: equalPercentage,
       schemesCount: 1,
@@ -104,9 +116,12 @@ export function MutualFundBasketBuilderProvider({
   /**
    * Update fund category percentage with delta (+/- 5)
    */
-  const updateFundCategoryPercentage = (categoryId: string, delta: number) => {
+  const updateFundCategoryPercentage = (
+    categoryName: string,
+    delta: number
+  ) => {
     const currentIndex = basketConfig.fundCategories.findIndex(
-      (cat) => cat.id === categoryId
+      (cat) => cat.name === categoryName
     );
     if (currentIndex === -1) return;
 
@@ -159,9 +174,9 @@ export function MutualFundBasketBuilderProvider({
   /**
    * Remove a fund category and redistribute percentages
    */
-  const removeFundCategory = (categoryId: string) => {
+  const removeFundCategory = (categoryName: string) => {
     const remainingCategories = basketConfig.fundCategories.filter(
-      (cat) => cat.id !== categoryId
+      (cat) => cat.name !== categoryName
     );
 
     if (remainingCategories.length === 0) {
@@ -184,9 +199,9 @@ export function MutualFundBasketBuilderProvider({
   /**
    * Update schemes count for a fund category
    */
-  const updateSchemesCount = (categoryId: string, delta: number) => {
+  const updateSchemesCount = (categoryName: string, delta: number) => {
     const updatedCategories = basketConfig.fundCategories.map((cat) => {
-      if (cat.id === categoryId) {
+      if (cat.name === categoryName) {
         return {
           ...cat,
           schemesCount: Math.max(0, cat.schemesCount + delta),
@@ -253,7 +268,54 @@ export function MutualFundBasketBuilderProvider({
    * Complete the form and show results
    */
   const handleComplete = () => {
-    setShowResults(true);
+    const request: CreateMFPortfolioRequest = {
+      planType: basketConfig.planType as PlanType,
+      fundCategories: basketConfig.fundCategories,
+    };
+
+    // Call the API
+    createPortfolio(
+      { data: request },
+      {
+        onSuccess: (response) => {
+          // Check if response status is 200 (success)
+          if (response.status === 200) {
+            console.log("Portfolio created successfully!");
+            console.log("Response:", response);
+
+            // Store the API response
+            setPortfolioResponse(response.data);
+
+            // Log first holding item
+            if (response.data.analytics.holdings.length > 0) {
+              console.log("First holding item:", response.data.analytics.holdings[0]);
+            }
+
+            // Show results page
+            setShowResults(true);
+          } else {
+            // Handle non-200 responses (400, 422, etc.)
+            // Use console.warn instead of console.error to avoid Next.js error interception
+            console.warn("Failed to create portfolio:", {
+              status: response.status,
+              data: response.data,
+            });
+
+            const errorMessage =
+              (response.data as { detail?: string })?.detail ||
+              "Failed to create portfolio. Please check your criteria and try again.";
+
+            // TODO: Show error toast/message to user with errorMessage
+            alert(errorMessage);
+          }
+        },
+        onError: (error) => {
+          console.error("Failed to create portfolio:", error);
+          // TODO: Show error toast/message to user
+          alert("An unexpected error occurred. Please try again.");
+        },
+      }
+    );
   };
 
   /**
@@ -281,6 +343,8 @@ export function MutualFundBasketBuilderProvider({
     setShowResults,
     handleComplete,
     handleModify,
+    isCreatingPortfolio,
+    portfolioResponse,
   };
 
   return (

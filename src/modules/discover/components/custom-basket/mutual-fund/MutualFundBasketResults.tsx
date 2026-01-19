@@ -1,77 +1,28 @@
 import { ArrowLeft, Eye, Target, Share, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutualFundBasketBuilderContext } from "../../../hooks/useMutualFundBasketBuilderContext";
-import { mockMutualFunds } from "../../../constants/mutual-fund-basket-data";
-import type { GeneratedMutualFundBasket } from "../../../types/basket-builder.types";
 import { MutualFundBasketOverview } from "./results/MutualFundBasketOverview";
-import { MutualFundBasketMetrics } from "./results/MutualFundBasketMetrics";
 import { MutualFundConfigSummary } from "./results/MutualFundConfigSummary";
-import { MutualFundHoldingsList } from "./results/MutualFundHoldingsList";
+import { MFPortfolioAnalyticsTabs } from "@/modules/core/portfolio/mf-portfolio/components";
 
 /**
  * Results view for generated mutual fund basket
  * Displays basket overview, metrics, configuration summary, and holdings
  */
 export function MutualFundBasketResults() {
-  const { basketConfig, handleModify } = useMutualFundBasketBuilderContext();
+  const { basketConfig, handleModify, portfolioResponse } =
+    useMutualFundBasketBuilderContext();
 
-  /**
-   * Generate basket data based on user configuration
-   */
-  const generateBasket = (): GeneratedMutualFundBasket => {
-    const basketName =
-      basketConfig.planType === "direct"
-        ? "Direct Plan Mutual Fund Basket"
-        : "Regular Plan Mutual Fund Basket";
+  // Handle case where API response is not available yet
+  if (!portfolioResponse) {
+    return (
+      <div className="min-h-screen bg-bg-subtle flex items-center justify-center">
+        <div className="text-text-secondary">Loading portfolio data...</div>
+      </div>
+    );
+  }
 
-    // Map fund categories from config and assign weights
-    const selectedFunds = basketConfig.fundCategories.flatMap((category) => {
-      const matchingFunds = mockMutualFunds.filter(
-        (fund) => fund.category.toLowerCase() === category.name.toLowerCase()
-      );
-
-      if (matchingFunds.length > 0) {
-        // Pick funds based on user's schemesCount preference
-        const schemesCount = category.schemesCount || 1;
-        const fundsToAdd = matchingFunds.slice(0, schemesCount);
-        const weightPerFund = category.percentage / fundsToAdd.length;
-
-        return fundsToAdd.map((fund) => ({
-          ...fund,
-          weight: Number(weightPerFund.toFixed(1)),
-        }));
-      }
-
-      return [];
-    });
-
-    // If no matching funds found, use a default set
-    if (selectedFunds.length === 0) {
-      const defaultFunds = mockMutualFunds.slice(0, 5).map((fund, idx) => ({
-        ...fund,
-        weight:
-          idx === 0 ? 24 : idx === 1 ? 23 : idx === 2 ? 21 : idx === 3 ? 17 : 15,
-      }));
-      selectedFunds.push(...defaultFunds);
-    }
-
-    const metrics = {
-      expectedReturn: "14.5%",
-      riskLevel: "Medium" as const,
-      volatility: "12.5%",
-      sharpeRatio: "1.42",
-    };
-
-    return {
-      type: "mutualFunds",
-      name: basketName,
-      funds: selectedFunds,
-      ...metrics,
-    };
-  };
-
-  const basketData = generateBasket();
-  const description = `${basketConfig.planType.charAt(0).toUpperCase() + basketConfig.planType.slice(1)} plan with ${basketConfig.fundCategories.length} fund ${basketConfig.fundCategories.length === 1 ? "category" : "categories"}`;
+  const description = `${basketConfig.planType.charAt(0).toUpperCase() + basketConfig.planType.slice(1)} plan with ${portfolioResponse.categories.length} fund ${portfolioResponse.categories.length === 1 ? "category" : "categories"}`;
 
   return (
     <div className="min-h-screen bg-bg-subtle flex flex-col max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
@@ -104,16 +55,16 @@ export function MutualFundBasketResults() {
       </div>
 
       {/* Basket Overview */}
-      <MutualFundBasketOverview basket={basketData} description={description} />
-
-      {/* Key Metrics */}
-      <MutualFundBasketMetrics basket={basketData} />
+      <MutualFundBasketOverview
+        response={portfolioResponse}
+        description={description}
+      />
 
       {/* Configuration Summary */}
       <MutualFundConfigSummary basketConfig={basketConfig} />
 
-      {/* Holdings */}
-      <MutualFundHoldingsList funds={basketData.funds} />
+      {/* Portfolio Analytics Tabs */}
+      <MFPortfolioAnalyticsTabs analytics={portfolioResponse.analytics} />
 
       {/* Action Buttons */}
       <div className="px-6 space-y-3 pb-20">
