@@ -30,6 +30,6 @@ dist-ssr
 next-env.d.ts
 
 # Generated OpenAPI specs
-openapi-filtered.json
+openapi-*.json
 
 Finance AI Assistant UI/
