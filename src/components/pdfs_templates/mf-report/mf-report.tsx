@@ -3,6 +3,7 @@ import { Section, MfAnalysis } from "@/types/mf-analysis";
 import MfWelcome from "./MfWelcome";
 import { SectionFormatter } from "@/lib/section-formatter";
 import { formatKey } from "@/lib/format-utils";
+import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
 
 export default function MfAnalysisReportMessageComponent({
   analysis,
@@ -25,7 +26,10 @@ export default function MfAnalysisReportMessageComponent({
   return (
     <>
       <MfWelcome analysis={analysis} />
-      <div className="mx-12 max-w-3xl space-y-8 pt-12" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+      <div
+        className="mx-12 max-w-3xl space-y-8 pt-12"
+        style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+      >
         {shouldRenderSection("scheme_overview") && (
           <FormatSection section={data.scheme_overview} />
         )}
@@ -145,7 +149,7 @@ function FormatSectionSourcesAndInDepthAnalysis({
         <MarkdownText>{`<details open><summary>In-depth Analysis</summary>\n\n${in_depth_analysis}\n</details>\n`}</MarkdownText>
       )}
       {sourcesMarkdown && (
-        <MarkdownText>{`<details open><summary>Sources</summary>\n\n${sourcesMarkdown}\n</details>\n`}</MarkdownText>
+        <MarkdownText>{`<details open><summary>Sources</summary>\n\n${splitMarkdownTables(sourcesMarkdown)}\n</details>\n`}</MarkdownText>
       )}
       {sources && typeof sources === "object" && !Array.isArray(sources) && (
         <SourcesDisplay sources={sources} />
