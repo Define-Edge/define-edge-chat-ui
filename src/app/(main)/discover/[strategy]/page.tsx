@@ -1,6 +1,6 @@
+import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 import { AdvisorStrategyDetailsPage } from "@/modules/discover/components/advisor-details/AdvisorStrategyDetailsPage";
 import { notFound } from "next/navigation";
-import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 
 type PageProps = {
   params: Promise<{ strategy: string }>;
@@ -28,16 +28,12 @@ export default async function StrategyDetailsPage({ params }: PageProps) {
       notFound();
     }
     // For other errors, throw to trigger error boundary
-    throw new Error(`Failed to fetch strategy: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch strategy: ${res.status} ${res.statusText}`,
+    );
   }
 
   const strategy: StrategyAnalyticsResponse = await res.json();
 
-  return (
-    <div className="flex flex-col">
-      <div className="flex-1 overflow-y-auto">
-        <AdvisorStrategyDetailsPage strategy={strategy} />
-      </div>
-    </div>
-  );
+  return <AdvisorStrategyDetailsPage strategy={strategy} />;
 }

@@ -1,11 +1,11 @@
-import { ArrowLeft, PieChart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useMutualFundBasketBuilderContext } from "../../../hooks/useMutualFundBasketBuilderContext";
-import { useBasketBuilderContext } from "../../../hooks/useBasketBuilderContext";
+import { ArrowLeft, PieChart } from "lucide-react";
 import { mutualFundBasketSteps } from "../../../constants/mutual-fund-basket-data";
-import { PlanTypeStep } from "./steps/PlanTypeStep";
+import { useBasketBuilderContext } from "../../../hooks/useBasketBuilderContext";
+import { useMutualFundBasketBuilderContext } from "../../../hooks/useMutualFundBasketBuilderContext";
 import { CategoryPreferenceStep } from "./steps/CategoryPreferenceStep";
 import { FundCategoriesStep } from "./steps/FundCategoriesStep";
+import { PlanTypeStep } from "./steps/PlanTypeStep";
 import { SchemeCountStep } from "./steps/SchemeCountStep";
 
 /**
@@ -59,22 +59,22 @@ export function MutualFundBasketForm() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-subtle flex flex-col">
-      <div className="max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full flex flex-col min-h-screen">
+    <div className="bg-bg-subtle flex flex-col">
+      <div className="mx-auto flex w-full max-w-md flex-col md:max-w-2xl">
         {/* Header */}
-        <div className="bg-bg-base px-6 py-4 border-b border-border-subtle">
+        <div className="bg-bg-base border-border-subtle border-b px-6 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="p-2 hover:bg-bg-hover rounded-full transition-colors"
+              className="hover:bg-bg-hover rounded-full p-2 transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-icon-primary" />
+              <ArrowLeft className="text-icon-primary h-5 w-5" />
             </button>
             <div className="text-center">
-              <h1 className="text-lg font-semibold text-text-primary">
+              <h1 className="text-text-primary text-lg font-semibold">
                 Mutual Fund Basket Builder
               </h1>
-              <p className="text-xs text-text-secondary">
+              <p className="text-text-secondary text-xs">
                 Step {currentStep} of {totalSteps}
               </p>
             </div>
@@ -83,7 +83,7 @@ export function MutualFundBasketForm() {
         </div>
 
         {/* Progress Bar */}
-        <div className="bg-bg-base px-6 py-3 border-b border-border-subtle">
+        <div className="bg-bg-base border-border-subtle border-b px-6 py-3">
           <Progress
             value={(currentStep / totalSteps) * 100}
             className="w-full"
@@ -91,11 +91,11 @@ export function MutualFundBasketForm() {
         </div>
 
         {/* Step Indicator */}
-        <div className="bg-bg-base px-6 py-3 border-b border-border-subtle">
+        <div className="bg-bg-base border-border-subtle border-b px-6 py-3">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-2">
-              <PieChart className="w-4 h-4 text-accent-blue" />
-              <span className="text-sm font-medium text-text-primary">
+              <PieChart className="text-accent-blue h-4 w-4" />
+              <span className="text-text-primary text-sm font-medium">
                 {stepInfo.title}
               </span>
             </div>
