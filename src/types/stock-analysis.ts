@@ -39,6 +39,7 @@ export type StockAnalysisReportData = {
   news_sentiment: Section;
   summary: Section;
   red_flags: Section;
+  finsharpe_scores: Section;
 
   simulation_chart?: Record<string, any>;
 };

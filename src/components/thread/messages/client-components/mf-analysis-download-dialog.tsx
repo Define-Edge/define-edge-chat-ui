@@ -35,6 +35,7 @@ const MF_SECTIONS: MfAnalysisSection[] = [
   { key: "valuation_metrics", label: "Valuation Metrics" },
   { key: "conclusion", label: "Conclusion" },
   { key: "summary", label: "Summary" },
+  { key: "finsharpe_scores", label: "FinSharpe Scores" },
 ];
 
 interface MfAnalysisDownloadDialogProps {
