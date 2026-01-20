@@ -20,6 +20,7 @@ export type MfAnalysisReportData = {
   valuation_metrics: Section;
   conclusion: Section;
   summary: Section;
+  finsharpe_scores: Section;
 };
 
 export type MfAnalysis = {

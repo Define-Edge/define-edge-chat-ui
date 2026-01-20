@@ -20,6 +20,10 @@ export function FormatNewsSentiment({
   displaySources = false,
   seqNumber,
 }: FormatNewsSentimentProps) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content =

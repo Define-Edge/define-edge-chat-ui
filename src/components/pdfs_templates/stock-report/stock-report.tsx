@@ -145,6 +145,15 @@ export default function StockAnalysisReportMessageComponent({
         />
       ),
     },
+    {
+      key: "finsharpe_scores",
+      render: (seqNumber: number) => (
+        <FormatSection
+          section={data.finsharpe_scores}
+          seqNumber={seqNumber}
+        />
+      ),
+    },
   ];
 
   // Filter sections based on selection and render with dynamic sequence numbers
@@ -203,13 +212,13 @@ export default function StockAnalysisReportMessageComponent({
             { section: data.shareholding_pattern, key: "shareholding_pattern" },
             { section: data.corporate_actions, key: "corporate_actions" },
             { section: data.news_sentiment, key: "news_sentiment" },
+            { section: data.finsharpe_scores, key: "finsharpe_scores" },
           ]
-            .filter(({ key }) => shouldRenderSection(key))
-            .map(({ section }, idx, arr) => {
-              const isNewsSentiment =
-                section.title === data.news_sentiment.title;
+            .filter(({ key, section }) => section && shouldRenderSection(key))
+            .map(({ section, key }, idx, arr) => {
+              const isNewsSentiment = key === "news_sentiment";
               return (
-                <div key={section.title}>
+                <div key={key}>
                   {isNewsSentiment ? (
                     <FormatNewsSentimentSourcesAndInDepthAnalysis
                       section={section}
@@ -232,6 +241,10 @@ function FormatSectionSourcesAndInDepthAnalysis({
 }: {
   section: Section;
 }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section);
   const source = formatter.getSource();
   const title = section.title;
@@ -270,6 +283,10 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
 }: {
   section: Section;
 }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section);
   const title = section.title;
   const in_depth_analysis = section.in_depth_analysis;
@@ -390,6 +407,10 @@ function FormatTechnicalSection({
   returns_line_chart?: Record<string, any>;
   seqNumber?: number;
 }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;
@@ -444,6 +465,10 @@ function FormatSection({
   displaySources?: boolean;
   seqNumber?: number;
 }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;

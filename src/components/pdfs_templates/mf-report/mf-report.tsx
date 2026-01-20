@@ -66,6 +66,9 @@ export default function MfAnalysisReportMessageComponent({
         {shouldRenderSection("summary") && (
           <FormatSection section={data.summary} />
         )}
+        {shouldRenderSection("finsharpe_scores") && (
+          <FormatSection section={data.finsharpe_scores} />
+        )}
 
         {/* Personal Comment Section */}
         {personalComment && (
@@ -103,10 +106,11 @@ export default function MfAnalysisReportMessageComponent({
             { section: data.cost_analysis, key: "cost_analysis" },
             { section: data.peer_comparison, key: "peer_comparison" },
             { section: data.valuation_metrics, key: "valuation_metrics" },
+            { section: data.finsharpe_scores, key: "finsharpe_scores" },
           ]
-            .filter(({ key }) => shouldRenderSection(key))
-            .map(({ section }, idx, arr) => (
-              <div key={section.title}>
+            .filter(({ key, section }) => section && shouldRenderSection(key))
+            .map(({ section, key }, idx, arr) => (
+              <div key={key}>
                 <FormatSectionSourcesAndInDepthAnalysis section={section} />
                 {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
               </div>
@@ -122,6 +126,10 @@ function FormatSectionSourcesAndInDepthAnalysis({
 }: {
   section: Section;
 }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section);
   const anchorId = formatter.getAnchorId();
   const in_depth_analysis = section.in_depth_analysis;
@@ -159,6 +167,10 @@ function FormatSectionSourcesAndInDepthAnalysis({
 }
 
 function FormatSection({ section }: { section: Section }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;

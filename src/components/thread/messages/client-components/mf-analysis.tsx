@@ -28,6 +28,7 @@ export default function MfAnalysisComponent(analysis: MfAnalysis) {
       <FormatSection section={data.valuation_metrics} />
       <FormatSection section={data.conclusion} />
       <FormatSection section={data.summary} />
+      <FormatSection section={data.finsharpe_scores} />
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -52,6 +53,10 @@ export default function MfAnalysisComponent(analysis: MfAnalysis) {
 }
 
 function FormatSection({ section }: { section: Section }) {
+  if (!section) {
+    return null;
+  }
+
   const title = `## ${section.title}\n`;
   const content = `${section.content}\n`;
   const in_depth_analysis = section.in_depth_analysis

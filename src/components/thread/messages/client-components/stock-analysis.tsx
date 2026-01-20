@@ -31,6 +31,7 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
       <FormatNewsSentiment section={data.news_sentiment} seqNumber={10} />
       <FormatSection section={data.red_flags} seqNumber={11} />
       <FormatSection section={data.summary} seqNumber={12} />
+      <FormatSection section={data.finsharpe_scores} seqNumber={13} />
       {data.simulation_chart && <SimulationChart {...data.simulation_chart} />}
       <div className="flex justify-end gap-2">
         <Button
@@ -56,6 +57,10 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
 }
 
 export function FormatSection({ section, seqNumber }: { section: Section; seqNumber?: number }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section, seqNumber);
   return <MarkdownText>{formatter.getMarkdown()}</MarkdownText>;
 }
@@ -69,6 +74,10 @@ export function FormatTechnicalAnalysis({
   returns_line_chart?: Record<string, any>;
   seqNumber?: number;
 }) {
+  if (!section) {
+    return null;
+  }
+
   const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
   const content = formatter.getContentMarkdown();

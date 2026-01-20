@@ -35,6 +35,7 @@ const STOCK_SECTIONS: StockAnalysisSection[] = [
   { key: "news_sentiment", label: "News Sentiment" },
   { key: "red_flags", label: "Red Flags" },
   { key: "summary", label: "Summary" },
+  { key: "finsharpe_scores", label: "FinSharpe Scores" },
   { key: "simulation_chart", label: "Simulation Chart" },
 ];
 
