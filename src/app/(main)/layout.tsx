@@ -1,5 +1,6 @@
-import { ClientProviders } from "@/components/providers/ClientProviders";
+import Navbar from "@/components/layouts/Navbar";
 import { NavigationShell } from "@/components/layouts/NavigationShell";
+import { ClientProviders } from "@/components/providers/ClientProviders";
 import React from "react";
 
 export default function MainLayout({
@@ -10,7 +11,10 @@ export default function MainLayout({
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
       <ClientProviders>
-        <NavigationShell>{children}</NavigationShell>
+        <NavigationShell>
+          <Navbar />
+          {children}
+        </NavigationShell>
       </ClientProviders>
     </React.Suspense>
   );

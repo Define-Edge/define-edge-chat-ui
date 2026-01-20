@@ -1,5 +1,5 @@
-import { TrendingUp, PieChart, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Check, PieChart, TrendingUp } from "lucide-react";
 import { useBasketBuilderContext } from "../../hooks/useBasketBuilderContext";
 
 /**
@@ -10,20 +10,20 @@ export function InvestmentTypeSelector() {
   const { investmentType, setInvestmentType } = useBasketBuilderContext();
 
   return (
-    <div className="min-h-screen bg-bg-subtle flex flex-col">
-      <div className="max-w-md md:max-w-2xl mx-auto w-full p-6 pt-12">
+    <div className="bg-bg-subtle flex flex-col">
+      <div className="mx-auto w-full max-w-md p-6 pt-12 md:max-w-2xl">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-text-primary mb-2">
+          <h1 className="text-text-primary mb-2 text-2xl font-bold">
             Create Custom Basket
           </h1>
-          <p className="text-sm text-text-secondary">
+          <p className="text-text-secondary text-sm">
             Choose your investment type to get started
           </p>
         </div>
 
         <div className="space-y-4">
           <Card
-            className={`p-6 cursor-pointer transition-all ${
+            className={`cursor-pointer p-6 transition-all ${
               investmentType === "stocks"
                 ? "border-accent-blue bg-info-bg shadow-lg"
                 : "hover:border-border-hover hover:shadow-md"
@@ -32,24 +32,24 @@ export function InvestmentTypeSelector() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-accent-blue" />
+                <TrendingUp className="text-accent-blue h-5 w-5" />
                 <div>
-                  <h4 className="font-semibold text-text-primary mb-1">
+                  <h4 className="text-text-primary mb-1 font-semibold">
                     Stocks Only
                   </h4>
-                  <p className="text-sm text-text-secondary">
+                  <p className="text-text-secondary text-sm">
                     Build a customized equity portfolio
                   </p>
                 </div>
               </div>
               {investmentType === "stocks" && (
-                <Check className="w-5 h-5 text-accent-blue" />
+                <Check className="text-accent-blue h-5 w-5" />
               )}
             </div>
           </Card>
 
           <Card
-            className={`p-6 cursor-pointer transition-all ${
+            className={`cursor-pointer p-6 transition-all ${
               investmentType === "mutualFunds"
                 ? "border-success-border bg-success-bg shadow-lg"
                 : "hover:border-border-hover hover:shadow-md"
@@ -58,18 +58,18 @@ export function InvestmentTypeSelector() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <PieChart className="w-5 h-5 text-accent-green" />
+                <PieChart className="text-accent-green h-5 w-5" />
                 <div>
-                  <h4 className="font-semibold text-text-primary mb-1">
+                  <h4 className="text-text-primary mb-1 font-semibold">
                     Mutual Funds Only
                   </h4>
-                  <p className="text-sm text-text-secondary">
+                  <p className="text-text-secondary text-sm">
                     Build a diversified fund portfolio
                   </p>
                 </div>
               </div>
               {investmentType === "mutualFunds" && (
-                <Check className="w-5 h-5 text-accent-green" />
+                <Check className="text-accent-green h-5 w-5" />
               )}
             </div>
           </Card>

@@ -2,10 +2,17 @@
 
 import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/layouts/PageHeader";
-import { useImportStrategyMutation } from "@/modules/discover/hooks/useImportStrategyMutation";
 import { PortfolioAnalyticsTabs } from "@/modules/core/portfolio/components";
-import { Download, MessageSquare, Share, Star, StarOff } from "lucide-react";
+import { useImportStrategyMutation } from "@/modules/discover/hooks/useImportStrategyMutation";
+import {
+  ArrowLeft,
+  Download,
+  MessageSquare,
+  Share,
+  Star,
+  StarOff,
+} from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { AdvisorInfoSection } from "./AdvisorInfoSection";
 
@@ -32,42 +39,52 @@ export function AdvisorStrategyDetailsPage({
 
   return (
     <>
-      {/* Header with action buttons */}
-      <PageHeader
-        title={strategy.display_name || strategy.strategy || "Strategy Details"}
-      >
-        <button
-          type="button"
-          onClick={() => setIsWatchlisted(!isWatchlisted)}
-          className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
-          aria-label={
-            isWatchlisted ? "Remove from watchlist" : "Add to watchlist"
-          }
-        >
-          {isWatchlisted ? (
-            <Star className="text-accent-yellow h-5 w-5 fill-current" />
-          ) : (
-            <StarOff className="text-text-muted h-5 w-5" />
-          )}
-        </button>
-        <button
-          type="button"
-          className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
-          aria-label="Share strategy"
-        >
-          <Share className="text-text-muted h-5 w-5" />
-        </button>
-        <button
-          type="button"
-          className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
-          aria-label="Download strategy"
-        >
-          <Download className="text-text-muted h-5 w-5" />
-        </button>
-      </PageHeader>
-
       {/* Content */}
       <div className="bg-bg-subtle mx-auto max-w-5xl">
+        {/* Header with action buttons */}
+        <div className="border-b border-gray-100 bg-white px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Button
+              asChild
+              variant="link"
+              className="cursor-pointer text-gray-600"
+            >
+              <Link href="/discover">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsWatchlisted(!isWatchlisted)}
+                className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
+                aria-label={
+                  isWatchlisted ? "Remove from watchlist" : "Add to watchlist"
+                }
+              >
+                {isWatchlisted ? (
+                  <Star className="text-accent-yellow h-5 w-5 fill-current" />
+                ) : (
+                  <StarOff className="text-text-muted h-5 w-5" />
+                )}
+              </button>
+              <button
+                type="button"
+                className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
+                aria-label="Share strategy"
+              >
+                <Share className="text-text-muted h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                className="hover:bg-bg-hover cursor-pointer rounded-full p-2 transition-colors"
+                aria-label="Download strategy"
+              >
+                <Download className="text-text-muted h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
         {/* Strategy Info Section */}
         <AdvisorInfoSection
           strategy={strategy}

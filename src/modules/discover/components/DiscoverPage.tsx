@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useGetAllStrategiesApiStrategiesGet } from "@/api/generated/strategy-apis/strategy-apis/strategy-apis";
 import {
   AlertTriangle,
   BookOpen,
@@ -10,14 +10,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import { CollapsibleInfo } from "./shared/CollapsibleInfo";
-import { CustomBasketBuilderCard } from "./cards/CustomBasketBuilderCard";
-import { DropdownSection } from "./sections/DropdownSection";
-import { AdvisorStrategyCard } from "./cards/AdvisorStrategyCard";
-import { InvestmentBasketCard } from "./cards/InvestmentBasketCard";
-import { ThematicBasketCard } from "./cards/ThematicBasketCard";
-import { InvestorBasketCard } from "./cards/InvestorBasketCard";
-import { useGetAllStrategiesApiStrategiesGet } from "@/api/generated/strategy-apis/strategy-apis/strategy-apis";
+import { useState } from "react";
 import {
   curatedBaskets,
   investorBaskets,
@@ -26,6 +19,13 @@ import {
   specialBaskets,
   thematicBaskets,
 } from "../constants/discover-data";
+import { AdvisorStrategyCard } from "./cards/AdvisorStrategyCard";
+import { CustomBasketBuilderCard } from "./cards/CustomBasketBuilderCard";
+import { InvestmentBasketCard } from "./cards/InvestmentBasketCard";
+import { InvestorBasketCard } from "./cards/InvestorBasketCard";
+import { ThematicBasketCard } from "./cards/ThematicBasketCard";
+import { DropdownSection } from "./sections/DropdownSection";
+import { CollapsibleInfo } from "./shared/CollapsibleInfo";
 
 /**
  * Main Discover page component
@@ -67,17 +67,17 @@ export function DiscoverPage() {
       content: (
         <>
           {isLoading && (
-            <div className="text-center py-4 text-text-secondary">
+            <div className="text-text-secondary py-4 text-center">
               Loading strategies...
             </div>
           )}
           {error ? (
-            <div className="text-center py-4 text-red-500">
+            <div className="py-4 text-center text-red-500">
               Failed to load strategies. Please try again later.
             </div>
           ) : null}
           {!isLoading && !error && (
-            <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
               {advisorStrategies.map((strategy, index) => (
                 <AdvisorStrategyCard
                   key={strategy.strategy || `advisor-${index}`}
@@ -96,9 +96,12 @@ export function DiscoverPage() {
       iconColor: "text-accent-red",
       count: specialBaskets.length,
       content: (
-        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
           {specialBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`special-${index}`} {...basket} />
+            <InvestmentBasketCard
+              key={`special-${index}`}
+              {...basket}
+            />
           ))}
         </div>
       ),
@@ -110,9 +113,12 @@ export function DiscoverPage() {
       iconColor: "text-accent-blue",
       count: newsBasedBaskets.length,
       content: (
-        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
           {newsBasedBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`news-${index}`} {...basket} />
+            <InvestmentBasketCard
+              key={`news-${index}`}
+              {...basket}
+            />
           ))}
         </div>
       ),
@@ -124,9 +130,12 @@ export function DiscoverPage() {
       iconColor: "text-accent-indigo",
       count: researchPaperBaskets.length,
       content: (
-        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
           {researchPaperBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`research-${index}`} {...basket} />
+            <InvestmentBasketCard
+              key={`research-${index}`}
+              {...basket}
+            />
           ))}
         </div>
       ),
@@ -138,9 +147,12 @@ export function DiscoverPage() {
       iconColor: "text-accent-yellow",
       count: curatedBaskets.length,
       content: (
-        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
           {curatedBaskets.map((basket, index) => (
-            <InvestmentBasketCard key={`curated-${index}`} {...basket} />
+            <InvestmentBasketCard
+              key={`curated-${index}`}
+              {...basket}
+            />
           ))}
         </div>
       ),
@@ -152,9 +164,12 @@ export function DiscoverPage() {
       iconColor: "text-accent-purple",
       count: thematicBaskets.length,
       content: (
-        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
           {thematicBaskets.map((basket, index) => (
-            <ThematicBasketCard key={`thematic-${index}`} {...basket} />
+            <ThematicBasketCard
+              key={`thematic-${index}`}
+              {...basket}
+            />
           ))}
         </div>
       ),
@@ -166,9 +181,12 @@ export function DiscoverPage() {
       iconColor: "text-accent-amber",
       count: investorBaskets.length,
       content: (
-        <div className="grid grid-cols-1 py-4 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6">
           {investorBaskets.map((basket, index) => (
-            <InvestorBasketCard key={`investor-${index}`} {...basket} />
+            <InvestorBasketCard
+              key={`investor-${index}`}
+              {...basket}
+            />
           ))}
         </div>
       ),
@@ -178,7 +196,7 @@ export function DiscoverPage() {
   // Reorder sections: if an odd-indexed section is expanded, move it to even index
   const orderedSections = [...allSections];
   const expandedIndex = orderedSections.findIndex(
-    (section) => expandedSections[section.id]
+    (section) => expandedSections[section.id],
   );
 
   // If an odd-indexed section is expanded, swap it with the previous one
@@ -192,38 +210,44 @@ export function DiscoverPage() {
   return (
     <div className="mx-auto max-w-5xl pb-24">
       <div className="space-y-6 p-6">
-        <p className="text-sm text-center text-text-secondary">Explore curated investment opportunities</p>
+        {/* Header */}
+        <div className="text-center">
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">Discover</h2>
+          <p className="text-sm text-gray-600">
+            Explore curated investment opportunities
+          </p>
+        </div>
 
         <CollapsibleInfo
-        title="Investment Discovery"
-        description="Explore thematic baskets, trending investment themes, curated portfolios, and news-based investment opportunities tailored to your financial goals."
-        icon={Lightbulb}
-        bgColor="bg-info-bg border-info-border"
-        iconBgColor="bg-info-icon-bg"
-        textColor="text-info-foreground"
-        iconColor="text-info-icon"
-        defaultExpanded={true}
-      />
+          title="Investment Discovery"
+          description="Explore thematic baskets, trending investment themes, curated portfolios, and news-based investment opportunities tailored to your financial goals."
+          icon={Lightbulb}
+          bgColor="bg-info-bg border-info-border"
+          iconBgColor="bg-info-icon-bg"
+          textColor="text-info-foreground"
+          iconColor="text-info-icon"
+          defaultExpanded={true}
+        />
 
-      <CustomBasketBuilderCard />
+        <CustomBasketBuilderCard />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-        {orderedSections.map((section) => (
-          <DropdownSection
-            key={section.id}
-            title={section.title}
-            icon={section.icon}
-            iconColor={section.iconColor}
-            count={section.count}
-            isExpanded={expandedSections[section.id]}
-            onToggle={() => toggleSection(section.id)}
-            className={expandedSections[section.id] ? "md:col-span-2" : ""}
-            isLoading={section.id === "advisorStrategies" ? isLoading : false}
-          >
-            {section.content}
-          </DropdownSection>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+          {orderedSections.map((section) => (
+            <DropdownSection
+              key={section.id}
+              title={section.title}
+              icon={section.icon}
+              iconColor={section.iconColor}
+              count={section.count}
+              isExpanded={expandedSections[section.id]}
+              onToggle={() => toggleSection(section.id)}
+              className={expandedSections[section.id] ? "md:col-span-2" : ""}
+              isLoading={section.id === "advisorStrategies" ? isLoading : false}
+            >
+              {section.content}
+            </DropdownSection>
+          ))}
+        </div>
       </div>
     </div>
   );

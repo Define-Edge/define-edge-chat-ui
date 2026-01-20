@@ -27,14 +27,20 @@ export function NavigationShell({ children }: NavigationShellProps) {
 
   return (
     <>
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="w-[300px] p-0 flex flex-col">
+      <Sheet
+        open={sidebarOpen}
+        onOpenChange={setSidebarOpen}
+      >
+        <SheetContent
+          side="left"
+          className="flex w-[300px] flex-col p-0"
+        >
           <SheetTitle className="sr-only">Navigation</SheetTitle>
 
           {/* Logo and App Name */}
           <Link
             href="/"
-            className="flex items-center gap-3 px-6 pt-6 pb-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            className="flex cursor-pointer items-center gap-3 px-6 pt-6 pb-4 transition-colors hover:bg-gray-50"
           >
             <Image
               src="/logo.png"
@@ -48,7 +54,7 @@ export function NavigationShell({ children }: NavigationShellProps) {
           </Link>
 
           {/* Navigation buttons */}
-          <div className="pb-4">
+          <div className="">
             <NavigationMenu />
           </div>
 
