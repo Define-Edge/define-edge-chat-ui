@@ -31,7 +31,12 @@ export default function MfAnalysisComponent(analysis: MfAnalysis) {
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
-          onClick={() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          onClick={() =>
+            topRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            })
+          }
         >
           <ArrowUp className="mr-2 h-4 w-4" />
           Back to Top
@@ -50,7 +55,7 @@ function FormatSection({ section }: { section: Section }) {
   const title = `## ${section.title}\n`;
   const content = `${section.content}\n`;
   const in_depth_analysis = section.in_depth_analysis
-    ? `<details open><summary>In-depth Analysis</summary>\n\n${section.in_depth_analysis}\n</details>\n`
+    ? `<details><summary>In-depth Analysis</summary>\n\n${section.in_depth_analysis}\n</details>\n`
     : "";
 
   const sources = formatSources(section.sources);
@@ -70,7 +75,7 @@ function FormatSection({ section }: { section: Section }) {
 }
 
 function formatSources(
-  sources: string | string[] | Record<string, any> | undefined
+  sources: string | string[] | Record<string, any> | undefined,
 ): string {
   if (!sources) {
     return "";
@@ -78,7 +83,7 @@ function formatSources(
 
   // If sources is a string, wrap it in details
   if (typeof sources === "string") {
-    return `<details open><summary>Sources</summary>\n\n${sources}\n</details>\n`;
+    return `<details><summary>Sources</summary>\n\n${sources}\n</details>\n`;
   }
 
   // If sources is an array of strings (URLs)
@@ -93,7 +98,7 @@ function formatSources(
       .join("\n");
 
     if (sources.length > 0) {
-      return `<details open><summary>Sources</summary>\n\n${sourcesMarkdown}\n</details>\n`;
+      return `<details><summary>Sources</summary>\n\n${sourcesMarkdown}\n</details>\n`;
     }
   }
 
@@ -103,16 +108,16 @@ function formatSources(
 
 function JsonSourcesDisplay({ sources }: { sources: Record<string, any> }) {
   return (
-    <details
-      open
-      className="mb-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
-    >
+    <details className="mb-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
       <summary className="cursor-pointer font-medium text-gray-900 dark:text-gray-100">
         Sources (Data)
       </summary>
       <div className="mt-4 space-y-4">
         {Object.entries(sources).map(([key, value]) => (
-          <div key={key} className="space-y-2">
+          <div
+            key={key}
+            className="space-y-2"
+          >
             <h4 className="font-semibold text-gray-800 dark:text-gray-200">
               {formatKey(key)}
             </h4>
@@ -144,7 +149,10 @@ function JsonDataDisplay({ data }: { data: any }) {
     return (
       <ul className="list-inside list-disc space-y-1 text-sm">
         {data.map((item, idx) => (
-          <li key={idx} className="text-gray-700 dark:text-gray-300">
+          <li
+            key={idx}
+            className="text-gray-700 dark:text-gray-300"
+          >
             <JsonDataDisplay data={item} />
           </li>
         ))}
@@ -167,7 +175,7 @@ function JsonDataDisplay({ data }: { data: any }) {
               key={key}
               className="hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-              <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-gray-100">
+              <td className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">
                 {formatKey(key)}
               </td>
               <td className="px-4 py-2 text-gray-700 dark:text-gray-300">
