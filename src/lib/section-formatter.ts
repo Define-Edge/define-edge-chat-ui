@@ -51,7 +51,7 @@ export class SectionFormatter {
             return "";
         }
         if (typeof sources === "string") {
-            return `<details open><summary>Sources</summary>\n\n${sources}\n</details>\n`;
+            return `<details><summary>Sources</summary>\n\n${sources}\n</details>\n`;
         }
 
         // If it's NewsSourcesContent, return empty string (handled by FormatNewsSentiment component)
@@ -69,7 +69,7 @@ export class SectionFormatter {
             .join("\n");
 
         if (sources.length > 0) {
-            return `<details open><summary>Sources</summary>\n\n${_sources}\n</details>\n`;
+            return `<details><summary>Sources</summary>\n\n${_sources}\n</details>\n`;
         } else {
             return "";
         }
@@ -88,7 +88,7 @@ export class SectionFormatter {
 
     getInDepthAnalysisMarkdown() {
         if (this.section.in_depth_analysis) {
-            return `<details open><summary>In-depth Analysis</summary>\n\n${this.section.in_depth_analysis}\n</details>\n`;
+            return `<details><summary>In-depth Analysis</summary>\n\n${this.section.in_depth_analysis}\n</details>\n`;
         }
         return "";
     }
