@@ -1,6 +1,7 @@
 import { MarkdownText } from "@/components/thread/markdown-text";
 import ClientComponentsRegistry from "@/components/thread/messages/client-components/registry";
 import SimulationChart from "@/components/thread/messages/client-components/SimulationChart";
+import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
 import { SectionFormatter } from "@/lib/section-formatter";
 import {
   NewsSource,
@@ -258,7 +259,7 @@ function FormatSectionSourcesAndInDepthAnalysis({
         <MarkdownText>{`<details open><summary>In-depth Analysis</summary>\n\n${in_depth_analysis}\n</details>\n`}</MarkdownText>
       )}
       {source && (
-        <MarkdownText>{`<details open><summary>Sources</summary>\n\n${source}\n</details>\n`}</MarkdownText>
+        <MarkdownText>{`<details open><summary>Sources</summary>\n\n${splitMarkdownTables(source)}\n</details>\n`}</MarkdownText>
       )}
     </div>
   );

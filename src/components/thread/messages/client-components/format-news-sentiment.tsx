@@ -1,6 +1,10 @@
 import { MarkdownText } from "@/components/thread/markdown-text";
 import { SectionFormatter } from "@/lib/section-formatter";
-import { Section, NewsSource, NewsSourcesContent } from "@/types/stock-analysis";
+import {
+  Section,
+  NewsSource,
+  NewsSourcesContent,
+} from "@/types/stock-analysis";
 import { ChevronRightIcon } from "lucide-react";
 
 type FormatNewsSentimentProps = {
@@ -18,9 +22,10 @@ export function FormatNewsSentiment({
 }: FormatNewsSentimentProps) {
   const formatter = new SectionFormatter(section, seqNumber);
   const title = formatter.getTitleMarkdown();
-  const content = variant === "pdf"
-    ? `${formatter.getContentMarkdown()}\n---\n`
-    : formatter.getContentMarkdown();
+  const content =
+    variant === "pdf"
+      ? `${formatter.getContentMarkdown()}\n---\n`
+      : formatter.getContentMarkdown();
   const in_depth_analysis = formatter.getInDepthAnalysisMarkdown();
   const anchorId = variant === "pdf" ? formatter.getAnchorId() : undefined;
   const hasRefs = Boolean(section.in_depth_analysis || formatter.getSource());
@@ -101,10 +106,7 @@ export function FormatNewsSentiment({
     // Default interactive variant
     return (
       <div className="markdown-content">
-        <details
-          open
-          className="rounded-lg border border-gray-200 bg-gray-50"
-        >
+        <details className="rounded-lg border border-gray-200 bg-gray-50">
           <summary className="mb-2 flex cursor-pointer items-center text-lg font-medium hover:bg-gray-100">
             <ChevronRightIcon className="h-4 w-4 transition-transform duration-200" />
             Sources ({newsSources.length} articles)
