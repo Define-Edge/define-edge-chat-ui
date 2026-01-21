@@ -1,4 +1,11 @@
-import { ArrowLeft, Eye, Target, Share, Download, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Target,
+  Share,
+  Download,
+  Loader2,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStockBasketBuilderContext } from "../../../hooks/useStockBasketBuilderContext";
 import { StockBasketOverview } from "./results/StockBasketOverview";
@@ -6,6 +13,7 @@ import { StockBasketMetrics } from "./results/StockBasketMetrics";
 import { StockConfigSummary } from "./results/StockConfigSummary";
 import { PortfolioAnalyticsTabs } from "@/modules/core/portfolio/components";
 import { generateBasketName } from "../../../utils/generateBasketName";
+import { useImportStrategyMutation } from "@/modules/discover/hooks/useImportStrategyMutation";
 
 /**
  * Results view for generated stock basket
@@ -19,6 +27,18 @@ export function StockBasketResults() {
     isGenerating,
     generationError,
   } = useStockBasketBuilderContext();
+
+  const importMutation = useImportStrategyMutation();
+
+  const handleAddToChat = () => {
+    if (!generatedBasket) return;
+
+    importMutation.mutate({
+      strategy: generatedBasket,
+      type: "stock-basket",
+      customIntro: `I have created a custom stock portfolio with ${basketConfig.investmentStyle} style. Here are the created portfolio holdings:`,
+    });
+  };
 
   // Generate description for basket
   const description = basketConfig.investmentStyle
@@ -34,14 +54,14 @@ export function StockBasketResults() {
   // Show loading state
   if (isGenerating) {
     return (
-      <div className="min-h-screen bg-bg-subtle flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 text-accent-blue animate-spin mx-auto" />
+      <div className="bg-bg-subtle flex min-h-screen items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Loader2 className="text-accent-blue mx-auto h-12 w-12 animate-spin" />
           <div>
-            <h3 className="text-lg font-semibold text-text-primary">
+            <h3 className="text-text-primary text-lg font-semibold">
               Generating Your Basket
             </h3>
-            <p className="text-sm text-text-secondary mt-2">
+            <p className="text-text-secondary mt-2 text-sm">
               Creating your personalized stock portfolio...
             </p>
           </div>
@@ -53,21 +73,24 @@ export function StockBasketResults() {
   // Show error state
   if (generationError) {
     return (
-      <div className="min-h-screen bg-bg-subtle flex items-center justify-center px-6">
-        <div className="max-w-md text-center space-y-4">
-          <div className="w-16 h-16 bg-error-bg rounded-full flex items-center justify-center mx-auto">
+      <div className="bg-bg-subtle flex min-h-screen items-center justify-center px-6">
+        <div className="max-w-md space-y-4 text-center">
+          <div className="bg-error-bg mx-auto flex h-16 w-16 items-center justify-center rounded-full">
             <span className="text-3xl">⚠️</span>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-text-primary">
+            <h3 className="text-text-primary text-lg font-semibold">
               Generation Failed
             </h3>
-            <p className="text-sm text-text-secondary mt-2">
+            <p className="text-text-secondary mt-2 text-sm">
               {generationError}
             </p>
           </div>
-          <Button onClick={handleModify} className="mt-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button
+            onClick={handleModify}
+            className="mt-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Go Back
           </Button>
         </div>
@@ -78,13 +101,13 @@ export function StockBasketResults() {
   // Show empty state if no basket generated yet
   if (!generatedBasket) {
     return (
-      <div className="min-h-screen bg-bg-subtle flex items-center justify-center px-6">
-        <div className="max-w-md text-center space-y-4">
-          <p className="text-sm text-text-secondary">
+      <div className="bg-bg-subtle flex min-h-screen items-center justify-center px-6">
+        <div className="max-w-md space-y-4 text-center">
+          <p className="text-text-secondary text-sm">
             No basket data available. Please complete the form first.
           </p>
           <Button onClick={handleModify}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Go Back
           </Button>
         </div>
@@ -93,30 +116,30 @@ export function StockBasketResults() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-subtle flex flex-col max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+    <div className="bg-bg-subtle mx-auto flex min-h-screen max-w-md flex-col md:max-w-2xl lg:max-w-4xl xl:max-w-5xl">
       {/* Header */}
-      <div className="bg-bg-base px-6 py-4 border-b border-border-subtle sticky top-0 z-10">
+      <div className="bg-bg-base border-border-subtle sticky top-0 z-10 border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <button
             onClick={handleModify}
-            className="p-2 hover:bg-bg-hover rounded-full transition-colors"
+            className="hover:bg-bg-hover rounded-full p-2 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-icon-primary" />
+            <ArrowLeft className="text-icon-primary h-5 w-5" />
           </button>
           <div className="text-center">
-            <h1 className="text-lg font-semibold text-text-primary">
+            <h1 className="text-text-primary text-lg font-semibold">
               Your Stock Basket
             </h1>
-            <p className="text-xs text-text-secondary">
+            <p className="text-text-secondary text-xs">
               AI-generated based on your preferences
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="p-2 hover:bg-bg-hover rounded-full transition-colors">
-              <Share className="w-4 h-4 text-text-secondary" />
+            <button className="hover:bg-bg-hover rounded-full p-2 transition-colors">
+              <Share className="text-text-secondary h-4 w-4" />
             </button>
-            <button className="p-2 hover:bg-bg-hover rounded-full transition-colors">
-              <Download className="w-4 h-4 text-text-secondary" />
+            <button className="hover:bg-bg-hover rounded-full p-2 transition-colors">
+              <Download className="text-text-secondary h-4 w-4" />
             </button>
           </div>
         </div>
@@ -142,14 +165,23 @@ export function StockBasketResults() {
       />
 
       {/* Action Buttons */}
-      <div className="px-6 space-y-3 pb-20">
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:max-w-md md:mx-auto">
-          <Button variant="outline" className="w-full">
-            <Eye className="w-4 h-4 mr-2" />
-            Preview Portfolio
+      <div className="space-y-3 px-6 pb-20">
+        <div className="grid grid-cols-2 gap-3 md:mx-auto md:max-w-md md:grid-cols-2">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleAddToChat}
+            disabled={importMutation.isPending}
+          >
+            <MessageSquare className="mr-2 h-4 w-4" />
+            {importMutation.isPending ? "Adding..." : "Add to chat"}
           </Button>
-          <Button variant="outline" className="w-full" onClick={handleModify}>
-            <Target className="w-4 h-4 mr-2" />
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleModify}
+          >
+            <Target className="mr-2 h-4 w-4" />
             Modify Basket
           </Button>
         </div>
