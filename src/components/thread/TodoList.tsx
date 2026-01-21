@@ -10,13 +10,15 @@ interface TodoListProps {
 function TodoStatusIcon({ status }: { status: Todo["status"] }) {
   switch (status) {
     case "completed":
-      return <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />;
+      return <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-600" />;
     case "in_progress":
-      return <LoaderCircle className="h-4 w-4 text-blue-600 animate-spin flex-shrink-0" />;
+      return (
+        <LoaderCircle className="h-4 w-4 flex-shrink-0 animate-spin text-blue-600" />
+      );
     case "pending":
-      return <Circle className="h-4 w-4 text-gray-400 flex-shrink-0" />;
+      return <Circle className="h-4 w-4 flex-shrink-0 text-gray-400" />;
     default:
-      return <Circle className="h-4 w-4 text-gray-400 flex-shrink-0" />;
+      return <Circle className="h-4 w-4 flex-shrink-0 text-gray-400" />;
   }
 }
 
@@ -29,10 +31,10 @@ export function TodoList({ todos, className }: TodoListProps) {
     <div
       className={cn(
         "bg-muted/50 w-fit max-w-xl rounded-2xl border border-gray-200 px-4 py-3",
-        className
+        className,
       )}
     >
-      <div className="mb-2 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+      <div className="mb-2 text-xs font-semibold tracking-wide text-gray-600 uppercase">
         Tasks
       </div>
       <div className="flex flex-col gap-2">
@@ -45,9 +47,7 @@ export function TodoList({ todos, className }: TodoListProps) {
             <span
               className={cn(
                 "text-sm",
-                todo.status === "completed"
-                  ? "text-gray-500 line-through"
-                  : "text-gray-800"
+                todo.status === "completed" ? "text-gray-500" : "text-gray-800",
               )}
             >
               {todo.content}
