@@ -19,6 +19,7 @@ import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
+import { getUserId } from "@/lib/user-id";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
@@ -230,6 +231,8 @@ export function Thread() {
     const context =
       Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
 
+    const userId = getUserId();
+
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
       {
@@ -239,6 +242,7 @@ export function Thread() {
             planner_agent_model: selectedModel
           }
         },
+        metadata: userId ? { user_id: userId } : undefined,
         optimisticValues: (prev) => ({
           ...prev,
           context,
@@ -261,9 +265,11 @@ export function Thread() {
     // Do this so the loading state is correct
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
+    const userId = getUserId();
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
       streamMode: ["values"],
+      metadata: userId ? { user_id: userId } : undefined,
     });
   };
 

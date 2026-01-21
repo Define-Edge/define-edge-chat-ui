@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, CheckCircle2, XCircle, Edit3, RefreshCcw } from
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getUserId } from "@/lib/user-id";
 import { useStreamContext } from "@/providers/Stream";
 import { toast } from "sonner";
 import {
@@ -41,6 +42,7 @@ export function ScannerApprovalInterruptView({
 
   const handleApprove = async () => {
     setLoading(true);
+    const userId = getUserId();
     try {
       thread.submit(
         {},
@@ -53,6 +55,7 @@ export function ScannerApprovalInterruptView({
               },
             ],
           },
+          metadata: userId ? { user_id: userId } : undefined,
         },
       );
       toast.success("Scanner approved", {
@@ -74,6 +77,7 @@ export function ScannerApprovalInterruptView({
 
   const handleCancel = async () => {
     setLoading(true);
+    const userId = getUserId();
     try {
       thread.submit(
         {},
@@ -86,6 +90,7 @@ export function ScannerApprovalInterruptView({
               },
             ],
           },
+          metadata: userId ? { user_id: userId } : undefined,
         },
       );
       toast.info("Scanner cancelled", {
@@ -121,6 +126,7 @@ export function ScannerApprovalInterruptView({
         params.segment = segment;
       }
 
+      const userId = getUserId();
       thread.submit(
         {},
         {
@@ -135,6 +141,7 @@ export function ScannerApprovalInterruptView({
               },
             ],
           },
+          metadata: userId ? { user_id: userId } : undefined,
         },
       );
 

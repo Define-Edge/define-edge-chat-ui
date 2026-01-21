@@ -1,5 +1,6 @@
 import { useApiUrl, useAssistantId } from "@/hooks/useDefaultApiValues";
 import { getApiKey } from "@/lib/api-key";
+import { getUserId } from "@/lib/user-id";
 import { Thread } from "@langchain/langgraph-sdk";
 import {
   createContext,
@@ -42,10 +43,12 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   const getThreads = useCallback(async (): Promise<Thread[]> => {
     if (!apiUrl || !assistantId) return [];
     const client = createClient(apiUrl, getApiKey() ?? undefined);
+    const userId = getUserId();
 
     const threads = await client.threads.search({
       metadata: {
         ...getThreadSearchMetadata(assistantId),
+        ...(userId && { user_id: userId }),
       },
       limit: 100,
     });
@@ -66,6 +69,7 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useThreads() {
   const context = useContext(ThreadContext);
   if (context === undefined) {

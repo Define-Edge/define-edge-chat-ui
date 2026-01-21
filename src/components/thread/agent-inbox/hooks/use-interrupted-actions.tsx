@@ -12,6 +12,7 @@ import { createDefaultHumanResponse } from "../utils";
 import { toast } from "sonner";
 import { HumanInterrupt, HumanResponse } from "@langchain/langgraph/prebuilt";
 import { END } from "@langchain/langgraph/web";
+import { getUserId } from "@/lib/user-id";
 import { useStreamContext } from "@/providers/Stream";
 
 interface UseInterruptedActionsInput {
@@ -82,12 +83,14 @@ export default function useInterruptedActions({
 
   const resumeRun = (response: HumanResponse[]): boolean => {
     try {
+      const userId = getUserId();
       thread.submit(
         {},
         {
           command: {
             resume: response,
           },
+          metadata: userId ? { user_id: userId } : undefined,
         },
       );
       return true;
@@ -253,12 +256,14 @@ export default function useInterruptedActions({
     initialHumanInterruptEditValue.current = {};
 
     try {
+      const userId = getUserId();
       thread.submit(
         {},
         {
           command: {
             goto: END,
           },
+          metadata: userId ? { user_id: userId } : undefined,
         },
       );
 

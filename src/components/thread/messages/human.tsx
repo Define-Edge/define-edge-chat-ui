@@ -3,6 +3,7 @@ import { TodoList } from "@/components/thread/TodoList";
 import { Textarea } from "@/components/ui/textarea";
 import { getTodosForMessage } from "@/lib/extract-todos";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
+import { getUserId } from "@/lib/user-id";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { Message } from "@langchain/langgraph-sdk";
@@ -58,11 +59,13 @@ export function HumanMessage({
     setIsEditing(false);
 
     const newMessage: Message = { type: "human", content: value };
+    const userId = getUserId();
     thread.submit(
       { messages: [newMessage] },
       {
         checkpoint: parentCheckpoint,
         streamMode: ["values"],
+        metadata: userId ? { user_id: userId } : undefined,
         optimisticValues: (prev) => {
           const values = meta?.firstSeenState?.values;
           if (!values) return prev;

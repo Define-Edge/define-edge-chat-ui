@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useApiUrl, useAssistantId } from "@/hooks/useDefaultApiValues";
 import { getApiKey } from "@/lib/api-key";
+import { getUserId } from "@/lib/user-id";
 import { type Message } from "@langchain/langgraph-sdk";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import {
@@ -24,6 +25,7 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { createClient } from "./client";
 import { useThreads } from "./Thread";
 import { PlannerModels } from "@/configs/models";
 
@@ -97,8 +99,22 @@ const StreamSession = ({
         });
       }
     },
-    onThreadId: (id) => {
+    onThreadId: async (id) => {
       setThreadId(id);
+
+      // Update thread metadata with user_id for per-browser chat history
+      const userId = getUserId();
+      if (userId) {
+        try {
+          const client = createClient(apiUrl, apiKey ?? undefined);
+          await client.threads.update(id, {
+            metadata: { user_id: userId },
+          });
+        } catch (e) {
+          console.error("Failed to update thread metadata:", e);
+        }
+      }
+
       // Refetch threads list when thread ID changes.
       // Wait for some seconds before fetching so we're able to get the new thread that was created.
       sleep().then(() => getThreads().then(setThreads).catch(console.error));
