@@ -11,26 +11,54 @@ import { Message } from "@langchain/langgraph-sdk";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
+import { CreateCustomPortfolioResponse } from "@/api/generated/portfolio-apis/models";
+import { CreateMFPortfolioResponse } from "@/api/generated/mf-portfolio-apis/models/createMFPortfolioResponse";
+import { MFPortfolioItem } from "@/types/mf-portfolio";
+
+type PortfolioType = "strategy" | "stock-basket" | "mf-basket";
 
 interface ImportStrategyParams {
-  strategy: StrategyAnalyticsResponse;
+  strategy:
+    | StrategyAnalyticsResponse
+    | CreateCustomPortfolioResponse
+    | CreateMFPortfolioResponse;
+  type?: PortfolioType;
+  customIntro?: string;
 }
 
 /**
  * Transforms strategy holdings to markdown table format
  */
 function transformStrategyHoldingsToMarkdown(
-  strategy: StrategyAnalyticsResponse,
+  strategy:
+    | StrategyAnalyticsResponse
+    | CreateCustomPortfolioResponse
+    | CreateMFPortfolioResponse,
+  type: PortfolioType = "strategy",
 ) {
-  return strategy.analytics.holdings.map((holding) => ({
+  if (type === "mf-basket") {
+    const mfStrategy = strategy as CreateMFPortfolioResponse;
+    return (mfStrategy.analytics.holdings as unknown as MFPortfolioItem[]).map(
+      (holding) => ({
+        "Scheme Name": String(holding.Scheme_Name ?? "N/A"),
+        "SEBI Category": String(holding.Sebi_Category ?? "N/A"),
+        "Weight (%)": Number(holding.weight ?? 0).toFixed(2),
+        ISIN: String(holding.ISIN ?? "N/A"),
+      }),
+    );
+  }
+
+  // Handle Strategy and Stock Basket (they share similar structure)
+  const stockStrategy = strategy as
+    | StrategyAnalyticsResponse
+    | CreateCustomPortfolioResponse;
+
+  return stockStrategy.analytics.holdings.map((holding) => ({
     Ticker: String(holding.Ticker ?? ""),
     "Company Name": String(holding.Company_Name ?? "N/A"),
     Industry: String(holding.Industry ?? "N/A"),
     Size: String(holding.Size ?? "N/A"),
     "Weight (%)": Number(holding.weight ?? 0).toFixed(2),
-    "Market Cap (Cr)": holding.T3M_Avg_Mcap
-      ? `₹${(Number(holding.T3M_Avg_Mcap) / 1000).toFixed(2)}K`
-      : "N/A",
   }));
 }
 
@@ -42,26 +70,48 @@ export function useImportStrategyMutation() {
   const stream = useStreamContext();
 
   return useMutation({
-    mutationFn: async ({ strategy }: ImportStrategyParams) => {
-      if (!strategy.analytics.holdings || strategy.analytics.holdings.length === 0) {
-        throw new Error("No holdings found in the strategy");
+    mutationFn: async ({
+      strategy,
+      type = "strategy",
+      customIntro,
+    }: ImportStrategyParams) => {
+      if (
+        !strategy.analytics.holdings ||
+        strategy.analytics.holdings.length === 0
+      ) {
+        throw new Error("No holdings found in the portfolio");
       }
 
       // Transform holdings to markdown format
-      const formattedHoldings = transformStrategyHoldingsToMarkdown(strategy);
+      const formattedHoldings = transformStrategyHoldingsToMarkdown(
+        strategy,
+        type,
+      );
 
       // Create markdown table
       const markdownTable = convertToMarkdownTable(formattedHoldings);
 
-      // Create the message with strategy context
-      const messageText = `I'm interested in analyzing the "${strategy.display_name}" strategy. Here are the details:
+      let messageText = "";
+
+      if (customIntro) {
+        // Use custom intro if provided
+        messageText = `${customIntro}
+
+**Portfolio Holdings:**
+
+${markdownTable}
+`;
+      } else {
+        // Default strategy intro
+        const s = strategy as StrategyAnalyticsResponse;
+        messageText = `I'm interested in analyzing the "${s.display_name}" strategy. Here are the details:
 
 **Strategy Overview:**
-- **Name:** ${strategy.display_name}
-- **Category:** ${strategy.category}
-- **Risk Level:** ${strategy.risk_level}
-- **Description:** ${strategy.description}
-- **Total Stocks:** ${strategy.analytics.total_stocks}
+- **Name:** ${s.display_name}
+- **Category:** ${s.category}
+- **Risk Level:** ${s.risk_level}
+- **Description:** ${s.description}
+- **Total Stocks:** ${s.analytics.total_stocks}
 
 **Portfolio Holdings:**
 
@@ -72,6 +122,7 @@ Please analyze this strategy and provide insights on:
 2. Risk assessment based on the holdings
 3. Key strengths and potential concerns
 4. Suitability for different investor profiles`;
+      }
 
       // Create a human message
       const newHumanMessage: Message = {
@@ -100,7 +151,9 @@ Please analyze this strategy and provide insights on:
       );
 
       return {
-        strategyName: strategy.display_name,
+        strategyName:
+          (strategy as StrategyAnalyticsResponse).display_name ||
+          "Custom Portfolio",
         holdingsCount: strategy.analytics.holdings.length,
       };
     },

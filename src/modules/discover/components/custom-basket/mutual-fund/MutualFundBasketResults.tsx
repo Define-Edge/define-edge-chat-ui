@@ -1,9 +1,16 @@
-import { ArrowLeft, Eye, Target, Share, Download } from "lucide-react";
+import {
+  ArrowLeft,
+  Target,
+  Share,
+  Download,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutualFundBasketBuilderContext } from "../../../hooks/useMutualFundBasketBuilderContext";
 import { MutualFundBasketOverview } from "./results/MutualFundBasketOverview";
 import { MutualFundConfigSummary } from "./results/MutualFundConfigSummary";
 import { MFPortfolioAnalyticsTabs } from "@/modules/core/portfolio/mf-portfolio/components";
+import { useImportStrategyMutation } from "@/modules/discover/hooks/useImportStrategyMutation";
 
 /**
  * Results view for generated mutual fund basket
@@ -13,10 +20,22 @@ export function MutualFundBasketResults() {
   const { basketConfig, handleModify, portfolioResponse } =
     useMutualFundBasketBuilderContext();
 
+  const importMutation = useImportStrategyMutation();
+
+  const handleAddToChat = () => {
+    if (!portfolioResponse) return;
+
+    importMutation.mutate({
+      strategy: portfolioResponse,
+      type: "mf-basket",
+      customIntro: `I have created a custom mutual fund portfolio with ${basketConfig.planType} plan. Here are the created portfolio holdings:`,
+    });
+  };
+
   // Handle case where API response is not available yet
   if (!portfolioResponse) {
     return (
-      <div className="min-h-screen bg-bg-subtle flex items-center justify-center">
+      <div className="bg-bg-subtle flex min-h-screen items-center justify-center">
         <div className="text-text-secondary">Loading portfolio data...</div>
       </div>
     );
@@ -25,30 +44,30 @@ export function MutualFundBasketResults() {
   const description = `${basketConfig.planType.charAt(0).toUpperCase() + basketConfig.planType.slice(1)} plan with ${portfolioResponse.categories.length} fund ${portfolioResponse.categories.length === 1 ? "category" : "categories"}`;
 
   return (
-    <div className="min-h-screen bg-bg-subtle flex flex-col max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+    <div className="bg-bg-subtle mx-auto flex min-h-screen max-w-md flex-col md:max-w-2xl lg:max-w-4xl xl:max-w-5xl">
       {/* Header */}
-      <div className="bg-bg-base px-6 py-4 border-b border-border-subtle sticky top-0 z-10">
+      <div className="bg-bg-base border-border-subtle sticky top-0 z-10 border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <button
             onClick={handleModify}
-            className="p-2 hover:bg-bg-hover rounded-full transition-colors"
+            className="hover:bg-bg-hover rounded-full p-2 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-icon-primary" />
+            <ArrowLeft className="text-icon-primary h-5 w-5" />
           </button>
           <div className="text-center">
-            <h1 className="text-lg font-semibold text-text-primary">
+            <h1 className="text-text-primary text-lg font-semibold">
               Your Mutual Fund Basket
             </h1>
-            <p className="text-xs text-text-secondary">
+            <p className="text-text-secondary text-xs">
               AI-generated based on your preferences
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="p-2 hover:bg-bg-hover rounded-full transition-colors">
-              <Share className="w-4 h-4 text-text-secondary" />
+            <button className="hover:bg-bg-hover rounded-full p-2 transition-colors">
+              <Share className="text-text-secondary h-4 w-4" />
             </button>
-            <button className="p-2 hover:bg-bg-hover rounded-full transition-colors">
-              <Download className="w-4 h-4 text-text-secondary" />
+            <button className="hover:bg-bg-hover rounded-full p-2 transition-colors">
+              <Download className="text-text-secondary h-4 w-4" />
             </button>
           </div>
         </div>
@@ -67,14 +86,23 @@ export function MutualFundBasketResults() {
       <MFPortfolioAnalyticsTabs analytics={portfolioResponse.analytics} />
 
       {/* Action Buttons */}
-      <div className="px-6 space-y-3 pb-20">
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:max-w-md md:mx-auto">
-          <Button variant="outline" className="w-full">
-            <Eye className="w-4 h-4 mr-2" />
-            Preview Portfolio
+      <div className="space-y-3 px-6 pb-20">
+        <div className="grid grid-cols-2 gap-3 md:mx-auto md:max-w-md md:grid-cols-2">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleAddToChat}
+            disabled={importMutation.isPending}
+          >
+            <MessageSquare className="mr-2 h-4 w-4" />
+            {importMutation.isPending ? "Adding..." : "Add to chat"}
           </Button>
-          <Button variant="outline" className="w-full" onClick={handleModify}>
-            <Target className="w-4 h-4 mr-2" />
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleModify}
+          >
+            <Target className="mr-2 h-4 w-4" />
             Modify Basket
           </Button>
         </div>
