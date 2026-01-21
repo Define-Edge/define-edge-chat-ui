@@ -4,14 +4,20 @@ import { Search, List, TrendingUp, Upload } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import useDetectKeyboardOpen from "@/hooks/useDetectKeyboardOpen";
+
 export default function BottomNavbar() {
   const pathname = usePathname();
+  const isKeyboardOpen = useDetectKeyboardOpen();
+
   const tabs = [
     { id: "chat", icon: Search, label: "Chat", href: "/" },
     { id: "discover", icon: TrendingUp, label: "Discover", href: "/discover" },
     { id: "import", icon: Upload, label: "Import", href: "/import" },
     { id: "history", icon: List, label: "Memory", href: "/history" },
   ];
+
+  if (isKeyboardOpen) return null;
 
   return (
     <div className="fixed right-0 bottom-0 left-0 z-40 h-[var(--bottom-navbar-height)] bg-gradient-to-r from-slate-900 via-blue-900 to-blue-700 px-4 pt-3 pb-2 md:hidden">

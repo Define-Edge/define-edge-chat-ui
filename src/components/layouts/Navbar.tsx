@@ -17,10 +17,12 @@ export default function Navbar() {
           variant="ghost"
           size="icon"
           onClick={() => setSidebarOpen(true)}
-          className="text-blue-600 hover:bg-slate-900 hover:text-blue-500"
+          className="hidden text-blue-600 hover:bg-slate-900 hover:text-blue-500 md:block"
         >
           <PanelRightClose className="size-5" />
         </Button>
+
+        <div className="w-9 md:hidden" />
         <Link
           href="/"
           title="New Chat"
