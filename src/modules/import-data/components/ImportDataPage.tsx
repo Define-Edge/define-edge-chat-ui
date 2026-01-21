@@ -31,7 +31,7 @@ import { EtfPreviewModal } from "./modals/EtfPreviewModal";
 import { MutualFundsPreviewModal } from "./modals/MutualFundsPreviewModal";
 import { NetworthGraph } from "./NetworthGraph";
 import { QuickUpload } from "./QuickUpload";
-import { CollapsibleInstructions } from "./shared/CollapsibleInstructions";
+import { CollapsibleInstructions } from "../../core/common/ui/CollapsibleInstructions";
 
 // Import with ssr: false to prevent hydration errors from localStorage usage
 const MoneyOneHoldingsCard = dynamic(

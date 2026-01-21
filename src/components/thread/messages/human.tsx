@@ -78,7 +78,7 @@ export function HumanMessage({
   };
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="chat-message-table flex flex-col gap-2 w-full">
       {/* Message content, right-aligned */}
       <div
         className={cn(
@@ -117,7 +117,7 @@ export function HumanMessage({
               )}
               {/* Render text if present, otherwise fallback to file/image name */}
               {contentString ? (
-                <div className="bg-muted ml-auto w-fit rounded-3xl px-4 py-2 text-right">
+                <div className="bg-muted ml-auto w-fit rounded-3xl px-4 py-2">
                   <MarkdownText>{contentString}</MarkdownText>
                 </div>
               ) : null}

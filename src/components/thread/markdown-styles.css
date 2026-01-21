@@ -62,7 +62,7 @@
 }
 
 /* Content inside details */
-.markdown-content details>*:not(summary) {
+.markdown-content details > *:not(summary) {
   padding: 0 1rem 1rem 1rem;
 }
 
@@ -97,14 +97,14 @@
   margin-bottom: 0.25rem !important;
 }
 
-
 /* Scrollable tables wrapper */
 .chat-message-table .table-container {
   max-height: 400px;
   overflow: auto;
   display: block;
+  max-width: calc(100dvw - 4rem);
 }
 
 .chat-message-table .table-container table {
-  width: 100%;
+    width: 100%;
 }

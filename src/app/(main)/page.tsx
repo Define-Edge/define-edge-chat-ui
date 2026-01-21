@@ -5,7 +5,7 @@ import { ArtifactProvider } from "@/components/thread/artifact";
 
 export default function ChatPage() {
   return (
-    <div className="h-[calc(100vh-4rem)]">
+    <div className="h-[calc(100vh-4rem-var(--bottom-navbar-height))] md:h-[calc(100vh-4rem)]">
       <ArtifactProvider>
         <Thread />
       </ArtifactProvider>
