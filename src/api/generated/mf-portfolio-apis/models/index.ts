@@ -15,6 +15,7 @@ export * from "./mFCostAnalysis";
 export * from "./mFMissingHolding";
 export * from "./mFPortfolioAnalytics";
 export * from "./mFPortfolioAnalyticsHoldingsItem";
+export * from "./mFPortfolioAnalyticsStatsItem";
 export * from "./planType";
 export * from "./returnsChartData";
 export * from "./returnsChartDataColors";

@@ -1,6 +1,8 @@
-import { Badge } from "@/components/ui/badge";
-import { Users } from "lucide-react";
 import { StrategyAnalyticsResponse } from "@/api/generated/strategy-apis/models";
+import { Badge } from "@/components/ui/badge";
+import { PortfolioMetric } from "@/modules/core/portfolio/constants/portfolio-metrics";
+import { getStatValue } from "@/modules/core/portfolio/utils/get-stat-value";
+import { Users } from "lucide-react";
 
 interface AdvisorInfoSectionProps {
   strategy: StrategyAnalyticsResponse;
@@ -12,7 +14,10 @@ interface AdvisorInfoSectionProps {
  * Displays strategy header with badges, title, description, and key stats
  * Component size: ~100 lines
  */
-export function AdvisorInfoSection({ strategy, isLongShort }: AdvisorInfoSectionProps) {
+export function AdvisorInfoSection({
+  strategy,
+  isLongShort,
+}: AdvisorInfoSectionProps) {
   const riskColors = {
     Low: "bg-risk-low-bg text-risk-low-fg border-risk-low-border",
     Medium: "bg-risk-medium-bg text-risk-medium-fg border-risk-medium-border",
@@ -20,67 +25,105 @@ export function AdvisorInfoSection({ strategy, isLongShort }: AdvisorInfoSection
   };
 
   return (
-    <div className="bg-bg-card px-6 py-6 border-b border-border-subtle">
-      <div className="flex items-start justify-between mb-4">
+    <div className="bg-bg-card border-border-subtle border-b px-6 py-6">
+      <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <Badge className="text-xs bg-info-icon-bg text-accent-purple border-info-border">
-              <Users className="w-3 h-3 mr-1" />
+          <div className="mb-2 flex items-center gap-2">
+            <Badge className="bg-info-icon-bg text-accent-purple border-info-border text-xs">
+              <Users className="mr-1 h-3 w-3" />
               FinSharpe
             </Badge>
-            <Badge variant="secondary" className="text-xs">
+            <Badge
+              variant="secondary"
+              className="text-xs"
+            >
               {strategy.category}
             </Badge>
-            <Badge className={`text-xs ${riskColors[strategy.risk_level as keyof typeof riskColors] || riskColors.Medium}`}>
+            <Badge
+              className={`text-xs ${riskColors[strategy.risk_level as keyof typeof riskColors] || riskColors.Medium}`}
+            >
               {strategy.risk_level} Risk
             </Badge>
           </div>
-          <h1 className="text-xl font-semibold text-text-primary mb-2">
+          <h1 className="text-text-primary mb-2 text-xl font-semibold">
             {strategy.display_name}
           </h1>
-          <p className="text-sm text-text-secondary mb-2">{strategy.description}</p>
-          <p className="text-xs text-accent-blue">{strategy.keywords}</p>
+          <p className="text-text-secondary mb-2 text-sm">
+            {strategy.description}
+          </p>
+          <p className="text-accent-blue text-xs">{strategy.keywords}</p>
         </div>
       </div>
 
       {isLongShort ? (
         // Long-Short: Show Holdings, Net Exposure, and Gross Exposure
-        <div className="grid grid-cols-3 items-center gap-4">
+        <div className="grid grid-cols-4 items-center gap-4">
           <div className="text-center">
-            <div className="text-lg font-semibold text-text-primary">
+            <div className="text-text-primary text-lg font-semibold">
               {strategy.analytics.total_stocks}
             </div>
-            <div className="text-xs text-text-tertiary">Holdings</div>
+            <div className="text-text-tertiary text-xs">Holdings</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-text-primary">
-              {strategy.analytics.net_exposure !== null && strategy.analytics.net_exposure !== undefined
-                ? `${strategy.analytics.net_exposure.toFixed(1)}%`
-                : "N/A"}
+            <div className="text-text-primary text-lg font-semibold">
+              {getStatValue(
+                strategy.analytics.stats,
+                PortfolioMetric.Volatility,
+              ) || "N/A"}
+              %
             </div>
-            <div className="text-xs text-text-tertiary">Net Exposure</div>
+            <div className="text-text-tertiary text-xs">Volatility</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-text-primary">
-              {strategy.analytics.gross_exposure !== null && strategy.analytics.gross_exposure !== undefined
-                ? `${strategy.analytics.gross_exposure.toFixed(1)}%`
-                : "N/A"}
+            <div className="text-text-primary text-lg font-semibold">
+              {getStatValue(
+                strategy.analytics.stats,
+                PortfolioMetric.SharpeRatio,
+              ) || "N/A"}
             </div>
-            <div className="text-xs text-text-tertiary">Gross Exposure</div>
+            <div className="text-text-tertiary text-xs">Sharpe Ratio</div>
+          </div>
+          <div className="text-center">
+            <div className="text-text-primary text-lg font-semibold">
+              {getStatValue(
+                strategy.analytics.stats,
+                PortfolioMetric.MaxDrawdown,
+              ) || "N/A"}
+              %
+            </div>
+            <div className="text-text-tertiary text-xs">Max Drawdown</div>
           </div>
         </div>
       ) : (
-        // Long-Only: Show Holdings and Min Investment
-        <div className="grid grid-cols-2 items-center gap-4">
+        // Long-Only: Show Holdings, Returns, Min Investment
+        <div className="grid grid-cols-4 items-center gap-4">
           <div className="text-center">
-            <div className="text-lg font-semibold text-text-primary">
+            <div className="text-text-primary text-lg font-semibold">
               {strategy.analytics.total_stocks}
             </div>
-            <div className="text-xs text-text-tertiary">Holdings</div>
+            <div className="text-text-tertiary text-xs">Holdings</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-text-primary">₹50L+</div>
-            <div className="text-xs text-text-tertiary">Min Investment</div>
+            <div className="text-text-primary text-lg font-semibold">
+              {getStatValue(
+                strategy.analytics.stats,
+                PortfolioMetric.Return1Y,
+              ) || "N/A"}
+              %
+            </div>
+            <div className="text-text-tertiary text-xs">1Y Return</div>
+          </div>
+          <div className="text-center">
+            <div className="text-text-primary text-lg font-semibold">
+              {getStatValue(strategy.analytics.stats, PortfolioMetric.CAGR) ||
+                "N/A"}
+              %
+            </div>
+            <div className="text-text-tertiary text-xs">CAGR</div>
+          </div>
+          <div className="text-center">
+            <div className="text-text-primary text-lg font-semibold">₹50L+</div>
+            <div className="text-text-tertiary text-xs">Min Investment</div>
           </div>
         </div>
       )}

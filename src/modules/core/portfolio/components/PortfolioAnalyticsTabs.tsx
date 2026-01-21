@@ -49,7 +49,7 @@ export function PortfolioAnalyticsTabs({
 
   // Set default tab based on whether all stocks are missing
   const [activeTab, setActiveTab] = useState(
-    allStocksMissing ? "holdings" : "overview"
+    allStocksMissing ? "holdings" : "overview",
   );
 
   return (
@@ -59,7 +59,9 @@ export function PortfolioAnalyticsTabs({
         analytics.missing_holdings &&
         analytics.missing_holdings.length > 0 &&
         !allStocksMissing && (
-          <MissingHoldingsWarning missingHoldings={analytics.missing_holdings} />
+          <MissingHoldingsWarning
+            missingHoldings={analytics.missing_holdings}
+          />
         )}
 
       {/* Content Tabs */}
@@ -70,18 +72,27 @@ export function PortfolioAnalyticsTabs({
           className="w-full"
         >
           <TabsList
-            className={`mb-6 grid w-full ${allStocksMissing ? "grid-cols-1 max-w-xs mx-auto" : "grid-cols-3"}`}
+            className={`mb-6 grid w-full ${allStocksMissing ? "mx-auto max-w-xs grid-cols-1" : "grid-cols-3"}`}
           >
             {!allStocksMissing && (
-              <TabsTrigger value="overview" className="text-xs">
+              <TabsTrigger
+                value="overview"
+                className="text-xs"
+              >
                 Overview
               </TabsTrigger>
             )}
-            <TabsTrigger value="holdings" className="text-xs">
+            <TabsTrigger
+              value="holdings"
+              className="text-xs"
+            >
               Holdings
             </TabsTrigger>
             {!allStocksMissing && (
-              <TabsTrigger value="analytics" className="text-xs">
+              <TabsTrigger
+                value="analytics"
+                className="text-xs"
+              >
                 Analytics
               </TabsTrigger>
             )}

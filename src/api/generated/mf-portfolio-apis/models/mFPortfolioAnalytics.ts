@@ -11,6 +11,7 @@ import type { ReturnsChartData } from "./returnsChartData";
 import type { ScoreChartDataItem } from "./scoreChartDataItem";
 import type { MFCostAnalysis } from "./mFCostAnalysis";
 import type { MFMissingHolding } from "./mFMissingHolding";
+import type { MFPortfolioAnalyticsStatsItem } from "./mFPortfolioAnalyticsStatsItem";
 
 /**
  * MF-specific portfolio analytics.
@@ -32,4 +33,6 @@ export interface MFPortfolioAnalytics {
   cost_analysis: MFCostAnalysis;
   /** Holdings missing from data */
   missing_holdings?: MFMissingHolding[];
+  /** Portfolio statistics metrics (e.g., Sharpe, Return, etc.) */
+  stats?: MFPortfolioAnalyticsStatsItem[];
 }

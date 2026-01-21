@@ -1,0 +1,35 @@
+/**
+ * Enum for portfolio metric names
+ * Matches the "Stats" key in the portfolio analytics stats object
+ */
+export enum PortfolioMetric {
+  FromDate = "From Date",
+  ToDate = "To Date",
+  Return1M = "1M Return (%)",
+  Return3M = "3M Return (%)",
+  Return6M = "6M Return (%)",
+  Return1Y = "1Y Return (%)",
+  Return2Y = "2Y Return (%)",
+  Return3Y = "3Y Return (%)",
+  ReturnYTD = "YTD Return (%)",
+  ReturnCumulative = "Cumulative Return (%)",
+  CAGR = "CAGR (%)",
+  High1Y = "1Y High",
+  Low1Y = "1Y Low",
+  ChangeFromHigh1Y = "Change from 1Y High (%)",
+  ChangeFromLow1Y = "Change from 1Y Low (%)",
+  ExpectedReturn = "Expected Annual Return (%)",
+  Volatility = "Annual Volatility (%)",
+  MaxDrawdown = "Max Drawdown (%)",
+  MaxDrawdownDuration = "Max Drawdown Duration",
+  SharpeRatio = "Sharpe Ratio",
+  SortinoRatio = "Sortino Ratio",
+  CalmarRatio = "Calmar Ratio",
+  InformationRatio = "Information Ratio",
+  VaR95 = "VaR 95% (%)",
+  CVaR95 = "CVaR 95% (%)",
+  Skewness = "Skewness",
+  Kurtosis = "Kurtosis",
+  OmegaRatio = "Omega Ratio",
+  TailRatio = "Tail Ratio",
+}
