@@ -16,7 +16,7 @@ export function InvestmentTypeSelector() {
 
   return (
     <div className="bg-bg-subtle flex flex-col">
-      <div className="mx-auto w-full max-w-md md:max-w-2xl">
+      <div className="mx-auto w-full max-w-md p-6 pt-4 md:max-w-2xl">
         {/* Header */}
         <div className="py-4">
           <div className="flex items-center justify-between">
