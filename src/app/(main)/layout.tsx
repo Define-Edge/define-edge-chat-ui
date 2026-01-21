@@ -1,3 +1,4 @@
+import BottomNavbar from "@/components/layouts/BottomNavbar";
 import Navbar from "@/components/layouts/Navbar";
 import { NavigationShell } from "@/components/layouts/NavigationShell";
 import { ClientProviders } from "@/components/providers/ClientProviders";
@@ -14,6 +15,7 @@ export default function MainLayout({
         <NavigationShell>
           <Navbar />
           {children}
+          <BottomNavbar />
         </NavigationShell>
       </ClientProviders>
     </React.Suspense>
