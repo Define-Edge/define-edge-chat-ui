@@ -1,5 +1,6 @@
-import { Badge } from "@/components/ui/badge";
 import type { PortfolioAnalytics } from "@/api/generated/portfolio-apis/models";
+import { PortfolioMetric } from "@/modules/core/portfolio/constants/portfolio-metrics";
+import { getStatValue } from "@/modules/core/portfolio/utils/get-stat-value";
 
 interface StockBasketMetricsProps {
   analytics: PortfolioAnalytics;
@@ -12,25 +13,26 @@ interface StockBasketMetricsProps {
  */
 export function StockBasketMetrics({ analytics }: StockBasketMetricsProps) {
   return (
-    <div className="px-6 py-4 bg-bg-base border-b border-border-subtle">
+    <div className="bg-bg-base border-border-subtle border-b px-6 py-4">
       <div className="grid grid-cols-3 gap-4">
         <div className="text-center">
-          <Badge className="text-xs bg-bg-subtle text-text-secondary border-border-subtle mb-1">
-            -- Risk
-          </Badge>
-          <div className="text-xs text-text-secondary">Risk Level</div>
+          <div className="text-text-primary text-sm font-medium">
+            {getStatValue(analytics.stats, PortfolioMetric.MaxDrawdown) || "--"}
+            %
+          </div>
+          <div className="text-text-secondary text-xs">Max Drawdown</div>
         </div>
         <div className="text-center">
-          <div className="text-sm font-medium text-text-primary">
-            --
+          <div className="text-text-primary text-sm font-medium">
+            {getStatValue(analytics.stats, PortfolioMetric.Volatility) || "--"}%
           </div>
-          <div className="text-xs text-text-secondary">Volatility</div>
+          <div className="text-text-secondary text-xs">Volatility</div>
         </div>
         <div className="text-center">
-          <div className="text-sm font-medium text-text-primary">
-            --
+          <div className="text-text-primary text-sm font-medium">
+            {getStatValue(analytics.stats, PortfolioMetric.SharpeRatio) || "--"}
           </div>
-          <div className="text-xs text-text-secondary">Sharpe Ratio</div>
+          <div className="text-text-secondary text-xs">Sharpe Ratio</div>
         </div>
       </div>
     </div>

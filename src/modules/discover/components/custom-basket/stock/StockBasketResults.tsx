@@ -149,7 +149,7 @@ export function StockBasketResults() {
       <StockBasketOverview
         basketName={generateBasketName(generatedBasket.investment_style)}
         description={description}
-        totalStocks={generatedBasket.analytics.total_stocks}
+        analytics={generatedBasket.analytics}
       />
 
       {/* Key Metrics */}

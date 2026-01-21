@@ -12,6 +12,7 @@ export * from "./hTTPValidationError";
 export * from "./missingHolding";
 export * from "./portfolioAnalytics";
 export * from "./portfolioAnalyticsHoldingsItem";
+export * from "./portfolioAnalyticsStatsItem";
 export * from "./returnsChartData";
 export * from "./returnsChartDataColors";
 export * from "./returnsChartDataDataItem";

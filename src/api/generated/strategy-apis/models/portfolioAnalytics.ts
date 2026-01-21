@@ -10,6 +10,7 @@ import type { DistributionItem } from "./distributionItem";
 import type { ReturnsChartData } from "./returnsChartData";
 import type { ScoreChartDataItem } from "./scoreChartDataItem";
 import type { MissingHolding } from "./missingHolding";
+import type { PortfolioAnalyticsStatsItem } from "./portfolioAnalyticsStatsItem";
 
 /**
  * Reusable portfolio analytics model.
@@ -43,4 +44,6 @@ export interface PortfolioAnalytics {
   gross_exposure: number;
   /** List of holdings that are missing from closing or screener data and excluded from analytics */
   missing_holdings?: MissingHolding[];
+  /** Portfolio statistics metrics (e.g., Sharpe, Return, etc.) */
+  stats?: PortfolioAnalyticsStatsItem[];
 }
