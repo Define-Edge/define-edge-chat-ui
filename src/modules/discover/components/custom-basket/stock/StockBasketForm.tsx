@@ -61,7 +61,7 @@ export function StockBasketForm() {
     <div className="bg-bg-subtle flex flex-col">
       <div className="mx-auto flex w-full max-w-md flex-col md:max-w-2xl">
         {/* Header */}
-        <div className="bg-bg-base border-border-subtle border-b px-6 py-4">
+        <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
@@ -82,7 +82,7 @@ export function StockBasketForm() {
         </div>
 
         {/* Progress Bar */}
-        <div className="bg-bg-base border-border-subtle border-b px-6 py-3">
+        <div className="px-6 py-3">
           <Progress
             value={(currentStep / totalSteps) * 100}
             className="w-full"
@@ -90,7 +90,7 @@ export function StockBasketForm() {
         </div>
 
         {/* Step Indicator */}
-        <div className="bg-bg-base border-border-subtle border-b px-6 py-3">
+        <div className="px-6 py-3">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-2">
               <TrendingUp className="text-accent-blue h-4 w-4" />
