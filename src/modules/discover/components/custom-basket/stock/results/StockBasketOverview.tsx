@@ -1,5 +1,6 @@
 import type { PortfolioAnalytics } from "@/api/generated/portfolio-apis/models";
 import { PortfolioMetric } from "@/modules/core/portfolio/constants/portfolio-metrics";
+import { formatMetric } from "@/modules/core/portfolio/utils/format-metric";
 import { getStatValue } from "@/modules/core/portfolio/utils/get-stat-value";
 import { Target } from "lucide-react";
 
@@ -35,7 +36,7 @@ export function StockBasketOverview({
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center">
           <div className="text-text-success text-xl font-semibold">
-            {getStatValue(analytics.stats, PortfolioMetric.CAGR) || "--"}%
+            {formatMetric(getStatValue(analytics.stats, PortfolioMetric.CAGR))}%
           </div>
           <div className="text-text-secondary text-xs">CAGR</div>
         </div>

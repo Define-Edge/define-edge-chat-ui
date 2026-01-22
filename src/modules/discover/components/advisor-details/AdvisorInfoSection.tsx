@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { PortfolioMetric } from "@/modules/core/portfolio/constants/portfolio-metrics";
 import { getStatValue } from "@/modules/core/portfolio/utils/get-stat-value";
 import { Users } from "lucide-react";
+import { formatMetric } from "@/modules/core/portfolio/utils/format-metric";
 
 interface AdvisorInfoSectionProps {
   strategy: StrategyAnalyticsResponse;
@@ -66,29 +67,35 @@ export function AdvisorInfoSection({
           </div>
           <div className="text-center">
             <div className="text-text-primary text-lg font-semibold">
-              {getStatValue(
-                strategy.analytics.stats,
-                PortfolioMetric.Volatility,
-              ) || "N/A"}
+              {formatMetric(
+                getStatValue(
+                  strategy.analytics.stats,
+                  PortfolioMetric.Volatility,
+                ),
+              )}
               %
             </div>
             <div className="text-text-tertiary text-xs">Volatility</div>
           </div>
           <div className="text-center">
             <div className="text-text-primary text-lg font-semibold">
-              {getStatValue(
-                strategy.analytics.stats,
-                PortfolioMetric.SharpeRatio,
-              ) || "N/A"}
+              {formatMetric(
+                getStatValue(
+                  strategy.analytics.stats,
+                  PortfolioMetric.SharpeRatio,
+                ),
+              )}
             </div>
             <div className="text-text-tertiary text-xs">Sharpe Ratio</div>
           </div>
           <div className="text-center">
             <div className="text-text-primary text-lg font-semibold">
-              {getStatValue(
-                strategy.analytics.stats,
-                PortfolioMetric.MaxDrawdown,
-              ) || "N/A"}
+              {formatMetric(
+                getStatValue(
+                  strategy.analytics.stats,
+                  PortfolioMetric.MaxDrawdown,
+                ),
+              )}
               %
             </div>
             <div className="text-text-tertiary text-xs">Max Drawdown</div>
@@ -105,18 +112,22 @@ export function AdvisorInfoSection({
           </div>
           <div className="text-center">
             <div className="text-text-primary text-lg font-semibold">
-              {getStatValue(
-                strategy.analytics.stats,
-                PortfolioMetric.Return1Y,
-              ) || "N/A"}
+              {formatMetric(
+                getStatValue(
+                  strategy.analytics.stats,
+                  PortfolioMetric.Return1Y,
+                ),
+              )}
               %
             </div>
             <div className="text-text-tertiary text-xs">1Y Return</div>
           </div>
           <div className="text-center">
             <div className="text-text-primary text-lg font-semibold">
-              {getStatValue(strategy.analytics.stats, PortfolioMetric.CAGR) ||
-                "N/A"}
+              {formatMetric(
+                getStatValue(strategy.analytics.stats, PortfolioMetric.CAGR),
+                "N/A",
+              )}
               %
             </div>
             <div className="text-text-tertiary text-xs">CAGR</div>
