@@ -17,7 +17,7 @@ export function CollapsibleInstructions({
 
   return (
     <Card
-      className={`${bgColor} border-opacity-60 transition-all duration-200`}
+      className={`${bgColor} border-opacity-60 transition-all duration-200 ${isExpanded ? "h-full" : "h-fit"}`}
     >
       <div
         className="flex cursor-pointer items-start gap-3 p-4 transition-opacity hover:opacity-90"
