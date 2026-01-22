@@ -44,6 +44,8 @@ import {
 } from "./artifact";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
+import Image from "next/image";
+import SuggestedQueries from "@/modules/chat/components/SuggestedQueries";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -242,6 +244,35 @@ export function Thread() {
     });
   };
 
+  const handleSuggestedQuery = (query: string) => {
+    if (isLoading) return;
+    setFirstTokenReceived(false);
+
+    const newHumanMessage: Message = {
+      id: uuidv4(),
+      type: "human",
+      content: [{ type: "text", text: query }],
+    };
+
+    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+
+    stream.submit(
+      { messages: [...toolMessages, newHumanMessage] },
+      {
+        streamMode: ["values"],
+        config: {
+          configurable: {
+            planner_agent_model: selectedModel,
+          },
+        },
+        optimisticValues: (prev) => ({
+          ...prev,
+          messages: [...(prev.messages ?? []), ...toolMessages, newHumanMessage],
+        }),
+      },
+    );
+  };
+
   const chatStarted = !!threadId || !!messages.length;
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
@@ -264,12 +295,23 @@ export function Thread() {
           <StickyToBottomContent
             className={cn(
               "scrollbar-thin absolute inset-0 overflow-y-auto",
-              !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+              !chatStarted && "mt-6 flex flex-col items-stretch",
               chatStarted && "grid grid-rows-[1fr_auto]",
             )}
             contentClassName="pt-8 pb-16 chat-container mx-auto flex flex-col gap-4 w-full"
             content={
               <>
+                {!chatStarted && (
+                  <div className="flex flex-col items-center gap-6">
+                    <Image
+                      src="/logo.png"
+                      alt="logo"
+                      width={56}
+                      height={56}
+                    />
+                    <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
+                  </div>
+                )}
                 {messages
                   .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
                   .map((message, index) =>
