@@ -19,6 +19,7 @@ import {
   specialBaskets,
   thematicBaskets,
 } from "../constants/discover-data";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { AdvisorStrategyCard } from "./cards/AdvisorStrategyCard";
 import { CustomBasketBuilderCard } from "./cards/CustomBasketBuilderCard";
 import { InvestmentBasketCard } from "./cards/InvestmentBasketCard";
@@ -194,13 +195,15 @@ export function DiscoverPage() {
   ];
 
   // Reorder sections: if an odd-indexed section is expanded, move it to even index
+  // This layout shift is only required for desktop view (2 columns)
+  const isMobile = useIsMobile();
   const orderedSections = [...allSections];
   const expandedIndex = orderedSections.findIndex(
     (section) => expandedSections[section.id],
   );
 
   // If an odd-indexed section is expanded, swap it with the previous one
-  if (expandedIndex > 0 && expandedIndex % 2 === 1) {
+  if (!isMobile && expandedIndex > 0 && expandedIndex % 2 === 1) {
     [orderedSections[expandedIndex - 1], orderedSections[expandedIndex]] = [
       orderedSections[expandedIndex],
       orderedSections[expandedIndex - 1],
