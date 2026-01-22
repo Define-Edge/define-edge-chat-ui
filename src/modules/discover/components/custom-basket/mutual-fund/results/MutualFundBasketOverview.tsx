@@ -2,6 +2,7 @@ import type { CreateMFPortfolioResponse } from "@/api/generated/mf-portfolio-api
 import { PortfolioMetric } from "@/modules/core/portfolio/constants/portfolio-metrics";
 import { getStatValue } from "@/modules/core/portfolio/utils/get-stat-value";
 import { PieChart } from "lucide-react";
+import { formatMetric } from "@/modules/core/portfolio/utils/format-metric";
 
 interface MutualFundBasketOverviewProps {
   response: CreateMFPortfolioResponse;
@@ -45,18 +46,21 @@ export function MutualFundBasketOverview({
         </div>
         <div className="text-center">
           <div className="text-text-success text-xl font-semibold">
-            {getStatValue(response.analytics.stats, PortfolioMetric.CAGR) ||
-              "--"}
+            {formatMetric(
+              getStatValue(response.analytics.stats, PortfolioMetric.CAGR),
+            )}
             %
           </div>
           <div className="text-text-secondary text-xs">CAGR</div>
         </div>
         <div className="text-center">
           <div className="text-text-primary text-xl font-semibold">
-            {getStatValue(
-              response.analytics.stats,
-              PortfolioMetric.Volatility,
-            ) || "--"}
+            {formatMetric(
+              getStatValue(
+                response.analytics.stats,
+                PortfolioMetric.Volatility,
+              ),
+            )}
             %
           </div>
           <div className="text-text-secondary text-xs">Volatility</div>

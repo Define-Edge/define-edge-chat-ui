@@ -1,17 +1,12 @@
 import { Badge } from "@/components/ui/badge";
-import { Thread } from "@langchain/langgraph-sdk";
 import { Bookmark, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useBookmarkedThreads } from "../hooks/useBookmarkedThreads";
 import ThreadCard from "./ThreadCard";
 
-interface BookmarkedChatsSliderProps {
-  threads: Thread[];
-}
-
-export default function BookmarkedChatsSlider({
-  threads,
-}: BookmarkedChatsSliderProps) {
+export default function BookmarkedChatsSlider() {
   const [sliderIndex, setSliderIndex] = useState(0);
+  const { bookmarkedThreads: threads } = useBookmarkedThreads();
 
   useEffect(() => {
     if (sliderIndex >= threads.length && threads.length > 0) {

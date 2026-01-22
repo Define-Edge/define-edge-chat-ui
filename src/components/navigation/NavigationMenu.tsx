@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Compass, Database, Plus } from "lucide-react";
+import { Compass, Database, History, Plus } from "lucide-react";
 import Link from "next/link";
 
 /**
@@ -17,7 +17,7 @@ export function NavigationMenu() {
         asChild
       >
         <Link href="/">
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           New chat
         </Link>
       </Button>
@@ -27,7 +27,7 @@ export function NavigationMenu() {
         asChild
       >
         <Link href="/import">
-          <Database className="h-4 w-4" />
+          <Database className="size-4" />
           Import
         </Link>
       </Button>
@@ -37,8 +37,18 @@ export function NavigationMenu() {
         asChild
       >
         <Link href="/discover">
-          <Compass className="h-4 w-4" />
+          <Compass className="size-4" />
           Discover
+        </Link>
+      </Button>
+      <Button
+        variant="outline"
+        className="w-full justify-start gap-2 shadow-md"
+        asChild
+      >
+        <Link href="/history">
+          <History className="size-4" />
+          Memory
         </Link>
       </Button>
     </div>

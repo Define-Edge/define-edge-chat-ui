@@ -5,9 +5,11 @@ import ThreadCard from "./ThreadCard";
 export default function ThreadGroupSection({
   title,
   threads,
+  compact = false,
 }: {
   title: string;
   threads: Thread[];
+  compact?: boolean;
 }) {
   if (threads.length === 0) return null;
 
@@ -17,7 +19,13 @@ export default function ThreadGroupSection({
         <Calendar className="h-4 w-4 flex-shrink-0 text-gray-500" />
         <h3 className="font-medium text-gray-900">{title}</h3>
       </div>
-      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
+      <div
+        className={
+          compact
+            ? "flex flex-col gap-2"
+            : "grid w-full grid-cols-1 gap-3 md:grid-cols-2"
+        }
+      >
         {threads.map((t) => (
           <ThreadCard
             key={t.thread_id}

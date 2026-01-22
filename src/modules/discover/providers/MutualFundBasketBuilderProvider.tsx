@@ -15,7 +15,7 @@ export interface MutualFundBasketBuilderContextValue {
   basketConfig: MutualFundBasketConfig;
   updateConfig: <K extends keyof MutualFundBasketConfig>(
     key: K,
-    value: MutualFundBasketConfig[K]
+    value: MutualFundBasketConfig[K],
   ) => void;
   addFundCategory: (categoryName: string) => void;
   updateFundCategoryPercentage: (categoryName: string, delta: number) => void;
@@ -23,7 +23,7 @@ export interface MutualFundBasketBuilderContextValue {
   updateSchemesCount: (categoryName: string, delta: number) => void;
   setCategoryPreference: (
     preferenceId: string,
-    categories: FundCategory[]
+    categories: FundCategory[],
   ) => void;
   currentStep: number;
   totalSteps: number;
@@ -78,7 +78,7 @@ export function MutualFundBasketBuilderProvider({
    */
   const updateConfig = <K extends keyof MutualFundBasketConfig>(
     key: K,
-    value: MutualFundBasketConfig[K]
+    value: MutualFundBasketConfig[K],
   ) => {
     setBasketConfig((prev) => ({ ...prev, [key]: value }));
   };
@@ -100,7 +100,7 @@ export function MutualFundBasketBuilderProvider({
       (cat, index) => ({
         ...cat,
         percentage: equalPercentage + (index === 0 ? remainder : 0),
-      })
+      }),
     );
 
     // Add new category with default scheme count of 1
@@ -118,31 +118,31 @@ export function MutualFundBasketBuilderProvider({
    */
   const updateFundCategoryPercentage = (
     categoryName: string,
-    delta: number
+    delta: number,
   ) => {
     const currentIndex = basketConfig.fundCategories.findIndex(
-      (cat) => cat.name === categoryName
+      (cat) => cat.name === categoryName,
     );
     if (currentIndex === -1) return;
 
     const currentCategory = basketConfig.fundCategories[currentIndex];
     const newPercentage = Math.max(
       5,
-      Math.min(95, currentCategory.percentage + delta)
+      Math.min(95, currentCategory.percentage + delta),
     );
     const actualDelta = newPercentage - currentCategory.percentage;
 
     if (actualDelta === 0) return;
 
     const otherCategories = basketConfig.fundCategories.filter(
-      (_, index) => index !== currentIndex
+      (_, index) => index !== currentIndex,
     );
 
     if (otherCategories.length === 0) return; // Only one category, keep it at 100%
 
     const totalOtherPercentage = otherCategories.reduce(
       (sum, cat) => sum + cat.percentage,
-      0
+      0,
     );
 
     const updatedCategories = basketConfig.fundCategories.map((cat, index) => {
@@ -158,12 +158,12 @@ export function MutualFundBasketBuilderProvider({
     // Ensure sum is exactly 100%
     const currentSum = updatedCategories.reduce(
       (sum, cat) => sum + cat.percentage,
-      0
+      0,
     );
     if (currentSum !== 100 && otherCategories.length > 0) {
       const diff = 100 - currentSum;
       const firstOtherIndex = updatedCategories.findIndex(
-        (_, i) => i !== currentIndex
+        (_, i) => i !== currentIndex,
       );
       updatedCategories[firstOtherIndex].percentage += diff;
     }
@@ -176,7 +176,7 @@ export function MutualFundBasketBuilderProvider({
    */
   const removeFundCategory = (categoryName: string) => {
     const remainingCategories = basketConfig.fundCategories.filter(
-      (cat) => cat.name !== categoryName
+      (cat) => cat.name !== categoryName,
     );
 
     if (remainingCategories.length === 0) {
@@ -217,7 +217,7 @@ export function MutualFundBasketBuilderProvider({
    */
   const setCategoryPreference = (
     preferenceId: string,
-    categories: FundCategory[]
+    categories: FundCategory[],
   ) => {
     updateConfig("categoryPreference", preferenceId);
     updateConfig("fundCategories", categories);
@@ -280,16 +280,8 @@ export function MutualFundBasketBuilderProvider({
         onSuccess: (response) => {
           // Check if response status is 200 (success)
           if (response.status === 200) {
-            console.log("Portfolio created successfully!");
-            console.log("Response:", response);
-
             // Store the API response
             setPortfolioResponse(response.data);
-
-            // Log first holding item
-            if (response.data.analytics.holdings.length > 0) {
-              console.log("First holding item:", response.data.analytics.holdings[0]);
-            }
 
             // Show results page
             setShowResults(true);
@@ -314,7 +306,7 @@ export function MutualFundBasketBuilderProvider({
           // TODO: Show error toast/message to user
           alert("An unexpected error occurred. Please try again.");
         },
-      }
+      },
     );
   };
 

@@ -1,6 +1,7 @@
 import type { PortfolioAnalytics } from "@/api/generated/portfolio-apis/models";
 import { PortfolioMetric } from "@/modules/core/portfolio/constants/portfolio-metrics";
 import { getStatValue } from "@/modules/core/portfolio/utils/get-stat-value";
+import { formatMetric } from "@/modules/core/portfolio/utils/format-metric";
 
 interface StockBasketMetricsProps {
   analytics: PortfolioAnalytics;
@@ -17,20 +18,27 @@ export function StockBasketMetrics({ analytics }: StockBasketMetricsProps) {
       <div className="grid grid-cols-3 gap-4">
         <div className="text-center">
           <div className="text-text-primary text-sm font-medium">
-            {getStatValue(analytics.stats, PortfolioMetric.MaxDrawdown) || "--"}
+            {formatMetric(
+              getStatValue(analytics.stats, PortfolioMetric.MaxDrawdown),
+            )}
             %
           </div>
           <div className="text-text-secondary text-xs">Max Drawdown</div>
         </div>
         <div className="text-center">
           <div className="text-text-primary text-sm font-medium">
-            {getStatValue(analytics.stats, PortfolioMetric.Volatility) || "--"}%
+            {formatMetric(
+              getStatValue(analytics.stats, PortfolioMetric.Volatility),
+            )}
+            %
           </div>
           <div className="text-text-secondary text-xs">Volatility</div>
         </div>
         <div className="text-center">
           <div className="text-text-primary text-sm font-medium">
-            {getStatValue(analytics.stats, PortfolioMetric.SharpeRatio) || "--"}
+            {formatMetric(
+              getStatValue(analytics.stats, PortfolioMetric.SharpeRatio),
+            )}
           </div>
           <div className="text-text-secondary text-xs">Sharpe Ratio</div>
         </div>

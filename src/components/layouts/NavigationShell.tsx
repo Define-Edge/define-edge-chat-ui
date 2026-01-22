@@ -1,9 +1,9 @@
 "use client";
 
 import { NavigationMenu } from "@/components/navigation/NavigationMenu";
-import ThreadHistory from "@/components/thread/history";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import appConfig from "@/configs/app.config";
+import ThreadHistoryList from "@/modules/history/components/ThreadHistoryList";
 import Image from "next/image";
 import Link from "next/link";
 import { parseAsBoolean, useQueryState } from "nuqs";
@@ -59,8 +59,11 @@ export function NavigationShell({ children }: NavigationShellProps) {
           </div>
 
           {/* Thread history */}
-          <div className="flex-1 overflow-hidden">
-            <ThreadHistory />
+          <div className="flex-1 overflow-hidden px-4">
+            <ThreadHistoryList
+              compact
+              className="scrollbar-thin max-h-[calc(100dvh-24rem)] overflow-auto pb-6"
+            />
           </div>
         </SheetContent>
       </Sheet>
