@@ -1,17 +1,13 @@
 export const suggestedQueries = {
   Stocks: [
-    "Analyse Tata Motors",
-    "Compare TCS & INFY",
-    "What's the outlook for Reliance?",
-    "Should I invest in HDFC Bank?",
-    "Analyse the IT sector",
+    "Analyse ICICI Bank",
+    "Analyse the concall summary for TCS",
+    "Analyse FinSharpe Scores for DMART",
   ],
   "Mutual Funds": [
-    "Analyse Quant Smallcap Fund",
-    "Top 5 Flexicap Funds",
-    "Best ELSS funds for tax saving",
-    "Should I invest in index funds?",
-    "Analyse Parag Parikh Flexi Cap",
+    "Analyse Nippon smallcap fund",
+    "Tell me fund overlap for Kotak Flexicap and Quant Flexicap fund",
+    "Tell me top ranked funds according to FinSharpe for each category",
   ],
   "Personal Finance": [
     "Help me buy health insurance",
@@ -22,4 +18,8 @@ export const suggestedQueries = {
   ],
 };
 
-export const suggestedQueriesCategories = ["Stocks", "Mutual Funds", "Personal Finance"];
+export const suggestedQueriesCategories = [
+  "Stocks",
+  "Mutual Funds",
+  "Personal Finance",
+];
