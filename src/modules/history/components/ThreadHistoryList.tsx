@@ -10,15 +10,18 @@ import {
 } from "date-fns";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { getThreadInfo } from "../utils/threadUtils";
 import ThreadGroupSection from "./ThreadGroupSection";
 import ThreadHistoryLoading from "./ThreadHistoryLoading";
-import { getThreadInfo } from "../utils/threadUtils";
-import { useBookmarkedThreads } from "../hooks/useBookmarkedThreads";
-import BookmarkedChatsSlider from "./BookmarkedChatsSlider";
 
-export default function ThreadHistoryList() {
+export default function ThreadHistoryList({
+  compact = false,
+  className,
+}: {
+  compact?: boolean;
+  className?: string;
+}) {
   const { data: threads, isLoading } = useThreadsQuery();
-  const { bookmarkedThreads } = useBookmarkedThreads();
   const [searchQuery, setSearchQuery] = useState("");
 
   if (isLoading) {
@@ -72,10 +75,7 @@ export default function ThreadHistoryList() {
   });
 
   return (
-    <div className="min-w-0 space-y-6">
-      {/* Bookmarked Chats Slider */}
-      <BookmarkedChatsSlider threads={bookmarkedThreads} />
-
+    <div className="space-y-6">
       {/* Search */}
       <div className="relative">
         <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
@@ -92,28 +92,33 @@ export default function ThreadHistoryList() {
           No threads found matching "{searchQuery}".
         </div>
       ) : (
-        <>
+        <div className={className}>
           <ThreadGroupSection
             title="Today"
             threads={groups.Today}
+            compact={compact}
           />
           <ThreadGroupSection
             title="Yesterday"
             threads={groups.Yesterday}
+            compact={compact}
           />
           <ThreadGroupSection
             title="This Week"
             threads={groups["This Week"]}
+            compact={compact}
           />
           <ThreadGroupSection
             title="This Month"
             threads={groups["This Month"]}
+            compact={compact}
           />
           <ThreadGroupSection
             title="Older"
             threads={groups.Older}
+            compact={compact}
           />
-        </>
+        </div>
       )}
     </div>
   );

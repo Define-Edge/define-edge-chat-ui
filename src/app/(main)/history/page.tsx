@@ -3,6 +3,7 @@
 import { CollapsibleInstructions } from "@/modules/core/common/ui/CollapsibleInstructions";
 import { Database } from "lucide-react";
 import ThreadHistoryList from "@/modules/history/components/ThreadHistoryList";
+import BookmarkedChatsSlider from "@/modules/history/components/BookmarkedChatsSlider";
 
 export default function page() {
   return (
@@ -27,6 +28,10 @@ export default function page() {
       />
 
       <div className="mt-8">
+        <div className="space-y-6">
+          {/* Bookmarked Chats Slider */}
+          <BookmarkedChatsSlider />
+        </div>
         <ThreadHistoryList />
       </div>
     </div>
