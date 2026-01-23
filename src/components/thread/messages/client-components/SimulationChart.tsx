@@ -172,8 +172,6 @@ const SimulationChart = React.memo(
     const [hoveredLegendKey, setHoveredLegendKey] = React.useState<
       string | null
     >(null);
-    console.log(data);
-
     return (
       <div className="mx-auto grid w-full max-w-3xl grid-rows-[1fr_auto] gap-2">
         <div className="overflow-hidden rounded-lg border border-gray-100">

@@ -13,11 +13,13 @@ import {
 } from "@/components/ui/select";
 import { PlannerModels } from "@/configs/models";
 import { useFileUpload } from "@/hooks/use-file-upload";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
 import { cn } from "@/lib/utils";
+import SuggestedQueries from "@/modules/chat/components/SuggestedQueries";
 import { useStreamContext } from "@/providers/Stream";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { startCase } from "lodash";
@@ -28,6 +30,7 @@ import {
   Plus,
   XIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -44,8 +47,6 @@ import {
 } from "./artifact";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
-import Image from "next/image";
-import SuggestedQueries from "@/modules/chat/components/SuggestedQueries";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -122,6 +123,7 @@ function getModelDisplayName(modelKey: string): string {
 export function Thread() {
   const [artifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
+  const isMobile = useIsMobile();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
   const [input, setInput] = useState("");
@@ -282,7 +284,7 @@ export function Thread() {
     <div
       className={cn(
         "grid h-full w-full grid-cols-[1fr_0fr] transition-all duration-500",
-        artifactOpen && "grid-cols-[3fr_2fr]",
+        artifactOpen && !isMobile && "grid-cols-[3fr_2fr]",
       )}
     >
       <div
@@ -540,7 +542,7 @@ export function Thread() {
           />
         </StickToBottom>
       </div>
-      {artifactOpen && (
+      {artifactOpen && !isMobile && (
         <div className="relative flex flex-col border-l">
           <div className="absolute inset-0 flex min-w-[30vw] flex-col">
             <div className="grid grid-cols-[1fr_auto] border-b p-4">
