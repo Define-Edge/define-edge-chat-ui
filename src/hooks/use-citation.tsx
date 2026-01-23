@@ -1,9 +1,17 @@
 "use client";
 
-import { createContext, useContext, useCallback, ReactNode } from "react";
 import { useArtifact } from "@/components/thread/artifact";
-import { CitationData } from "@/types/citation";
 import { PDFViewer } from "@/components/thread/pdf-viewer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { CitationData } from "@/types/citation";
+import { XIcon } from "lucide-react";
+import { createContext, ReactNode, useCallback, useContext } from "react";
 
 interface CitationContextType {
   openCitation: (data: CitationData) => void;
@@ -19,17 +27,15 @@ const CitationContext = createContext<CitationContextType | null>(null);
  * Should be placed at the message level
  */
 export function CitationProvider({ children }: { children: ReactNode }) {
+  const isMobile = useIsMobile();
   const [ArtifactContent, { open, setOpen, context, setContext }] = useArtifact();
 
   const openCitation = useCallback(
     (data: CitationData) => {
-      // Set the citation context
       setContext({
         type: "citation",
         citation: data,
       });
-
-      // Open the artifact
       setOpen(true);
     },
     [setContext, setOpen],
@@ -60,8 +66,41 @@ export function CitationProvider({ children }: { children: ReactNode }) {
   return (
     <CitationContext.Provider value={value}>
       {children}
-      {/* Render ArtifactContent here with citation data */}
-      {citation && (
+
+      {/* Mobile: Dialog modal */}
+      {isMobile && citation && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            className="flex max-h-[90vh] max-w-[95vw] flex-col overflow-hidden p-0"
+            showCloseButton={false}
+          >
+            <DialogHeader className="grid grid-cols-[1fr_auto] items-center border-b p-4">
+              <DialogTitle className="truncate">
+                {citation.ticker} - {citation.category}
+              </DialogTitle>
+              <button
+                onClick={() => setOpen(false)}
+                className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <XIcon className="size-5" />
+                <span className="sr-only">Close</span>
+              </button>
+            </DialogHeader>
+            <div className="flex-1 overflow-auto">
+              <PDFViewer
+                filename={citation.filename}
+                initialPage={citation.page}
+                initialScale={0.5}
+                bbox={citation.bbox}
+                headings={citation.headings}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Desktop: Artifact panel */}
+      {!isMobile && citation && (
         <ArtifactContent title={`${citation.ticker} - ${citation.category}`}>
           <PDFViewer
             filename={citation.filename}
@@ -79,6 +118,7 @@ export function CitationProvider({ children }: { children: ReactNode }) {
  * Hook to access citation controls
  * Must be used within CitationProvider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCitation() {
   const context = useContext(CitationContext);
   if (!context) {

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 interface PDFViewerProps {
   filename: string;
   initialPage?: number;
+  initialScale?: number;
   bbox?: BboxCoordinates;
   headings?: string[];
 }
@@ -42,10 +43,10 @@ function convertBboxCoordinates(
   };
 }
 
-export function PDFViewer({ filename, initialPage = 1, bbox, headings }: PDFViewerProps) {
+export function PDFViewer({ filename, initialPage = 1, initialScale = 1.0, bbox, headings }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(initialPage);
-  const [scale, setScale] = useState<number>(1.0);
+  const [scale, setScale] = useState<number>(initialScale);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [pdfDoc, setPdfDoc] = useState<any>(null);

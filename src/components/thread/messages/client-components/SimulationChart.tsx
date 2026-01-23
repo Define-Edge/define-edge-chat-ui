@@ -152,6 +152,14 @@ const CustomizedLegend = ({
   );
 };
 
+// Lines to hide from the chart (only show Mean, Median, 25th/75th Percentile, and Simulations)
+const HIDDEN_LINES = [
+  "10th Percentile",
+  "Best Final",
+  "90th Percentile",
+  "Worst Final",
+];
+
 const SimulationChart = React.memo(
   function SimulationChart({
     data,
@@ -165,7 +173,7 @@ const SimulationChart = React.memo(
       string | null
     >(null);
     return (
-      <div className="mx-auto grid w-full grid-rows-[1fr_auto] gap-2 max-w-3xl">
+      <div className="mx-auto grid w-full max-w-3xl grid-rows-[1fr_auto] gap-2">
         <div className="overflow-hidden rounded-lg border border-gray-100">
           {/* Title */}
           <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
@@ -417,7 +425,9 @@ const SimulationChart = React.memo(
                   payload={
                     Array.isArray(data) && data.length > 0
                       ? Object.keys(data[0])
-                          .filter((k) => k !== "date")
+                          .filter(
+                            (k) => k !== "date" && !HIDDEN_LINES.includes(k),
+                          )
                           .map((key) => ({
                             value: key,
                             dataKey: key,
@@ -483,7 +493,9 @@ const SimulationChart = React.memo(
                       data.length > 0 &&
                       typeof data[0] === "object" &&
                       Object.keys(data[0])
-                        .filter((k) => k !== "date")
+                        .filter(
+                          (k) => k !== "date" && !HIDDEN_LINES.includes(k),
+                        )
                         .map((key) => {
                           const isDimmed =
                             hoveredLegendKey !== null &&
@@ -555,37 +567,24 @@ const SimulationChart = React.memo(
               <div className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] leading-none text-gray-600">
                 Report
               </div>
-              {[
-                "Best Final",
-                "Worst Final",
-                "Median",
-                "90th Percentile",
-                "75th Percentile",
-                "25th Percentile",
-                "10th Percentile",
-              ].map((key) =>
-                report[key] !== undefined ? (
-                  <MetricPill
-                    key={key}
-                    icon={
-                      key === "Best Final"
-                        ? "🏆"
-                        : key === "Worst Final"
-                          ? "⚠"
-                          : key === "Median"
-                            ? "⎯"
-                            : key === "90th Percentile"
-                              ? "P90"
-                              : key === "75th Percentile"
-                                ? "P75"
-                                : key === "25th Percentile"
-                                  ? "P25"
-                                  : "P10"
-                    }
-                    label={key}
-                    value={formatINR(report[key] as number)}
-                  />
-                ) : null,
+              {["Median", "75th Percentile", "25th Percentile"].map(
+                (key) =>
+                  report[key] !== undefined ? (
+                    <MetricPill
+                      key={key}
+                      icon={
+                        key === "Median" || key === "Mean"
+                          ? "⎯"
+                          : key === "75th Percentile"
+                            ? "P75"
+                            : key === "25th Percentile"
+                              ? "P25"
+                              : "-"
+                      }
+                      label={key}
+                      value={formatINR(report[key] as number)}
+                    />
+                  ) : null,
               )}
             </div>
           )}
