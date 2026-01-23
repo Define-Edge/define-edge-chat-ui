@@ -343,6 +343,20 @@ export function Thread() {
                   />
                 )}
                 {isLoading && <AssistantMessageLoading />}
+                {stream.error && !isLoading && (
+                  <div className="w-full rounded-lg border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm font-medium text-red-800">
+                      An error occurred
+                    </p>
+                    {typeof stream.error === "string" ? (
+                      <p className="mt-1 text-sm text-red-600">{stream.error}</p>
+                    ) : (
+                      <pre className="mt-1 overflow-auto rounded bg-red-100 p-2 text-xs text-red-600">
+                        {JSON.stringify(stream.error, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                )}
               </>
             }
             footer={
