@@ -96,7 +96,7 @@ export default function ThreadHistory() {
             <span>Chat History</span>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="scrollbar-thin max-h-[calc(100vh-300px)] overflow-y-auto pb-2">
+        <AccordionContent className="scrollbar-thin max-h-[calc(100dvh-300px)] overflow-y-auto pb-2">
           {threadsLoading ? (
             <ThreadHistoryLoading />
           ) : (
