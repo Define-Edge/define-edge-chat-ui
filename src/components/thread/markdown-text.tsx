@@ -366,6 +366,9 @@ const defaultComponents: any = {
       </summary>
     );
   },
+  // Disable strikethrough formatting - tildes in financial data (e.g., ~1.2%, ~+2.1%)
+  // can accidentally be paired as strikethrough delimiters
+  del: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 };
 
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
