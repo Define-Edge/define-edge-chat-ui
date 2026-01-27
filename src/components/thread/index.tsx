@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { PlannerModels } from "@/configs/models";
 import { useFileUpload } from "@/hooks/use-file-upload";
+import useDetectKeyboardOpen from "@/hooks/useDetectKeyboardOpen";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   DO_NOT_RENDER_ID_PREFIX,
@@ -124,6 +125,7 @@ export function Thread() {
   const [artifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
   const isMobile = useIsMobile();
+  const isKeyboardOpen = useDetectKeyboardOpen();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
   const [input, setInput] = useState("");
@@ -297,10 +299,13 @@ export function Thread() {
           <StickyToBottomContent
             className={cn(
               "scrollbar-thin absolute inset-0 overflow-y-auto",
-              !chatStarted && "mt-6 flex flex-col items-stretch",
-              chatStarted && "grid grid-rows-[1fr_auto]",
+              !chatStarted && !isKeyboardOpen && "mt-6 flex flex-col items-stretch",
+              (chatStarted || isKeyboardOpen) && "grid grid-rows-[1fr_auto]",
             )}
-            contentClassName="pt-8 pb-16 chat-container mx-auto flex flex-col gap-4 w-full"
+            contentClassName={cn(
+              "chat-container mx-auto flex flex-col gap-4 w-full",
+              isKeyboardOpen ? "pb-4 justify-end" : "pt-8 pb-16",
+            )}
             content={
               <>
                 {!chatStarted && (
@@ -366,7 +371,8 @@ export function Thread() {
                 <div
                   ref={dropRef}
                   className={cn(
-                    "chat-container relative z-10 mx-auto mb-8 w-full rounded-2xl shadow-xs transition-all",
+                    "chat-container relative z-10 mx-auto w-full rounded-2xl shadow-xs transition-all",
+                    isKeyboardOpen ? "mb-2" : "mb-8",
                     dragOver
                       ? "border-primary border-2 border-dotted"
                       : "border border-solid",
@@ -384,6 +390,16 @@ export function Thread() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onPaste={handlePaste}
+                      onClick={(e) => {
+                        // On mobile, scroll the input into view when keyboard appears
+                        const target = e.target as HTMLTextAreaElement;
+                        setTimeout(() => {
+                          target.scrollIntoView({
+                            behavior: "instant",
+                            block: "center",
+                          });
+                        }, 300);
+                      }}
                       onKeyDown={(e) => {
                         if (
                           e.key === "Enter" &&
