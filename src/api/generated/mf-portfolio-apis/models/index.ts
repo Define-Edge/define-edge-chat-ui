@@ -10,6 +10,7 @@ export * from "./createMFPortfolioRequest";
 export * from "./createMFPortfolioResponse";
 export * from "./distributionItem";
 export * from "./fundCategory";
+export * from "./fundCategoryName";
 export * from "./hTTPValidationError";
 export * from "./mFCostAnalysis";
 export * from "./mFMissingHolding";

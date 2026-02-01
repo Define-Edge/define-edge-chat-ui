@@ -5,6 +5,7 @@
  * LangGraph-based multi-agent system for financial market analysis
  * OpenAPI spec version: 1.0.0
  */
+import type { FundCategoryName } from "./fundCategoryName";
 
 /**
  * Fund category configuration for portfolio creation.
@@ -14,7 +15,7 @@ and the percentage weight allocation for that category.
  */
 export interface FundCategory {
   /** SEBI category name (e.g., 'Equity: Large Cap', 'Debt: Short Duration') */
-  name: string;
+  name: FundCategoryName;
   /**
    * Percentage weight allocation for this category (must be > 0 and <= 100)
    * @maximum 100
