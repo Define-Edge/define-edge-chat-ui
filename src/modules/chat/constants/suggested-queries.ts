@@ -11,8 +11,6 @@ export const suggestedQueries = {
   ],
   "Personal Finance": [
     "Help me buy health insurance",
-    "Help me plan my finances",
-    "How much should I save monthly?",
     "Plan my retirement corpus",
     "How to reduce my tax liability?",
   ],
