@@ -1,7 +1,5 @@
 /**
  * Hook for fetching and transforming ETF data
- *
- * TODO: SET_TYPE - Verify data structure matches actual ETF API response
  */
 
 "use client";
@@ -15,6 +13,7 @@ import {
 import {
   extractETFsFromFiData,
   transformETFsToFormData,
+  extractCurrentValueFromFiData,
 } from "../utils/etf-transformer";
 
 /**
@@ -47,6 +46,12 @@ export function useEtfData(
     [etfs],
   );
 
+  // Extract total current value from all accounts (memoized)
+  const currentValue = useMemo(
+    () => extractCurrentValueFromFiData(etfData),
+    [etfData],
+  );
+
   return {
     /** Raw ETF holdings */
     etfs,
@@ -56,6 +61,8 @@ export function useEtfData(
     isLoading,
     /** Raw FI data response (ETF-specific type) */
     fiData: etfData,
+    /** Total current value of all ETF holdings */
+    currentValue,
   };
 }
 
@@ -64,4 +71,5 @@ export type UseEtfDataReturn = {
   formDefaultValues: ETFHoldingWithQuantity[];
   isLoading: boolean;
   fiData: ETFFiDataResponse | undefined;
+  currentValue: string | null;
 };

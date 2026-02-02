@@ -118,12 +118,12 @@ export type MutualFundHolding = BaseHolding & {
 };
 
 // ETF-specific holding fields
-// TODO: SET_TYPE - Update ETF fields based on actual FI data response structure
 export type ETFHolding = BaseHolding & {
-  etfUnits: string; // TODO: SET_TYPE - Verify field name from API response
-  etfName: string; // TODO: SET_TYPE - Verify field name from API response
-  etfPrice: string; // TODO: SET_TYPE - Verify field name from API response
-  isinDescription: string; // TODO: SET_TYPE - Add other ETF-specific fields as needed
+  nav: string;
+  units: string;
+  folioNo: string;
+  lastNavDate: string;
+  isinDescription: string;
 };
 
 // Generic Holding type based on ConsentType

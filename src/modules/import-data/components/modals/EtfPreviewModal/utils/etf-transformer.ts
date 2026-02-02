@@ -1,7 +1,5 @@
 /**
  * ETF-specific data transformations
- *
- * TODO: SET_TYPE - Update all transformations based on actual ETF FI data response
  */
 
 import {
@@ -13,7 +11,6 @@ import {
 
 /**
  * Extract all ETF holdings from FI data response
- * TODO: SET_TYPE - Verify structure matches actual ETF API response
  */
 export function extractETFsFromFiData(
   fiData: ETFFiDataResponse | undefined | null,
@@ -29,6 +26,31 @@ export function extractETFsFromFiData(
   });
 
   return allHoldings;
+}
+
+/**
+ * Extract total current value from FI data response
+ * Sums up currentValue from all accounts
+ */
+export function extractCurrentValueFromFiData(
+  fiData: ETFFiDataResponse | undefined | null,
+): string | null {
+  if (!fiData) return null;
+
+  let totalValue = 0;
+  let hasValue = false;
+
+  fiData.forEach((account) => {
+    if (account.Summary?.currentValue) {
+      const value = parseFloat(account.Summary.currentValue);
+      if (!isNaN(value)) {
+        totalValue += value;
+        hasValue = true;
+      }
+    }
+  });
+
+  return hasValue ? totalValue.toString() : null;
 }
 
 /**
@@ -65,14 +87,14 @@ export function transformFormDataToETFs(
 
 /**
  * Transform ETF holdings to markdown-ready format for import mutation
- * TODO: SET_TYPE - Update markdown format based on actual ETF data fields
  */
 export function transformETFsToMarkdownFormat(
   holdings: ETFHolding[],
 ): Record<string, string>[] {
   return holdings.map((holding) => ({
-    "ETF Name": holding.etfName || "", // TODO: SET_TYPE - Verify field name
+    "ETF Name": holding.isinDescription || "",
     "ISIN": holding.isin || "",
-    "Units": holding.etfUnits || "", // TODO: SET_TYPE - Verify field name
+    "Units": holding.units || "",
+    "NAV": holding.nav || "",
   }));
 }

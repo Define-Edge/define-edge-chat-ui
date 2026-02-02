@@ -1,8 +1,6 @@
 /**
  * ETF Preview Form Component
  * Manages form state for ETF holdings and renders UI components
- *
- * TODO: SET_TYPE - Update if ETF-specific UI components are needed
  */
 
 "use client";
@@ -27,6 +25,8 @@ type EtfPreviewFormProps = {
   isLoading: boolean;
   /** Whether import mutation is in progress */
   isImporting: boolean;
+  /** Total current value of ETF holdings */
+  currentValue: string | null;
   /** Callback when form is submitted */
   onSubmit: (modifiedFiData: ETFFiDataResponse) => void;
   /** Callback to close modal */
@@ -42,6 +42,7 @@ export function EtfPreviewForm({
   fiData,
   isLoading,
   isImporting,
+  currentValue,
   onSubmit,
   onClose,
 }: EtfPreviewFormProps) {
@@ -104,7 +105,7 @@ export function EtfPreviewForm({
 
         {!isLoading && (
           <>
-            {/* Search Bar - TODO: SET_TYPE - Implement ETF search when API is available */}
+            {/* Search Bar */}
             <HoldingsSearch
               consentType={ConsentType.ETF}
               onSelectResult={handleAddSearchResult}
@@ -114,6 +115,7 @@ export function EtfPreviewForm({
             <HoldingsSummaryCard
               totalHoldings={fields.length}
               assetType="ETF"
+              currentValue={currentValue}
             />
 
             {/* Holdings Table */}
