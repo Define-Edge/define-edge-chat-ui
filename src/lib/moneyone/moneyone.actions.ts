@@ -238,35 +238,69 @@ export const getConsentList = async (
   return null;
 };
 
-export const decryptUrl = async (values?: Record<string, string>) => {
+export type DecryptUrlResult =
+  | { success: true; data: DecryptedUrlData }
+  | { success: false; status: "rejected" | "failed"; data: DecryptedUrlData }
+  | { success: false; status: "error"; error: string };
+
+export type DecryptedUrlData = {
+  status: "S" | "F";
+  errorcode: string;
+  txnid: string;
+  sessionid: string;
+  srcref: string;
+  userid: string;
+  redirect: string;
+  email: string | null;
+  pan: string | null;
+};
+
+export const decryptUrl = async (
+  values?: Record<string, string>,
+): Promise<DecryptUrlResult> => {
   try {
     const validatedParams =
       webRedirectionDecryptionApiReqParamsSchema.safeParse(values);
-    if (validatedParams.success) {
-      const url = `${process.env.MONEY_ONE_BASE_URL}/webRedirection/decryptUrl`;
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...moneyOneAuthHeaders,
-        },
-        body: JSON.stringify({
-          webRedirectionURL: validatedParams.data,
-        }),
-      }).then((res) => res.json());
-
-      if (response?.status !== "success") throw response;
-
-      if (response?.data?.status === "S") {
-        if (process.env.NODE_ENV === "development")
-          console.log("---Decrypted data found from url", response?.data);
-        return response?.data;
-      }
+    if (!validatedParams.success) {
+      return { success: false, status: "error", error: "Invalid parameters" };
     }
+
+    const url = `${process.env.MONEY_ONE_BASE_URL}/webRedirection/decryptUrl`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...moneyOneAuthHeaders,
+      },
+      body: JSON.stringify({
+        webRedirectionURL: validatedParams.data,
+      }),
+    }).then((res) => res.json());
+
+    if (process.env.NODE_ENV === "development")
+      console.log("🚀 ~ decryptUrl ~ response:", response);
+
+    if (response?.status !== "success") throw response;
+
+    const data: DecryptedUrlData = response?.data;
+
+    if (data?.status === "S") {
+      if (process.env.NODE_ENV === "development")
+        console.log("---Decrypted data found from url", data);
+      return { success: true, data };
+    }
+
+    // Consent was rejected or failed (status === 'F')
+    if (process.env.NODE_ENV === "development")
+      console.log("---Consent rejected/failed:", data);
+
+    // errorcode '1' typically means user rejected the consent
+    const status = data?.errorcode === "1" ? "rejected" : "failed";
+    return { success: false, status, data };
   } catch (err) {
     console.error("---Error occurred while decrypting url data", err);
-    return null;
+    return { success: false, status: "error", error: "Failed to decrypt URL" };
   }
 };
 
