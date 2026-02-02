@@ -75,8 +75,7 @@ export function transformFormDataToHoldings(
 }
 
 /**
- * Transform search result (equity or mutual fund) to holding with quantity
- * TODO: SET_TYPE - Add ETF search result transformation when ETF search API is available
+ * Transform search result (equity, mutual fund, or ETF) to holding with quantity
  */
 export function transformSearchResultToHolding(
   result:
@@ -121,9 +120,22 @@ export function transformSearchResultToHolding(
       schemeOption: "",
       schemeCategory: "",
     } as MutualFundHolding & { quantity: number };
-  } else if (consentType === ConsentType.ETF) {
-    // TODO: SET_TYPE - Implement ETF search result transformation
-    throw new Error("ETF search result transformation not yet implemented");
+  } else if (consentType === ConsentType.ETF && "symbol" in result) {
+    // Add ETF (uses same search as equities)
+    return {
+      isinDescription: result.compname,
+      isin: result.symbol,
+      units: "0",
+      nav: "0",
+      folioNo: "",
+      lastNavDate: "",
+      quantity: 0,
+      ucc: "",
+      lienUnits: "0",
+      registrar: "",
+      FatcaStatus: "",
+      lockinUnits: "0",
+    } as ETFHolding & { quantity: number };
   }
 
   throw new Error("Invalid search result type");
@@ -131,7 +143,6 @@ export function transformSearchResultToHolding(
 
 /**
  * Transform holdings to markdown-ready format for import mutation
- * TODO: SET_TYPE - Add ETF markdown format when ETF structure is confirmed
  */
 export function transformHoldingsToMarkdownFormat(
   holdings: AnyHolding[],
@@ -154,12 +165,12 @@ export function transformHoldingsToMarkdownFormat(
         "Closing Units": mfHolding.closingUnits || "",
       } as Record<string, string>;
     } else if (consentType === ConsentType.ETF) {
-      // TODO: SET_TYPE - Add ETF-specific markdown format based on actual fields
       const etfHolding = holding as ETFHolding;
       return {
-        "ETF Name": etfHolding.etfName || "", // TODO: SET_TYPE - Verify field name
+        "ETF Name": etfHolding.isinDescription || "",
         ISIN: etfHolding.isin || "",
-        Units: etfHolding.etfUnits || "", // TODO: SET_TYPE - Verify field name
+        Units: etfHolding.units || "",
+        NAV: etfHolding.nav || "",
       } as Record<string, string>;
     }
 

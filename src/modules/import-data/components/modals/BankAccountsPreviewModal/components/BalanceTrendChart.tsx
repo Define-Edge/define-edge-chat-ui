@@ -141,7 +141,7 @@ export function BalanceTrendChart({
         <ResponsiveContainer width="100%" height={300}>
           <LineChart
             data={displayData}
-            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            margin={{ top: 5, right: 20, left: -15, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
             <XAxis

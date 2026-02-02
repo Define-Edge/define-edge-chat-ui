@@ -24,12 +24,11 @@ export const MUTUAL_FUND_COLUMNS = [
 
 /**
  * Column configurations for ETF holdings table
- * TODO: SET_TYPE - Update columns based on actual ETF FI data response structure
  */
 export const ETF_COLUMNS = [
-  { key: "etfName", label: "ETF Name", align: "left" as const }, // TODO: SET_TYPE - Verify field name
+  { key: "isinDescription", label: "ETF Name", align: "left" as const },
   { key: "isin", label: "ISIN", align: "left" as const },
-  { key: "quantity", label: "Units", align: "right" as const }, // TODO: SET_TYPE - Verify field name
+  { key: "quantity", label: "Units", align: "right" as const },
   { key: "action", label: "Action", align: "center" as const },
 ] as const;
 
@@ -46,12 +45,11 @@ export const BANK_ACCOUNT_COLUMNS = [
 
 /**
  * Mapping of consent types to quantity field names in Holding type
- * TODO: SET_TYPE - Update ETF quantity field based on actual FI data response
  */
 export const QUANTITY_FIELD_MAP = {
   [ConsentType.EQUITIES]: "units",
   [ConsentType.MUTUAL_FUNDS]: "closingUnits",
-  [ConsentType.ETF]: "etfUnits", // TODO: SET_TYPE - Verify correct field name from API response
+  [ConsentType.ETF]: "units",
   [ConsentType.BANK_ACCOUNTS]: "quantity", // Bank accounts always have quantity = 1
 } as const;
 
@@ -87,7 +85,7 @@ export function getHoldingName(
     case ConsentType.MUTUAL_FUNDS:
       return (holding as MutualFundHolding).isinDescription || (holding as MutualFundHolding).schemeTypes || "-";
     case ConsentType.ETF:
-      return (holding as ETFHolding).etfName || "-";
+      return (holding as ETFHolding).isinDescription || "-";
     case ConsentType.BANK_ACCOUNTS:
       return (holding as BankAccountWithFormData).displayBank || "-";
     default:

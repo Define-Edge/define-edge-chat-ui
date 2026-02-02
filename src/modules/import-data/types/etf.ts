@@ -1,8 +1,5 @@
 /**
  * ETF-specific types and constants
- *
- * TODO: SET_TYPE - Update all ETF fields based on actual FI data response structure
- * These are placeholder types until we receive the actual ETF API response format
  */
 
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
@@ -10,14 +7,13 @@ import { BaseHolding, BaseAccountType, ColumnConfig } from "./common";
 
 /**
  * ETF-specific holding type
- * TODO: SET_TYPE - Verify and update field names based on actual API response
  */
 export interface ETFHolding extends BaseHolding {
-  etfUnits: string; // TODO: SET_TYPE - Verify field name from API response
-  etfName: string; // TODO: SET_TYPE - Verify field name from API response
-  etfPrice: string; // TODO: SET_TYPE - Verify field name from API response
+  nav: string;
+  units: string;
+  folioNo: string;
+  lastNavDate: string;
   isinDescription: string;
-  // TODO: SET_TYPE - Add other ETF-specific fields as needed
 }
 
 /**
@@ -46,30 +42,28 @@ export interface ETFFormData {
 
 /**
  * ETF markdown format for chat import
- * TODO: SET_TYPE - Update columns based on actual ETF data structure
  */
 export interface ETFMarkdownFormat {
-  "ETF Name": string; // TODO: SET_TYPE - Verify field name
+  "ETF Name": string;
   "ISIN": string;
-  "Units": string; // TODO: SET_TYPE - Verify field name
+  "Units": string;
+  "NAV": string;
 }
 
 /**
  * Column configurations for ETF holdings table
- * TODO: SET_TYPE - Update columns based on actual ETF FI data response structure
  */
 export const ETF_COLUMNS: readonly ColumnConfig[] = [
-  { key: "etfName", label: "ETF Name", align: "left" }, // TODO: SET_TYPE - Verify field name
+  { key: "isinDescription", label: "ETF Name", align: "left" },
   { key: "isin", label: "ISIN", align: "left" },
-  { key: "quantity", label: "Units", align: "right" }, // TODO: SET_TYPE - Verify field name
+  { key: "quantity", label: "Units", align: "right" },
   { key: "action", label: "Action", align: "center" },
 ] as const;
 
 /**
  * Quantity field name for ETFs
- * TODO: SET_TYPE - Update based on actual field name from API response
  */
-export const ETF_QUANTITY_FIELD = "etfUnits" as const; // TODO: SET_TYPE - Verify correct field name
+export const ETF_QUANTITY_FIELD = "units" as const;
 
 /**
  * Consent type constant

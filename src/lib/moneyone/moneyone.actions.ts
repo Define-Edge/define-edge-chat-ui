@@ -14,7 +14,6 @@ import {
 } from "./moneyone.types";
 import { getErrMsgKey } from "./moneyone.utils";
 
-// TODO: SET_TYPE - Add MONEY_ONE_ETF_CONSENT_FORM environment variable
 const consentFormMap = {
   [ConsentType.EQUITIES]: process.env.MONEY_ONE_EQUITIES_CONSENT_FORM,
   [ConsentType.MUTUAL_FUNDS]: process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM,

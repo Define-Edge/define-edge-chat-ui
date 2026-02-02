@@ -1,8 +1,6 @@
 /**
  * ETF Preview Modal - Container Component
  * Handles modal state, data fetching, and submission for ETF holdings
- *
- * TODO: SET_TYPE - Verify all functionality once actual ETF API response is available
  */
 
 "use client";
@@ -35,7 +33,7 @@ export function EtfPreviewModal({ consent }: BaseAnalysisModalProps) {
   const importMutation = useImportEtfMutation();
 
   // Fetch and transform ETF data
-  const { formDefaultValues, isLoading, fiData } = useEtfData(
+  const { formDefaultValues, isLoading, fiData, currentValue } = useEtfData(
     consentID,
     !!isDataReady,
   );
@@ -81,6 +79,7 @@ export function EtfPreviewModal({ consent }: BaseAnalysisModalProps) {
           fiData={fiData}
           isLoading={isLoading}
           isImporting={importMutation.isPending}
+          currentValue={currentValue}
           onSubmit={handleSubmit}
           onClose={handleClose}
         />
