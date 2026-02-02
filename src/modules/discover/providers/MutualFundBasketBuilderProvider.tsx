@@ -105,7 +105,7 @@ export function MutualFundBasketBuilderProvider({
 
     // Add new category with default scheme count of 1
     const newCategory: FundCategory = {
-      name: categoryName,
+      name: categoryName as FundCategory["name"],
       percentage: equalPercentage,
       schemesCount: 1,
     };
