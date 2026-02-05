@@ -18,6 +18,12 @@ interface MFHoldingsTabProps {
  * Displays mutual fund holdings in a table with scheme names, categories, weights, and scores
  */
 export function MFHoldingsTab({ holdings }: MFHoldingsTabProps) {
+  // Check if all weights are null or zero - if so, display quantity instead
+  const allWeightsEmpty = holdings.every(
+    (h) => h.weight === null || h.weight === 0
+  );
+  const showQuantity = allWeightsEmpty;
+
   return (
     <div className="space-y-6 pb-28">
       <Card className="p-4">
@@ -32,7 +38,9 @@ export function MFHoldingsTab({ holdings }: MFHoldingsTabProps) {
                 <TableHead className="hidden md:table-cell text-left">
                   SEBI Category
                 </TableHead>
-                <TableHead className="text-right">Weight</TableHead>
+                <TableHead className="text-right">
+                  {showQuantity ? "Quantity" : "Weight"}
+                </TableHead>
                 <TableHead className="hidden md:table-cell text-right">
                   Performance
                 </TableHead>
@@ -58,7 +66,9 @@ export function MFHoldingsTab({ holdings }: MFHoldingsTabProps) {
                     {holding.Sebi_Category}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {holding.weight.toFixed(2)}%
+                    {showQuantity
+                      ? holding.quantity ?? "-"
+                      : `${holding.weight?.toFixed(2) ?? "-"}%`}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-right">
                     <ScoreBadge

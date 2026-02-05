@@ -14,9 +14,11 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AnalyzePortfolioArgs,
   CreateCustomPortfolioRequest,
   CreateCustomPortfolioResponse,
   HTTPValidationError,
+  PortfolioAnalytics,
 } from ".././models";
 
 /**
@@ -192,6 +194,162 @@ export const useCreateCustomPortfolioApiPortfoliosCreatePost = <
 > => {
   const mutationOptions =
     getCreateCustomPortfolioApiPortfoliosCreatePostMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Analyze a given portfolio.
+
+This endpoint analyzes an equity portfolio and returns comprehensive analytics
+including industry/size distribution, returns chart data, score metrics, and stats.
+
+Args:
+    request: Portfolio analysis arguments containing:
+        - items: List of PFItem with symbol and weight/quantity
+        - input_unit: WEIGHT or QUANTITY
+        - Optional date range params (start_date, end_date, duration)
+
+Returns:
+    PortfolioAnalytics with comprehensive portfolio metrics
+
+Raises:
+    HTTPException: 400 if validation fails, 500 for other errors
+
+Example:
+    POST /api/portfolios/analyze
+    {
+        "items": [
+            {"symbol": "RELIANCE", "weight": 25.0},
+            {"symbol": "TCS", "weight": 20.0},
+            {"symbol": "HDFCBANK", "weight": 15.0},
+            {"symbol": "INFY", "weight": 40.0}
+        ],
+        "input_unit": "weight"
+    }
+ * @summary Analyze Portfolio
+ */
+export type analyzePortfolioApiPortfoliosAnalyzePostResponse200 = {
+  data: PortfolioAnalytics;
+  status: 200;
+};
+
+export type analyzePortfolioApiPortfoliosAnalyzePostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type analyzePortfolioApiPortfoliosAnalyzePostResponseSuccess =
+  analyzePortfolioApiPortfoliosAnalyzePostResponse200 & {
+    headers: Headers;
+  };
+export type analyzePortfolioApiPortfoliosAnalyzePostResponseError =
+  analyzePortfolioApiPortfoliosAnalyzePostResponse422 & {
+    headers: Headers;
+  };
+
+export type analyzePortfolioApiPortfoliosAnalyzePostResponse =
+  | analyzePortfolioApiPortfoliosAnalyzePostResponseSuccess
+  | analyzePortfolioApiPortfoliosAnalyzePostResponseError;
+
+export const getAnalyzePortfolioApiPortfoliosAnalyzePostUrl = () => {
+  return `/api/utilities/portfolios/analyze`;
+};
+
+export const analyzePortfolioApiPortfoliosAnalyzePost = async (
+  analyzePortfolioArgs: AnalyzePortfolioArgs,
+  options?: RequestInit,
+): Promise<analyzePortfolioApiPortfoliosAnalyzePostResponse> => {
+  const res = await fetch(getAnalyzePortfolioApiPortfoliosAnalyzePostUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(analyzePortfolioArgs),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: analyzePortfolioApiPortfoliosAnalyzePostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as analyzePortfolioApiPortfoliosAnalyzePostResponse;
+};
+
+export const getAnalyzePortfolioApiPortfoliosAnalyzePostMutationOptions = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
+    TError,
+    { data: AnalyzePortfolioArgs },
+    TContext
+  >;
+  fetch?: RequestInit;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
+  TError,
+  { data: AnalyzePortfolioArgs },
+  TContext
+> => {
+  const mutationKey = ["analyzePortfolioApiPortfoliosAnalyzePost"];
+  const { mutation: mutationOptions, fetch: fetchOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, fetch: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
+    { data: AnalyzePortfolioArgs }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return analyzePortfolioApiPortfoliosAnalyzePost(data, fetchOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AnalyzePortfolioApiPortfoliosAnalyzePostMutationResult =
+  NonNullable<
+    Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>
+  >;
+export type AnalyzePortfolioApiPortfoliosAnalyzePostMutationBody =
+  AnalyzePortfolioArgs;
+export type AnalyzePortfolioApiPortfoliosAnalyzePostMutationError =
+  HTTPValidationError;
+
+/**
+ * @summary Analyze Portfolio
+ */
+export const useAnalyzePortfolioApiPortfoliosAnalyzePost = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
+      TError,
+      { data: AnalyzePortfolioArgs },
+      TContext
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
+  TError,
+  { data: AnalyzePortfolioArgs },
+  TContext
+> => {
+  const mutationOptions =
+    getAnalyzePortfolioApiPortfoliosAnalyzePostMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

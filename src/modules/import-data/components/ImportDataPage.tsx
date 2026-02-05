@@ -103,6 +103,15 @@ export function ImportDataPage() {
               AnalysisModal={MutualFundsPreviewModal}
             />
 
+            {/* Bank Accounts - MoneyOne */}
+            <MoneyOneHoldingsCard
+              consentType={ConsentType.BANK_ACCOUNTS}
+              icon={CreditCard}
+              title="Bank Accounts"
+              description="Import savings, current account statements and transactions"
+              AnalysisModal={BankAccountsPreviewModal}
+            />
+
             {/* ETF Holdings - MoneyOne */}
             <MoneyOneHoldingsCard
               consentType={ConsentType.ETF}
@@ -153,15 +162,6 @@ export function ImportDataPage() {
                   onCancel={() => {}}
                 />
               }
-            />
-
-            {/* Bank Accounts - MoneyOne */}
-            <MoneyOneHoldingsCard
-              consentType={ConsentType.BANK_ACCOUNTS}
-              icon={CreditCard}
-              title="Bank Accounts"
-              description="Import savings, current account statements and transactions"
-              AnalysisModal={BankAccountsPreviewModal}
             />
 
             {/* Real Estate - Manual */}

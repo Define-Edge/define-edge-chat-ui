@@ -30,7 +30,7 @@ export function useHoldingsForm(
   defaultValues: HoldingWithQuantity[],
   consentType: ConsentType,
 ) {
-  const { control, handleSubmit, reset } = useForm<HoldingFormData>({
+  const { control, handleSubmit, reset, getValues } = useForm<HoldingFormData>({
     defaultValues: {
       holdings: defaultValues,
     },
@@ -86,5 +86,7 @@ export function useHoldingsForm(
     handleRemoveHolding,
     /** Reset form to default values */
     reset,
+    /** Get current form values */
+    getValues,
   };
 }
