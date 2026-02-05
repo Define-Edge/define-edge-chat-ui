@@ -27,6 +27,8 @@ export interface CustomScannerApprovalInterrupt {
   instructions: {
     approve: string;
     modify: string;
+    relax_criteria?: string;
+    edit_query?: string;
   };
 }
 
@@ -38,6 +40,7 @@ export interface SavedScannerApprovalInterrupt {
     approve: string;
     modify: string;
     cancel: string;
+    relax_criteria?: string;
   };
 }
 
