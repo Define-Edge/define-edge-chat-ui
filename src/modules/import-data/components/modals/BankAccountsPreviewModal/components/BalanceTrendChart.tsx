@@ -162,8 +162,8 @@ export function BalanceTrendChart({
               dataKey="balance"
               stroke="#2563eb"
               strokeWidth={2}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
+              dot={false}
+              activeDot={{ r: 6 }}
               name="Balance"
             />
           </LineChart>
