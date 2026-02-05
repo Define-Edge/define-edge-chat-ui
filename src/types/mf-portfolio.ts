@@ -13,7 +13,8 @@ export interface MFPortfolioItem {
   Scheme_Name: string;
   Sebi_Category: string;
   Investment_Type: string;
-  weight: number;
+  weight: number | null;
+  quantity?: number | null;
   // Performance returns
   oneM_per: number;
   threeM_per: number;
