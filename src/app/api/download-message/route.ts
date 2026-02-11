@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     analysisId,
     analysisType = "stock_analysis",
     selectedSections,
-    personalComment
+    personalComment,
   } = await request.json();
   if (!threadId || !analysisId) {
     return new NextResponse("Please provide a threadId and analysisId.", {
@@ -24,19 +24,25 @@ export async function POST(request: NextRequest) {
     "http://localhost:3000";
 
   // Determine report route based on analysis type
-  const reportPath = analysisType === "mf_analysis"
-    ? "mf-analysis-report"
-    : "stock-analysis-report";
+  let reportPath: string;
+  if (analysisType === "mf_analysis") {
+    reportPath = "mf-analysis-report";
+  } else if (analysisType === "pf_analysis") {
+    reportPath = "pf-analysis-report";
+  } else {
+    reportPath = "stock-analysis-report";
+  }
 
-  const gotoRoute = new URL(
-    `${origin}/api/download-message/${reportPath}`,
-  );
+  const gotoRoute = new URL(`${origin}/api/download-message/${reportPath}`);
   gotoRoute.searchParams.set("threadId", threadId);
   gotoRoute.searchParams.set("analysisId", analysisId);
 
   // Pass selected sections and personal comment to the report page
   if (selectedSections && Array.isArray(selectedSections)) {
-    gotoRoute.searchParams.set("selectedSections", JSON.stringify(selectedSections));
+    gotoRoute.searchParams.set(
+      "selectedSections",
+      JSON.stringify(selectedSections),
+    );
   }
   if (personalComment) {
     gotoRoute.searchParams.set("personalComment", personalComment);
@@ -49,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Launch browser
     browser = await puppeteer.launch(launchOptions);
-    
+
     const page = await browser.newPage();
 
     // Use a consistent viewport to avoid reflow when printing to PDF
@@ -65,7 +71,7 @@ export async function POST(request: NextRequest) {
       await Promise.race([
         page.evaluate(() => (window as any).document.fonts?.ready),
         new Promise((resolve) =>
-          setTimeout(resolve, PUPPETEER_TIMEOUTS.FONT_READY)
+          setTimeout(resolve, PUPPETEER_TIMEOUTS.FONT_READY),
         ),
       ]);
     } catch (err) {
@@ -78,7 +84,7 @@ export async function POST(request: NextRequest) {
       const html = document.documentElement;
 
       // Also check the main element's height
-      const main = document.querySelector('main');
+      const main = document.querySelector("main");
       const mainHeight = main?.scrollHeight || 0;
 
       return {
@@ -99,14 +105,19 @@ export async function POST(request: NextRequest) {
       heightMetrics.htmlOffsetHeight,
       heightMetrics.mainHeight,
     );
-    const pdfBuffer = await page.pdf({
+
+    const pdfOptions = {
       printBackground: true,
-      margin: { top: "0", right: "0", bottom: "0", left: "0" },
-      width: "756px",
-      height: `${fullHeight}px`,
-      // height: "1123px",
+      ...(reportPath === "pf-analysis-report"
+        ? { format: "A4" }
+        : {
+            margin: { top: "0", right: "0", bottom: "0", left: "0" },
+            width: "756px",
+            height: `${fullHeight}px`,
+          }),
       scale: 1,
-    });
+    };
+    const pdfBuffer = await page.pdf(pdfOptions);
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",

@@ -74,7 +74,7 @@ module.exports = {
           "border-top-right-radius": "0.375rem" /* 6px */,
         },
         ".summary-container": {
-          "white-space": "pre-line",
+          // "white-space": "pre-line",
           "h1, h2, h3, h4": {
             color: "rgba(6,59,170,1)",
             "font-size": "1.25rem",

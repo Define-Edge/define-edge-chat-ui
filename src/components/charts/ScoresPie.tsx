@@ -1,3 +1,5 @@
+"use client";
+
 import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts";
 
 type Props = {

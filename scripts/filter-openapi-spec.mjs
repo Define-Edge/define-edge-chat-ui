@@ -25,6 +25,11 @@ const API_GROUPS = [
     tags: ["MF Portfolio APIs"],
     outputPath: path.join(__dirname, "../openapi-mf-portfolio.json"),
   },
+  {
+    name: "Report APIs",
+    tags: ["Report APIs"],
+    outputPath: path.join(__dirname, "../openapi-report.json"),
+  },
 ];
 
 async function fetchOpenAPISpec() {
