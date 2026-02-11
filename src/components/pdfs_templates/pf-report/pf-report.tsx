@@ -4,6 +4,8 @@ import {
   Section,
   PfAnalysis,
   PFFinSharpeAnalysisData,
+  ChartData,
+  DrawdownChartData,
 } from "@/types/pf-analysis";
 import PfWelcome from "./PfWelcome";
 import { SectionFormatter } from "@/lib/section-formatter";
@@ -13,7 +15,6 @@ import {
   getPortfolioDisplayTable,
 } from "@/lib/format-utils";
 import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
-import ScoresPie from "@/components/charts/ScoresPie";
 import DrawdownChart from "@/components/thread/messages/client-components/DrawdownChart";
 import LineChart from "@/components/thread/messages/client-components/LineChart";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -60,6 +61,11 @@ export default function PfAnalysisReportMessageComponent({
   personalComment?: string;
 }) {
   const { data } = analysis;
+  const returnsChart = data.returns_chart as ChartData | null | undefined;
+  const drawdownChart = data.drawdown_chart as
+    | DrawdownChartData
+    | null
+    | undefined;
 
   // Helper function to check if a section should be rendered
   const shouldRenderSection = (sectionKey: string) => {
@@ -79,13 +85,15 @@ export default function PfAnalysisReportMessageComponent({
           label="Overall score"
           data={data.finsharpe_analysis?.overall_score_chart_data || []}
           desc={
-            "Overall score is a composite metric that evaluates the portfolio's performance across multiple dimensions, including returns, risk, and diversification. A higher overall score indicates a more robust and well-performing portfolio based on the FinSharpe analysis."
+            data.finsharpe_analysis?.overall_score_summary ||
+            "Overall score is a comprehensive metric that evaluates the overall health and performance of your portfolio based on various factors such as returns, risk, diversification, and other key indicators. A higher overall score indicates a stronger portfolio, while a lower score may suggest areas for improvement."
           }
         />
         <ScoreCard
           label="Risk score"
           data={data.finsharpe_analysis?.risk_score_chart_data || []}
           desc={
+            data.finsharpe_analysis?.risk_score_summary ||
             "Risk score is a measure of the portfolio's exposure to potential losses. A lower risk score indicates a more conservative portfolio with less volatility, while a higher risk score suggests a more aggressive portfolio with higher potential returns but also higher risk."
           }
         />
@@ -107,13 +115,13 @@ export default function PfAnalysisReportMessageComponent({
           >
             <div className="break-inside-avoid">
               <FormatSection section={data.performance_analysis} />
-              {data.returns_chart && (
+              {returnsChart && (
                 <div className="mt-6">
                   <LineChart
-                    data={data.returns_chart.data}
-                    colors={data.returns_chart.colors}
-                    title={data.returns_chart.title}
-                    description={data.returns_chart.description}
+                    data={returnsChart.data}
+                    colors={returnsChart.colors}
+                    title={returnsChart.title}
+                    description={returnsChart.description}
                   />
                 </div>
               )}
@@ -131,7 +139,7 @@ export default function PfAnalysisReportMessageComponent({
           pgNo={1}
         />
       )}
-      
+
       {/* Recommendation */}
       {shouldRenderSection("recommendation") && (
         <PageLayout pgNo={1}>
@@ -173,11 +181,11 @@ export default function PfAnalysisReportMessageComponent({
             <FormatSection section={data.drawdown_analysis} />
           </PageLayout>
           <PageLayout pgNo={1}>
-            {data.drawdown_chart && (
+            {drawdownChart && (
               <div className="mt-6">
                 <DrawdownChart
-                  data={data.drawdown_chart}
-                  returnsData={data.returns_chart?.data}
+                  data={drawdownChart}
+                  returnsData={returnsChart?.data}
                 />
               </div>
             )}

@@ -1,6 +1,4 @@
-type Props = {};
-
-export default function DoubleQuotesIcon({}: Props) {
+export default function DoubleQuotesIcon() {
   return (
     <div className="flex items-end w-[88px] h-16 rounded-sm bg-gradient-to-r from-primary-main-dark to-secondary">
       <div className="triangle" />

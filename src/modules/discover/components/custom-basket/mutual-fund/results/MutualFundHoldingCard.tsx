@@ -24,7 +24,7 @@ export function MutualFundHoldingCard({ fund }: MutualFundHoldingCardProps) {
               {fund.Scheme_Name}
             </span>
             <Badge variant="secondary" className="text-xs shrink-0">
-              {fund.weight.toFixed(1)}%
+              {(fund.weight ?? 0).toFixed(1)}%
             </Badge>
           </div>
           <div className="text-xs text-text-secondary truncate">
@@ -53,7 +53,7 @@ export function MutualFundHoldingCard({ fund }: MutualFundHoldingCardProps) {
       <div className="w-full bg-bg-subtle rounded-full h-1">
         <div
           className="bg-accent-green h-1 rounded-full"
-          style={{ width: `${fund.weight}%` }}
+          style={{ width: `${fund.weight ?? 0}%` }}
         ></div>
       </div>
     </Card>

@@ -55,7 +55,7 @@ export default async function PfAnalysisReportPage({ searchParams }: Props) {
           return (
             <PfAnalysisReportMessageComponent
               key={uiComponent.id}
-              analysis={uiComponent.props as PfAnalysis}
+              analysis={uiComponent.props as unknown as PfAnalysis}
               selectedSections={selectedSections}
               personalComment={personalComment}
             />

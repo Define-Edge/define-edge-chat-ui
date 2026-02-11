@@ -6,6 +6,8 @@ import {
   PfAnalysis,
   Section,
   PFFinSharpeAnalysisData,
+  ChartData,
+  DrawdownChartData,
 } from "@/types/pf-analysis";
 import { ArrowUp } from "lucide-react";
 import { useQueryState } from "nuqs";
@@ -43,6 +45,8 @@ const SIZE_COLORS: Record<string, string> = {
 export default function PfAnalysisComponent(analysis: PfAnalysis) {
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
+  const returnsChart = data.returns_chart as ChartData | null | undefined;
+  const drawdownChart = data.drawdown_chart as DrawdownChartData | null | undefined;
   const topRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -55,13 +59,13 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
 
       {/* 2. Performance Analysis + Returns Chart */}
       <FormatSection section={data.performance_analysis} />
-      {data.returns_chart && (
+      {returnsChart && (
         <div className="my-4">
           <LineChart
-            data={data.returns_chart.data}
-            colors={data.returns_chart.colors}
-            title={data.returns_chart.title}
-            description={data.returns_chart.description}
+            data={returnsChart.data}
+            colors={returnsChart.colors}
+            title={returnsChart.title}
+            description={returnsChart.description}
           />
         </div>
       )}
@@ -74,11 +78,11 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
 
       {/* 5. Drawdown Analysis + Drawdown Chart */}
       <FormatSection section={data.drawdown_analysis} />
-      {data.drawdown_chart && (
+      {drawdownChart && (
         <div className="my-4">
           <DrawdownChart
-            data={data.drawdown_chart}
-            returnsData={data.returns_chart?.data}
+            data={drawdownChart}
+            returnsData={returnsChart?.data}
           />
         </div>
       )}
@@ -172,7 +176,7 @@ function FormatSection({ section }: { section: Section }) {
 }
 
 function formatSources(
-  sources: string | string[] | Record<string, any> | undefined,
+  sources: string | string[] | Record<string, any> | null | undefined,
 ): string {
   if (!sources) {
     return "";
