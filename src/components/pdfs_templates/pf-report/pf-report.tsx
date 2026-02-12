@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { MarkdownText } from "@/components/thread/markdown-text";
 import {
   Section,
@@ -9,12 +10,9 @@ import {
 } from "@/types/pf-analysis";
 import PfWelcome from "./PfWelcome";
 import { SectionFormatter } from "@/lib/section-formatter";
-import {
-  chunkArray,
-  formatKey,
-  getPortfolioDisplayTable,
-} from "@/lib/format-utils";
+import { chunkArray, formatKey } from "@/lib/format-utils";
 import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
+import DataTable from "@/components/ui/data-table/DataTable";
 import DrawdownChart from "@/components/thread/messages/client-components/DrawdownChart";
 import LineChart from "@/components/thread/messages/client-components/LineChart";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -371,18 +369,84 @@ function PortfolioOverviewSection({
     return null;
   }
 
-  const portfolioTable = getPortfolioDisplayTable(portfolio);
+  const items = portfolio || [];
+  const firstItem = items[0] as Record<string, any> | undefined;
 
-  // First chunk: show section content + table; subsequent chunks: table only
-  const content = portfolioTable || "";
+  // Build columns dynamically based on available keys
+  const columns: {
+    Header: string;
+    accessor: (row: Record<string, any>) => React.ReactNode;
+    meta?: { column?: { align?: "left" | "center" | "right" } };
+  }[] = [];
 
-  const _section: Section = {
-    title: isFirstChunk ? section.title : "",
-    content,
-    sources: isFirstChunk ? convertToMarkdownTable(portfolio || []) : undefined,
-  };
+  // Symbol / Ticker column
+  const tickerKey = firstItem
+    ? "symbol" in firstItem
+      ? "symbol"
+      : "Ticker" in firstItem
+        ? "Ticker"
+        : null
+    : null;
+  if (tickerKey) {
+    columns.push({
+      Header: tickerKey === "symbol" ? "Symbol" : "Ticker",
+      accessor: (row) => row[tickerKey] ?? "",
+      meta: { column: { align: "left" } },
+    });
+  }
 
-  return <FormatSection section={_section} />;
+  // Weight column
+  columns.push({
+    Header: "Weight",
+    accessor: (row) =>
+      typeof row.weight === "number" ? `${row.weight.toFixed(2)}%` : row.weight,
+    meta: { column: { align: "right" } },
+  });
+
+  // Quantity column (if present)
+  if (firstItem && "quantity" in firstItem) {
+    columns.push({
+      Header: "Qty",
+      accessor: (row) => row.quantity,
+      meta: { column: { align: "right" } },
+    });
+  }
+
+  // FinSharpe score columns (if present)
+  const finsharpeScoreCols = [
+    { key: "FinSharpe_Overall_Score", header: "FinSharpe Overall" },
+    { key: "FinSharpe_Growth_Score", header: "FinSharpe Growth" },
+    { key: "FinSharpe_Performance_Score", header: "FinSharpe Perf." },
+    { key: "FinSharpe_Value_Score", header: "FinSharpe Value" },
+    { key: "FinSharpe_Risk_Score", header: "FinSharpe Risk" },
+  ] as const;
+
+  for (const { key, header } of finsharpeScoreCols) {
+    if (items.some((item) => key in item)) {
+      columns.push({
+        Header: header,
+        accessor: (row) =>
+          row[key] != null ? Number(row[key]).toFixed(1) : "N/A",
+        meta: { column: { align: "right" } },
+      });
+    }
+  }
+
+  // Section header with sources link (first chunk only)
+  const sectionForTitle: Section | null = isFirstChunk
+    ? {
+        title: section.title,
+        content: "",
+        sources: convertToMarkdownTable(items),
+      }
+    : null;
+
+  return (
+    <div className="space-y-4">
+      {sectionForTitle && <FormatSection section={sectionForTitle} />}
+      <DataTable columns={columns} data={items} />
+    </div>
+  );
 }
 
 function FormatSection({ section }: { section: Section }) {
