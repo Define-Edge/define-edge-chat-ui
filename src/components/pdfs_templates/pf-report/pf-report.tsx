@@ -36,6 +36,7 @@ import CorrelationHeatmap from "./CorrelationHeatmap";
 import type { CorrelationHeatmapRow } from "./CorrelationHeatmap";
 import FinancialFitness from "../layout/FinancialFitness";
 import Disclaimer from "../layout/Disclaimer";
+import AdvancedAnalysis from "../layout/AdvancedAnalysis";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -110,6 +111,7 @@ export default function PfAnalysisReportMessageComponent({
   if (shouldRenderSection("recommendation")) totalPages++; // Recommendation
   if (shouldRenderSection("portfolio_overview"))
     totalPages += pfItemsArr.length; // Portfolio Overview (multiple pages)
+  totalPages++; // Advanced Analysis intro
   if (shouldRenderSection("risk_assessment")) totalPages++; // Risk Assessment
   if (shouldRenderSection("drawdown_analysis") && drawdownChart)
     totalPages++; // Drawdown Analysis
@@ -247,6 +249,8 @@ export default function PfAnalysisReportMessageComponent({
             />
           </PageLayout>
         ))}
+
+      <AdvancedAnalysis pgNo={pgNum++} />
 
       {/* Risk Assessment */}
       {shouldRenderSection("risk_assessment") && (
