@@ -25,6 +25,7 @@ import ChartContainer from "../layout/ChartContainer";
 import BulbIcon from "@/components/icons/BulbIcon";
 import Actionables from "../layout/Actionables";
 import Summary from "../layout/Summary/Summary";
+import RecommendationContainer from "../layout/RecommendationContainer";
 import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
 import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
 import StockWiseAllocationPie from "./StockWiseAllocation";
@@ -193,7 +194,9 @@ export default function PfAnalysisReportMessageComponent({
       {/* Recommendation */}
       {shouldRenderSection("recommendation") && (
         <PageLayout pgNo={1}>
-          <FormatSection section={data.recommendation} />
+          <div className="flex h-full flex-col">
+            <RecommendationSection section={data.recommendation} />
+          </div>
         </PageLayout>
       )}
 
@@ -688,6 +691,39 @@ function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
         <FinSharpeScoresRadarChart data={data.scores_comparison} />
       </div>
     </PageLayout>
+  );
+}
+
+function RecommendationSection({ section }: { section: Section }) {
+  if (!section) return null;
+
+  const formatter = new SectionFormatter(section);
+  const anchorId = formatter.getAnchorId();
+  const hasRefs = Boolean(section.in_depth_analysis || section.sources);
+
+  return (
+    <RecommendationContainer
+      header="Expert Recommendations"
+      subHeader="Clear Directed Actionable"
+      content={
+        <div className="space-y-3">
+          <div id={anchorId} />
+          {hasRefs && (
+            <div className="text-xs">
+              <a
+                className="text-primary font-medium underline underline-offset-4"
+                href={`#refs-${anchorId}`}
+              >
+                Sources & In-depth Analysis
+              </a>
+            </div>
+          )}
+          <div className="summary-container">
+            <MarkdownText>{section.content}</MarkdownText>
+          </div>
+        </div>
+      }
+    />
   );
 }
 
