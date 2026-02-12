@@ -415,6 +415,15 @@ function PortfolioOverviewSection({
     });
   }
 
+  // Action column (if present)
+  if (items.some((item) => "Action" in item)) {
+    columns.push({
+      Header: "Action",
+      accessor: (row) => row.Action ?? "",
+      meta: { column: { align: "left" } },
+    });
+  }
+
   // FinSharpe score columns (if present)
   const finsharpeScoreCols = [
     { key: "FinSharpe_Overall_Score", header: "FinSharpe Overall" },
