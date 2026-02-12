@@ -16,6 +16,8 @@ export interface PFFinSharpeAnalysisData {
   analysis: Section;
   overall_score_summary?: string;
   risk_score_summary?: string;
+  industry_allocation_summary?: string;
+  market_cap_allocation_summary?: string;
   overall_score_chart_data: ScoreChartDataItem[];
   risk_score_chart_data: ScoreChartDataItem[];
   size_distribution: DistributionItem[];

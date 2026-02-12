@@ -35,7 +35,7 @@ export default function ChartContainer({
             />
           </div>
         )}
-        <p className="h-auto text-xs">
+        <p className="h-auto">
           {desc}
           {context && (
             <>

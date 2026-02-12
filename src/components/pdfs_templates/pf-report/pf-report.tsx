@@ -501,6 +501,7 @@ function AllocationsPage({ data }: { data: PFFinSharpeAnalysisData }) {
             Icon={BulbIcon}
             containerClasses="mt-4"
             desc={
+              data.industry_allocation_summary ||
               "Industry allocation shows how your investments are distributed across different sectors. A well-diversified portfolio typically has allocations spread across multiple industries, which can help reduce risk and improve potential returns over time."
             }
             context="Having a well-diversified portfolio across industries helps mitigates concentration risk, i.e., the potential for loss when a group of securities move in an unfavorable direction."
@@ -569,6 +570,7 @@ function AllocationsPage({ data }: { data: PFFinSharpeAnalysisData }) {
             Icon={BulbIcon}
             containerClasses="mt-4"
             desc={
+              data.market_cap_allocation_summary ||
               "Market cap allocation shows how your investments are distributed across companies of different sizes (large-cap, mid-cap, small-cap). A balanced allocation across market caps can help optimize growth potential while managing risk."
             }
             context="Large-cap stocks are typically more stable but may offer lower growth, while small-cap stocks can offer higher growth potential but with increased volatility. A diversified allocation across market caps can help balance risk and return in your portfolio."
