@@ -1,0 +1,41 @@
+{
+  "cSpell.words": [
+    "Analyse",
+    "backface",
+    "Chatbox",
+    "ELSS",
+    "Flexi",
+    "Flexicap",
+    "HDFC",
+    "INFY",
+    "moneyone",
+    "oklch",
+    "Parag",
+    "Parikh",
+    "rgba",
+    "Smallcap"
+  ],
+  "tailwindCSS.rootFontSize": 14,
+  "tailwindCSS.experimental.configFile": "./src/app/globals.css",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#335970",
+    "activityBar.background": "#335970",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#2c1423",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#335970",
+    "statusBar.background": "#233d4d",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#335970",
+    "statusBarItem.remoteBackground": "#233d4d",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#233d4d",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#233d4d99",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#233D4D",
+  "editor.colorDecorators": true
+}
