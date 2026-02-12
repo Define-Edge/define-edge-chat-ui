@@ -23,17 +23,16 @@ type PfAnalysisSection = {
 };
 
 const PF_SECTIONS: PfAnalysisSection[] = [
-  { key: "portfolio_overview", label: "Portfolio Overview" },
-  { key: "performance_analysis", label: "Performance Analysis" },
-  { key: "risk_assessment", label: "Risk Assessment" },
-  { key: "risk_adjusted_returns", label: "Risk-Adjusted Returns" },
-  { key: "drawdown_analysis", label: "Drawdown Analysis" },
-  { key: "correlation_analysis", label: "Correlation Analysis" },
-  { key: "returns_chart", label: "Returns Chart" },
-  { key: "monthly_returns_heatmap", label: "Monthly Returns Heatmap" },
   { key: "finsharpe_analysis", label: "FinSharpe Analysis" },
+  { key: "performance_analysis", label: "Performance Analysis" },
+  { key: "monthly_returns_heatmap", label: "Monthly Returns Heatmap" },
   { key: "summary", label: "Summary" },
-  { key: "recommendation", label: "Recommendation" },
+  { key: "recommendation", label: "Expert Recommendations" },
+  { key: "portfolio_overview", label: "Portfolio Overview" },
+  { key: "risk_assessment", label: "Risk Assessment" },
+  { key: "drawdown_analysis", label: "Drawdown Analysis" },
+  { key: "risk_adjusted_returns", label: "Risk-Adjusted Returns" },
+  { key: "correlation_analysis", label: "Correlation Analysis" },
 ];
 
 interface PfAnalysisDownloadDialogProps {
