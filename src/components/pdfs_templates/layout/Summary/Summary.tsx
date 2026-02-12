@@ -1,6 +1,6 @@
 import { MarkdownText } from "@/components/thread/markdown-text";
 import PageLayout from "../../layout/PageLayout";
-import Fact from "../Fact";
+// import Fact from "../Fact";
 import SummaryContainer from "./SummaryContainer";
 
 type Props = {
@@ -21,14 +21,14 @@ export default function Summary({ summary, pgNo }: Props) {
             </MarkdownText>
           }
         />
-        <div className="mt-auto flex items-end justify-end">
+        {/* <div className="mt-auto flex items-end justify-end">
           <Fact
             header="The Stock Market is more than 400 years old"
             context="The idea of the stock market was started in the Netherlands in 1602. The
         Dutch East India Co. company started issuing paper shares. Shareholders
         could sell and buy these paper shares."
           />
-        </div>
+        </div> */}
       </div>
     </PageLayout>
   );

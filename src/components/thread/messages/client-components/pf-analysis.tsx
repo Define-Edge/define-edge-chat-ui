@@ -46,7 +46,10 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
   const returnsChart = data.returns_chart as ChartData | null | undefined;
-  const drawdownChart = data.drawdown_chart as DrawdownChartData | null | undefined;
+  const drawdownChart = data.drawdown_chart as
+    | DrawdownChartData
+    | null
+    | undefined;
   const topRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -80,10 +83,19 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       <FormatSection section={data.drawdown_analysis} />
       {drawdownChart && (
         <div className="my-4">
-          <DrawdownChart
-            data={drawdownChart}
-            returnsData={returnsChart?.data}
-          />
+          <div className="mx-auto grid min-w-[calc(100dvw-2rem)] grid-rows-[auto] gap-6 md:min-w-3xl">
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
+                <h3 className="font-medium text-gray-900">
+                  {drawdownChart.title}
+                </h3>
+              </div>
+              <DrawdownChart
+                data={drawdownChart}
+                returnsData={returnsChart?.data}
+              />
+            </div>
+          </div>
         </div>
       )}
 

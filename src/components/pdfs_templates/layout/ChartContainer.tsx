@@ -7,6 +7,7 @@ type Props = {
   context?: string;
   containerClasses?: string;
   Icon?: ElementType;
+  DescComp?: ElementType;
 };
 
 export default function ChartContainer({
@@ -15,18 +16,14 @@ export default function ChartContainer({
   Icon,
   context = "",
   containerClasses = "",
+  DescComp = "p",
 }: Props) {
   const IconElement = Icon || Fragment;
 
   return (
-    <div
-      className={cn(
-        "border-info rounded-md border-2",
-        containerClasses,
-      )}
-    >
-      <div className="pt-4">{children}</div>
-      <div className="flex gap-3 p-4 bg-info">
+    <div className={cn("border-info rounded-md border-2", containerClasses)}>
+      <div>{children}</div>
+      <div className="bg-info flex gap-3 p-4">
         {Icon && (
           <div className="min-w-8">
             <IconElement
@@ -35,7 +32,7 @@ export default function ChartContainer({
             />
           </div>
         )}
-        <p className="h-auto">
+        <DescComp className="h-auto">
           {desc}
           {context && (
             <>
@@ -43,7 +40,7 @@ export default function ChartContainer({
               <span className="text-[10px] leading-none italic">{context}</span>
             </>
           )}
-        </p>
+        </DescComp>
       </div>
     </div>
   );

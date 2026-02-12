@@ -32,6 +32,7 @@ import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
 import StockWiseAllocationPie from "./StockWiseAllocation";
 import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
 import FinSharpeScoresRadarChart from "./FinSharpeScoresRadarChart";
+import DrawdownIcon from "@/components/icons/DrawdownIcon";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -220,22 +221,14 @@ export default function PfAnalysisReportMessageComponent({
         </PageLayout>
       )}
       {/* 5. Drawdown Analysis */}
-      {shouldRenderSection("drawdown_analysis") && (
-        <div className="break-inside-avoid">
-          <PageLayout pgNo={1}>
-            <FormatSection section={data.drawdown_analysis} />
-          </PageLayout>
-          <PageLayout pgNo={1}>
-            {drawdownChart && (
-              <div className="mt-6">
-                <DrawdownChart
-                  data={drawdownChart}
-                  returnsData={returnsChart?.data}
-                />
-              </div>
-            )}
-          </PageLayout>
-        </div>
+      {shouldRenderSection("drawdown_analysis") && drawdownChart && (
+        <PageLayout pgNo={1}>
+          <DrawdownAnalysisSection
+            data={drawdownChart}
+            section={data.drawdown_analysis}
+            returnsData={returnsChart}
+          />
+        </PageLayout>
       )}
       {/* Correlation Analysis */}
       {shouldRenderSection("correlation_analysis") && (
@@ -409,6 +402,60 @@ function FormatSection({ section }: { section: Section }) {
         </div>
       )}
       <MarkdownText>{content}</MarkdownText>
+    </div>
+  );
+}
+
+function DrawdownAnalysisSection({
+  section,
+  data,
+  returnsData,
+}: {
+  section: Section;
+  data: DrawdownChartData;
+  returnsData?: ChartData | null | undefined;
+}) {
+  if (!section) return null;
+
+  const formatter = new SectionFormatter(section);
+  const title = formatter.getTitleMarkdown();
+  const content = `${formatter.getContentMarkdown()}`;
+  const anchorId = formatter.getAnchorId();
+  const hasRefs = Boolean(section.in_depth_analysis || section.sources);
+
+  return (
+    <div className="space-y-4">
+      <div id={anchorId} />
+      <MarkdownText>{title}</MarkdownText>
+      {hasRefs && (
+        <div className="text-xs">
+          <a
+            className="text-primary font-medium underline underline-offset-4"
+            href={`#refs-${anchorId}`}
+          >
+            Sources & In-depth Analysis
+          </a>
+        </div>
+      )}
+      <ChartContainer
+        Icon={DrawdownIcon}
+        desc={
+          content ? (
+            <span className="text-xs leading-snug [&_ul]:!my-0 [&_ul>li:first-child]:!mt-0">
+              <MarkdownText>{content}</MarkdownText>
+            </span>
+          ) : (
+            "Drawdown analysis measures the decline from a portfolio's peak value to its lowest point before recovering. Understanding drawdowns helps assess the risk tolerance needed and the potential impact of market downturns on your investments."
+          )
+        }
+        context="Maximum drawdown is one of the most important risk metrics as it shows the worst-case scenario an investor would have experienced. Lower drawdowns indicate more stable portfolio performance."
+        DescComp="div"
+      >
+        <DrawdownChart
+          data={data}
+          returnsData={returnsData?.data}
+        />
+      </ChartContainer>
     </div>
   );
 }
