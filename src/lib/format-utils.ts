@@ -35,8 +35,25 @@ export function getPortfolioDisplayTable(
   displayCols.push("weight");
 
   if ("quantity" in firstItem) displayCols.push("quantity");
-  if ("CMP" in firstItem) displayCols.push("CMP");
-  if ("value" in firstItem) displayCols.push("value");
+
+  // FinSharpe score columns – include if any stock in the portfolio has them
+  const finsharpeScoreCols = [
+    "FinSharpe_Overall_Score",
+    "FinSharpe_Growth_Score",
+    "FinSharpe_Performance_Score",
+    "FinSharpe_Value_Score",
+    "FinSharpe_Risk_Score",
+  ] as const;
+  const finsharpeDisplayNames: Record<string, string> = {
+    FinSharpe_Overall_Score: "FinSharpe Overall",
+    FinSharpe_Growth_Score: "FinSharpe Growth",
+    FinSharpe_Performance_Score: "FinSharpe Performance",
+    FinSharpe_Value_Score: "FinSharpe Value",
+    FinSharpe_Risk_Score: "FinSharpe Risk",
+  };
+  const presentFsColumns = finsharpeScoreCols.filter((col) =>
+    portfolio.some((item) => col in item),
+  );
 
   const filteredData = portfolio.map((item) => {
     const filtered: Record<string, any> = {};
@@ -52,6 +69,11 @@ export function getPortfolioDisplayTable(
           filtered[col] = item[col];
         }
       }
+    }
+    for (const col of presentFsColumns) {
+      const displayName = finsharpeDisplayNames[col];
+      filtered[displayName] =
+        item[col] != null ? Number(item[col]).toFixed(1) : "N/A";
     }
     return filtered;
   });
