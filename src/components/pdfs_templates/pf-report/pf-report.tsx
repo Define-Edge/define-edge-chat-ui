@@ -104,20 +104,18 @@ export default function PfAnalysisReportMessageComponent({
   if (shouldRenderSection("performance_analysis")) totalPages++; // Performance
   if (shouldRenderSection("monthly_returns_heatmap") && monthlyReturnsHeatmap)
     totalPages++; // Monthly Returns Heatmap
+  totalPages++; // Financial Fitness
   totalPages++; // Actionables
   if (shouldRenderSection("summary")) totalPages++; // Summary
   if (shouldRenderSection("recommendation")) totalPages++; // Recommendation
   if (shouldRenderSection("portfolio_overview"))
     totalPages += pfItemsArr.length; // Portfolio Overview (multiple pages)
-  if (
-    shouldRenderSection("risk_assessment") ||
-    shouldRenderSection("risk_adjusted_returns")
-  )
-    totalPages++; // Risk Assessment + Risk-Adjusted Returns
+  if (shouldRenderSection("risk_assessment")) totalPages++; // Risk Assessment
   if (shouldRenderSection("drawdown_analysis") && drawdownChart)
     totalPages++; // Drawdown Analysis
+  if (shouldRenderSection("risk_adjusted_returns"))
+    totalPages++; // Risk-Adjusted Returns
   if (shouldRenderSection("correlation_analysis")) totalPages++; // Correlation
-  totalPages++; // Financial Fitness
   if (personalComment) totalPages++; // Personal Comment
   totalPages++; // Disclaimer
 
@@ -212,6 +210,10 @@ export default function PfAnalysisReportMessageComponent({
           </PageLayout>
         )}
 
+      <PageLayout pgNo={pgNum++}>
+        <FinancialFitness />
+      </PageLayout>
+
       <Actionables pgNo={pgNum++} />
 
       {/* Summary */}
@@ -246,19 +248,13 @@ export default function PfAnalysisReportMessageComponent({
           </PageLayout>
         ))}
 
-      {/* 3. Risk Assessment & 4. Risk-Adjusted Returns */}
-      {(shouldRenderSection("risk_assessment") ||
-        shouldRenderSection("risk_adjusted_returns")) && (
+      {/* Risk Assessment */}
+      {shouldRenderSection("risk_assessment") && (
         <PageLayout pgNo={pgNum++}>
-          {shouldRenderSection("risk_assessment") && (
-            <FormatSection section={data.risk_assessment} />
-          )}
-          {shouldRenderSection("risk_adjusted_returns") && (
-            <FormatSection section={data.risk_adjusted_returns} />
-          )}
+          <FormatSection section={data.risk_assessment} />
         </PageLayout>
       )}
-      {/* 5. Drawdown Analysis */}
+      {/* Drawdown Analysis */}
       {shouldRenderSection("drawdown_analysis") && drawdownChart && (
         <PageLayout pgNo={pgNum++}>
           <DrawdownAnalysisSection
@@ -266,6 +262,12 @@ export default function PfAnalysisReportMessageComponent({
             section={data.drawdown_analysis}
             returnsData={returnsChart}
           />
+        </PageLayout>
+      )}
+      {/* Risk-Adjusted Returns */}
+      {shouldRenderSection("risk_adjusted_returns") && (
+        <PageLayout pgNo={pgNum++}>
+          <FormatSection section={data.risk_adjusted_returns} />
         </PageLayout>
       )}
       {/* Correlation Analysis */}
@@ -277,9 +279,6 @@ export default function PfAnalysisReportMessageComponent({
           />
         </PageLayout>
       )}
-      <PageLayout pgNo={pgNum++}>
-        <FinancialFitness />
-      </PageLayout>
 
       {/* Personal Comment Section */}
       {personalComment && (
