@@ -38,7 +38,7 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
             tickLine={false}
             tick={(props) => {
               const { x, y, payload, index, cx, cy } = props;
-              const value = data[index]?.portfolio;
+              const value = data?.[index]?.portfolio ?? 0;
               const metric: string = payload.value;
               const isRisk = metric.toLowerCase().includes("risk");
               const color = getScoreColor(value, isRisk);
