@@ -4,8 +4,8 @@ export default function Disclaimer() {
   return (
     <>
       <h1 className="text-lg">Disclaimer</h1>
-      <div className="mt-4 space-y-4 text-[0.685rem]">
-        <p>
+      <div className="mt-4 space-y-4">
+        <p className="text-sm">
           This document has been prepared by FinSharpe (from now on referred to
           as "Wealth firm") and is strictly confidential and is intended for the
           use of the recipient only and should not be circulated, redistributed,
@@ -15,7 +15,7 @@ export default function Disclaimer() {
           circulate, redistribute, transmit, copy or disclose to others the
           contents, opinions, conclusion, or information contained herein.
         </p>
-        <p>
+        <p className="text-sm">
           In preparing the material contained in this document, Wealth firm has
           used publicly available information developed in-house or supplied by
           its service providers. Information gathered & material used in this
@@ -38,7 +38,7 @@ export default function Disclaimer() {
           to differ materially from those expressed or implied in such
           statements.
         </p>
-        <p>
+        <p className="text-sm">
           We may have included statements/opinions/recommendations in this
           document which contain words or phrases such as "will"; "expect" and
           "should" and similar expressions or variations of such expressions,
@@ -76,7 +76,7 @@ export default function Disclaimer() {
           prospects and performance thereof. Such past performance may or may
           not be sustained in the future.
         </p>
-        <p>
+        <p className="text-sm">
           Wealth firm or its officers, directors, personnel, and employees,
           including persons involved in the preparation or issuance of this
           material, may: (a) from time to time, have long or short positions in,
@@ -90,7 +90,7 @@ export default function Disclaimer() {
           upon and/or in a manner contradictory to the information contained
           here.
         </p>
-        <p>
+        <p className="text-sm">
           Mutual Fund Investments are subject to market risks please read the
           offer document carefully before investing. For the Equity Benchmark,
           the MOSL Nifty 500 Fund has been used as the proxy.

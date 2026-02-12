@@ -40,7 +40,7 @@ const TickItem = ({ bgColorClassName = "bg-white", question = "" }) => {
         bgColorClassName,
       )}
     >
-      <p className="">{question}</p>
+      <p className="text-sm">{question}</p>
       <div className="mt-1 flex justify-between">
         {ticks.map((tick) => (
           <span
