@@ -11,6 +11,8 @@ export * from "./finSharpeScoreItem";
 export * from "./pFAnalysis";
 export * from "./pFAnalysisPortfolioItem";
 export * from "./pFAnalysisReportData";
+export * from "./pFAnalysisReportDataCorrelationHeatmap";
+export * from "./pFAnalysisReportDataCorrelationHeatmapAnyOfItem";
 export * from "./pFAnalysisReportDataDrawdownChart";
 export * from "./pFAnalysisReportDataDrawdownChartAnyOf";
 export * from "./pFAnalysisReportDataFinsharpeAnalysis";

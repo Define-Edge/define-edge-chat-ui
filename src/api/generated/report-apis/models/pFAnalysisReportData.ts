@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { Section } from "./section";
+import type { PFAnalysisReportDataCorrelationHeatmap } from "./pFAnalysisReportDataCorrelationHeatmap";
 import type { PFAnalysisReportDataFinsharpeAnalysis } from "./pFAnalysisReportDataFinsharpeAnalysis";
 import type { PFAnalysisReportDataReturnsChart } from "./pFAnalysisReportDataReturnsChart";
 import type { PFAnalysisReportDataDrawdownChart } from "./pFAnalysisReportDataDrawdownChart";
@@ -21,6 +22,7 @@ export interface PFAnalysisReportData {
   risk_adjusted_returns: Section;
   drawdown_analysis: Section;
   correlation_analysis: Section;
+  correlation_heatmap?: PFAnalysisReportDataCorrelationHeatmap;
   finsharpe_analysis?: PFAnalysisReportDataFinsharpeAnalysis;
   returns_chart?: PFAnalysisReportDataReturnsChart;
   drawdown_chart?: PFAnalysisReportDataDrawdownChart;

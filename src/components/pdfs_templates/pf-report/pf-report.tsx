@@ -33,6 +33,8 @@ import StockWiseAllocationPie from "./StockWiseAllocation";
 import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
 import FinSharpeScoresRadarChart from "./FinSharpeScoresRadarChart";
 import DrawdownIcon from "@/components/icons/DrawdownIcon";
+import CorrelationHeatmap from "./CorrelationHeatmap";
+import type { CorrelationHeatmapRow } from "./CorrelationHeatmap";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -76,6 +78,10 @@ export default function PfAnalysisReportMessageComponent({
     | MonthlyReturnsHeatmapData
     | undefined;
   const monthlyReturnsSummary = data.monthly_returns_summary;
+  const correlationHeatmap = data.correlation_heatmap as
+    | CorrelationHeatmapRow[]
+    | null
+    | undefined;
 
   // Helper function to check if a section should be rendered
   const shouldRenderSection = (sectionKey: string) => {
@@ -233,7 +239,10 @@ export default function PfAnalysisReportMessageComponent({
       {/* Correlation Analysis */}
       {shouldRenderSection("correlation_analysis") && (
         <PageLayout pgNo={1}>
-          <FormatSection section={data.correlation_analysis} />
+          <CorrelationAnalysisSection
+            section={data.correlation_analysis}
+            heatmapData={correlationHeatmap}
+          />
         </PageLayout>
       )}
 
@@ -455,6 +464,57 @@ function DrawdownAnalysisSection({
           data={data}
           returnsData={returnsData?.data}
         />
+      </ChartContainer>
+    </div>
+  );
+}
+
+function CorrelationAnalysisSection({
+  section,
+  heatmapData,
+}: {
+  section: Section;
+  heatmapData?: CorrelationHeatmapRow[] | null;
+}) {
+  if (!section) return null;
+
+  const formatter = new SectionFormatter(section);
+  const title = formatter.getTitleMarkdown();
+  const content = `${formatter.getContentMarkdown()}`;
+  const anchorId = formatter.getAnchorId();
+  const hasRefs = Boolean(section.in_depth_analysis || section.sources);
+
+  return (
+    <div className="space-y-4">
+      <div id={anchorId} />
+      <MarkdownText>{title}</MarkdownText>
+      {hasRefs && (
+        <div className="text-xs">
+          <a
+            className="text-primary font-medium underline underline-offset-4"
+            href={`#refs-${anchorId}`}
+          >
+            Sources & In-depth Analysis
+          </a>
+        </div>
+      )}
+      <ChartContainer
+        Icon={BulbIcon}
+        desc={
+          content ? (
+            <span className="text-xs leading-snug [&_ul]:!my-0 [&_ul>li:first-child]:!mt-0">
+              <MarkdownText>{content}</MarkdownText>
+            </span>
+          ) : (
+            "Correlation analysis measures how different stocks in your portfolio move in relation to each other. Lower correlation between holdings indicates better diversification, which can help reduce overall portfolio risk."
+          )
+        }
+        context="A well-diversified portfolio typically has low average correlation between its holdings. When stocks are less correlated, losses in one position are less likely to be accompanied by losses in others."
+        DescComp="div"
+      >
+        {heatmapData && heatmapData.length > 0 ? (
+          <CorrelationHeatmap data={heatmapData} />
+        ) : null}
       </ChartContainer>
     </div>
   );
