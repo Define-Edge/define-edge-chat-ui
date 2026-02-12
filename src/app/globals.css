@@ -1,3 +1,7 @@
+/* ==========================================================================
+   1. IMPORTS & PLUGINS
+   ========================================================================== */
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -5,67 +9,59 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ==========================================================================
+   2. DESIGN TOKENS — Light Mode
+   ========================================================================== */
+
 :root {
+  /* Layout */
   --bottom-navbar-height: 66.5px;
   --font-size: 14px;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --radius: 0.625rem;
+
+  /* Core palette */
   --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
+  --foreground: #262626;
   --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
+  --card-foreground: #262626;
+  --popover: #ffffff;
+  --popover-foreground: #262626;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f0fdfa;
+  --secondary-foreground: #134e4a;
   --muted: #ececf0;
   --muted-foreground: #717182;
   --accent: #e9ebef;
-  --accent-foreground: #030213;
+  --accent-foreground: #1a1a1a;
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
   --border: rgba(0, 0, 0, 0.1);
   --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --info-bg: #eff6ff;
-  --info: oklch(0.96 0.02 267.41);
-  --info-border: #bfdbfe;
-  --info-icon-bg: #dbeafe;
-  --info-foreground: #1e3a8a;
-  --info-icon: #2563eb;
-  --accent-purple: #a855f7;
-  --accent-red: #ef4444;
-  --accent-blue: #3b82f6;
-  --accent-indigo: #6366f1;
-  --accent-yellow: #eab308;
-  --accent-amber: #f59e0b;
+  --ring: #b3b3b3;
+
+  /* PDF brand colors */
+  --primary-main-dark: #00004f;
+  --primary-main-light: #063baa;
+  --primary-paper: #ebf1ff;
+  --brand-teal: #42d4a3;
+
+  /* Text */
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-tertiary: #6b7280;
   --text-muted: #9ca3af;
+
+  /* Surfaces */
   --bg-subtle: #f9fafb;
   --bg-hover: #f3f4f6;
   --bg-card: #ffffff;
   --border-default: #e5e7eb;
   --border-subtle: #f3f4f6;
+
+  /* Risk indicators */
   --risk-low-bg: #f0fdf4;
   --risk-low-fg: #15803d;
   --risk-low-border: #bbf7d0;
@@ -75,6 +71,8 @@
   --risk-high-bg: #fef2f2;
   --risk-high-fg: #b91c1c;
   --risk-high-border: #fecaca;
+
+  /* Status */
   --success-bg: #f0fdf4;
   --success-fg: #16a34a;
   --success-border: #bbf7d0;
@@ -84,73 +82,87 @@
   --error-bg: #fef2f2;
   --error-fg: #dc2626;
   --error-border: #fecaca;
+
+  /* Info */
+  --info-bg: #eff6ff;
+  --info: oklch(0.96 0.02 267.41);
+  --info-border: #bfdbfe;
+  --info-icon-bg: #dbeafe;
+  --info-foreground: #1e3a8a;
+  --info-icon: #2563eb;
+
+  /* Accents */
+  --accent-purple: #a855f7;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-yellow: #eab308;
+  --accent-amber: #f59e0b;
+  --accent-orange: #f97316;
+  --accent-orange-bg: #fff7ed;
+  --accent-orange-border: #fed7aa;
+  --accent-green: #10b981;
+
+  /* Brand gradients */
   --brand-gradient-from: #f8fafc;
   --brand-gradient-via: #eff6ff;
   --brand-gradient-to: #dbeafe;
   --brand-border-from: #e2e8f0;
   --brand-border-via: #bfdbfe;
   --brand-border-to: #93c5fd;
-  --accent-orange: #f97316;
-  --accent-orange-bg: #fff7ed;
-  --accent-orange-border: #fed7aa;
-  --accent-green: #10b981;
 }
 
+/* ==========================================================================
+   3. DESIGN TOKENS — Dark Mode
+   ========================================================================== */
+
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #262626;
+  --foreground: #fafafa;
+  --card: #262626;
+  --card-foreground: #fafafa;
+  --popover: #262626;
+  --popover-foreground: #fafafa;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1a3a3a;
+  --secondary-foreground: #ccfbf1;
+  --muted: #404040;
+  --muted-foreground: #b3b3b3;
+  --accent: #404040;
+  --accent-foreground: #fafafa;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --border: #404040;
+  --input: #404040;
+  --ring: #6b6b6b;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+
   --info-bg: #1e3a8a;
   --info-border: #3b82f6;
   --info-icon-bg: #1e40af;
   --info-foreground: #dbeafe;
   --info-icon: #60a5fa;
+
   --accent-purple: #c084fc;
   --accent-red: #f87171;
   --accent-blue: #60a5fa;
   --accent-indigo: #818cf8;
   --accent-yellow: #fbbf24;
   --accent-amber: #fbbf24;
+
   --text-primary: #f9fafb;
   --text-secondary: #d1d5db;
   --text-tertiary: #9ca3af;
   --text-muted: #6b7280;
+
   --bg-subtle: #1f2937;
   --bg-hover: #374151;
   --bg-card: #111827;
   --border-default: #374151;
   --border-subtle: #1f2937;
+
   --risk-low-bg: #14532d;
   --risk-low-fg: #86efac;
   --risk-low-border: #166534;
@@ -160,6 +172,7 @@
   --risk-high-bg: #7f1d1d;
   --risk-high-fg: #fca5a5;
   --risk-high-border: #991b1b;
+
   --success-bg: #14532d;
   --success-fg: #4ade80;
   --success-border: #166534;
@@ -169,17 +182,23 @@
   --error-bg: #7f1d1d;
   --error-fg: #f87171;
   --error-border: #991b1b;
+
   --brand-gradient-from: #1e293b;
   --brand-gradient-via: #1e3a8a;
   --brand-gradient-to: #1e40af;
   --brand-border-from: #334155;
   --brand-border-via: #3b82f6;
   --brand-border-to: #60a5fa;
+
   --accent-orange: #fb923c;
   --accent-orange-bg: #7c2d12;
   --accent-orange-border: #c2410c;
   --accent-green: #34d399;
 }
+
+/* ==========================================================================
+   4. TAILWIND THEME REGISTRATION
+   ========================================================================== */
 
 @theme inline {
   --color-background: var(--background);
@@ -200,26 +219,15 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
-  --color-input-background: var(--input-background);
-  --color-switch-background: var(--switch-background);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-primary-main-dark: var(--primary-main-dark);
+  --color-primary-main-light: var(--primary-main-light);
+  --color-primary-paper: var(--primary-paper);
+  --color-brand-teal: var(--brand-teal);
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
   --color-info-border: var(--info-border);
@@ -271,6 +279,10 @@
   --color-accent-green: var(--accent-green);
 }
 
+/* ==========================================================================
+   5. BASE STYLES
+   ========================================================================== */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -280,75 +292,52 @@
     @apply bg-background text-foreground;
   }
 
-  :root {
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
   }
 
-  .dark {
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
   }
-}
 
-/**
- * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
- */
-@layer base {
-  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
-    h1 {
-      font-size: var(--text-2xl);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
 
-    h2 {
-      font-size: var(--text-xl);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
 
-    h3 {
-      font-size: var(--text-lg);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
+  p {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
 
-    h4 {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
 
-    p {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-normal);
-      line-height: 1.5;
-    }
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
 
-    label {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
-
-    button {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
-
-    input {
-      font-size: var(--text-base);
-      font-weight: var(--font-weight-normal);
-      line-height: 1.5;
-    }
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
   }
 }
 
@@ -356,15 +345,9 @@ html {
   font-size: var(--font-size);
 }
 
-@layer utilities {
-  .shadow-inner-right {
-    box-shadow: inset -9px 0 6px -1px rgb(0 0 0 / 0.02);
-  }
-
-  .shadow-inner-left {
-    box-shadow: inset 9px 0 6px -1px rgb(0 0 0 / 0.02);
-  }
-}
+/* ==========================================================================
+   6. COMPONENT STYLES
+   ========================================================================== */
 
 @layer components {
   .chat-container {
@@ -395,7 +378,10 @@ html {
   }
 }
 
-/* Custom scrollbar styles */
+/* ==========================================================================
+   7. SCROLLBAR STYLES
+   ========================================================================== */
+
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.7) rgba(243, 244, 246, 0.3);
@@ -419,7 +405,6 @@ html {
   background: rgba(107, 114, 128, 0.9);
 }
 
-/* Default scrollbar styles for main content areas */
 .overflow-y-auto {
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.6) rgba(243, 244, 246, 0.3);
@@ -443,6 +428,10 @@ html {
   background: rgba(107, 114, 128, 0.8);
 }
 
+/* ==========================================================================
+   8. ANIMATIONS
+   ========================================================================== */
+
 @keyframes wave {
   0%,
   60%,
@@ -456,212 +445,4 @@ html {
 
 .animate-wave {
   animation: wave 1.2s infinite ease-in-out;
-}
-
-/* Voice Mode Animations */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) scale(1);
-    opacity: 0.2;
-  }
-  50% {
-    transform: translateY(-20px) scale(1.1);
-    opacity: 0.6;
-  }
-}
-
-@keyframes pulse-scale {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-.animate-pulse-scale {
-  animation: pulse-scale 2s ease-in-out infinite;
-}
-
-.animation-delay-300 {
-  animation-delay: 300ms;
-}
-
-.animation-delay-500 {
-  animation-delay: 500ms;
-}
-
-.animation-delay-700 {
-  animation-delay: 700ms;
-}
-
-/* Bounce animation delays for loading indicators */
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(-25%);
-    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-  }
-  50% {
-    transform: translateY(0);
-    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-  }
-}
-
-.animate-bounce {
-  animation: bounce 1s infinite;
-}
-
-/* Futuristic AI Banner Animations */
-@keyframes holographic-glow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 10px rgba(168, 85, 247, 0.4),
-      0 0 20px rgba(59, 130, 246, 0.2),
-      0 0 30px rgba(34, 197, 94, 0.1);
-  }
-  33% {
-    box-shadow:
-      0 0 10px rgba(59, 130, 246, 0.4),
-      0 0 20px rgba(34, 197, 94, 0.2),
-      0 0 30px rgba(168, 85, 247, 0.1);
-  }
-  66% {
-    box-shadow:
-      0 0 10px rgba(34, 197, 94, 0.4),
-      0 0 20px rgba(168, 85, 247, 0.2),
-      0 0 30px rgba(59, 130, 246, 0.1);
-  }
-}
-
-@keyframes data-stream {
-  0% {
-    opacity: 0.2;
-    transform: translateY(100%);
-  }
-  50% {
-    opacity: 0.6;
-    transform: translateY(-50%);
-  }
-  100% {
-    opacity: 0.2;
-    transform: translateY(-100%);
-  }
-}
-
-.animate-holographic-glow {
-  animation: holographic-glow 3s ease-in-out infinite;
-}
-
-.animate-data-stream {
-  animation: data-stream 4s ease-in-out infinite;
-}
-
-/* 3D Transform utilities for Interactive Globe */
-.perspective-1000 {
-  perspective: 1000px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-
-/* Enhanced gradient utilities for globe */
-.bg-gradient-radial {
-  background: radial-gradient(circle at 30% 30%, var(--tw-gradient-stops));
-}
-
-/* IPO Selector smooth scrolling */
-.ipo-selector-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.ipo-selector-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* 3D Globe specific enhancements with brand colors */
-.globe-3d-surface {
-  background:
-    radial-gradient(
-      ellipse at 25% 25%,
-      rgba(255, 255, 255, 0.3) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at 75% 75%,
-      rgba(99, 102, 241, 0.15) 0%,
-      transparent 50%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      transparent 50%,
-      rgba(168, 85, 247, 0.1) 100%
-    );
-}
-
-/* Globe animation enhancements */
-@keyframes globe-shimmer {
-  0%,
-  100% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes globe-rotation {
-  0% {
-    transform: rotateY(0deg) rotateX(-5deg);
-  }
-  100% {
-    transform: rotateY(360deg) rotateX(-5deg);
-  }
-}
-
-.animate-globe-shimmer {
-  animation: globe-shimmer 4s ease-in-out infinite;
-}
-
-.animate-globe-rotation {
-  animation: globe-rotation 60s linear infinite;
-}
-
-/* Chatbox hover gradient animation */
-@keyframes gradient-shift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.animate-gradient-shift {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
 }

@@ -14,7 +14,7 @@ export default function SummaryContainer({
 }: Props) {
   return (
     <div className="flex-1">
-      <div className="from-primary-main-light to-secondary rounded-md bg-gradient-to-r p-4 text-center text-white">
+      <div className="from-primary-main-light to-brand-teal rounded-md bg-gradient-to-r p-4 text-center text-white">
         <h2 className="text-2xl">{header}</h2>
       </div>
       <section className="border-primary-paper mt-[-2px] flex gap-6 rounded-md rounded-t-none border-2 border-t-0 px-6 pt-6 pb-10">
@@ -33,7 +33,7 @@ export default function SummaryContainer({
               ))}
             </p>
           </div>
-          <div className="from-secondary to-primary-main-light w-[3px] bg-gradient-to-b" />
+          <div className="from-brand-teal to-primary-main-light w-[3px] bg-gradient-to-b" />
         </div>
         {summary}
       </section>

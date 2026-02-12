@@ -44,7 +44,7 @@ const TickItem = ({ bgColorClassName = "bg-white", question = "" }) => {
       <div className="mt-1 flex justify-between">
         {ticks.map((tick) => (
           <span
-            className="border-secondary rounded-md border bg-white px-1 py-[3px]"
+            className="border-brand-teal rounded-md border bg-white px-1 py-[3px]"
             key={tick}
           >
             {tick}
@@ -142,7 +142,7 @@ export default function FinancialFitness() {
             </div>
             <hr className="mt-10" />
           </section>
-          <div className="from-secondary to-primary-main-light ml-6 h-[720px] w-[5px] bg-gradient-to-b" />
+          <div className="from-brand-teal to-primary-main-light ml-6 h-[720px] w-[5px] bg-gradient-to-b" />
         </div>
         <div>
           <h1 className="text-xl">Financial Fitness Score</h1>

@@ -31,7 +31,7 @@ const DataTable = <T extends object>({
   return (
     <table className={cn("rounded-corner-table mt-4 text-xs", className)}>
       <thead className="text-white">
-        <tr className="from-primary-main-light to-secondary bg-gradient-to-r">
+        <tr className="from-primary-main-light to-brand-teal bg-gradient-to-r">
           {columns.map((column, index) => (
             <th
               className="px-2 py-3 font-normal"
