@@ -208,16 +208,16 @@ export default function PfAnalysisReportMessageComponent({
           </PageLayout>
         ))}
 
-      {/* 3. Risk Assessment */}
-      {shouldRenderSection("risk_assessment") && (
+      {/* 3. Risk Assessment & 4. Risk-Adjusted Returns */}
+      {(shouldRenderSection("risk_assessment") ||
+        shouldRenderSection("risk_adjusted_returns")) && (
         <PageLayout pgNo={1}>
-          <FormatSection section={data.risk_assessment} />
-        </PageLayout>
-      )}
-      {/* 4. Risk-Adjusted Returns */}
-      {shouldRenderSection("risk_adjusted_returns") && (
-        <PageLayout pgNo={1}>
-          <FormatSection section={data.risk_adjusted_returns} />
+          {shouldRenderSection("risk_assessment") && (
+            <FormatSection section={data.risk_assessment} />
+          )}
+          {shouldRenderSection("risk_adjusted_returns") && (
+            <FormatSection section={data.risk_adjusted_returns} />
+          )}
         </PageLayout>
       )}
       {/* 5. Drawdown Analysis */}
