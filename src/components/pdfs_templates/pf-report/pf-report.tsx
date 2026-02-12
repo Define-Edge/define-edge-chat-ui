@@ -94,10 +94,39 @@ export default function PfAnalysisReportMessageComponent({
   const portfolio = analysis.portfolio || [];
   const pfItemsArr = chunkArray(portfolio, MAX_ROWS_PER_PAGE);
 
+  // Calculate total pages dynamically
+  let totalPages = 0;
+  totalPages++; // IntroPageContainer
+  if (data.finsharpe_analysis) totalPages++; // AllocationsPage
+  totalPages++; // Stock Wise Allocation
+  if (shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis)
+    totalPages++; // FinSharpe Analysis
+  if (shouldRenderSection("performance_analysis")) totalPages++; // Performance
+  if (shouldRenderSection("monthly_returns_heatmap") && monthlyReturnsHeatmap)
+    totalPages++; // Monthly Returns Heatmap
+  totalPages++; // Actionables
+  if (shouldRenderSection("summary")) totalPages++; // Summary
+  if (shouldRenderSection("recommendation")) totalPages++; // Recommendation
+  if (shouldRenderSection("portfolio_overview"))
+    totalPages += pfItemsArr.length; // Portfolio Overview (multiple pages)
+  if (
+    shouldRenderSection("risk_assessment") ||
+    shouldRenderSection("risk_adjusted_returns")
+  )
+    totalPages++; // Risk Assessment + Risk-Adjusted Returns
+  if (shouldRenderSection("drawdown_analysis") && drawdownChart)
+    totalPages++; // Drawdown Analysis
+  if (shouldRenderSection("correlation_analysis")) totalPages++; // Correlation
+  totalPages++; // Financial Fitness
+  if (personalComment) totalPages++; // Personal Comment
+  totalPages++; // Disclaimer
+
+  let pgNum = 1;
+
   return (
-    <TotalPageCtxProvider value={9}>
+    <TotalPageCtxProvider value={totalPages}>
       <PfWelcome analysis={analysis} />
-      <IntroPageContainer>
+      <IntroPageContainer pgNo={pgNum++}>
         <ScoreCard
           label="Overall score"
           data={data.finsharpe_analysis?.overall_score_chart_data || []}
@@ -116,9 +145,9 @@ export default function PfAnalysisReportMessageComponent({
         />
       </IntroPageContainer>
       {data.finsharpe_analysis && (
-        <AllocationsPage data={data.finsharpe_analysis} />
+        <AllocationsPage data={data.finsharpe_analysis} pgNo={pgNum++} />
       )}
-      <PageLayout pgNo={1}>
+      <PageLayout pgNo={pgNum++}>
         {" "}
         <ChartContainer
           Icon={BulbIcon}
@@ -144,13 +173,13 @@ export default function PfAnalysisReportMessageComponent({
       {/* FinSharpe Analysis (if present) */}
       {shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis && (
         <>
-          <FinSharpeAnalysisSection data={data.finsharpe_analysis} />
+          <FinSharpeAnalysisSection data={data.finsharpe_analysis} pgNo={pgNum++} />
         </>
       )}
 
       {/* Performance Analysis */}
       {shouldRenderSection("performance_analysis") && (
-        <PageLayout pgNo={1}>
+        <PageLayout pgNo={pgNum++}>
           <div
             className="max-w-3xl space-y-8"
             style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
@@ -175,7 +204,7 @@ export default function PfAnalysisReportMessageComponent({
       {/* Monthly Returns Heatmap */}
       {shouldRenderSection("monthly_returns_heatmap") &&
         monthlyReturnsHeatmap && (
-          <PageLayout pgNo={1}>
+          <PageLayout pgNo={pgNum++}>
             <MonthlyReturnsHeatmap
               heatmap={monthlyReturnsHeatmap}
               summary={monthlyReturnsSummary}
@@ -183,19 +212,19 @@ export default function PfAnalysisReportMessageComponent({
           </PageLayout>
         )}
 
-      <Actionables pgNo={1} />
+      <Actionables pgNo={pgNum++} />
 
       {/* Summary */}
       {shouldRenderSection("summary") && (
         <Summary
           summary={data.summary?.content}
-          pgNo={1}
+          pgNo={pgNum++}
         />
       )}
 
       {/* Recommendation */}
       {shouldRenderSection("recommendation") && (
-        <PageLayout pgNo={1}>
+        <PageLayout pgNo={pgNum++}>
           <div className="flex h-full flex-col">
             <RecommendationSection section={data.recommendation} />
           </div>
@@ -206,7 +235,7 @@ export default function PfAnalysisReportMessageComponent({
       {shouldRenderSection("portfolio_overview") &&
         pfItemsArr.map((chunk, idx) => (
           <PageLayout
-            pgNo={1}
+            pgNo={pgNum++}
             key={`portfolio-overview-${idx}`}
           >
             <PortfolioOverviewSection
@@ -220,7 +249,7 @@ export default function PfAnalysisReportMessageComponent({
       {/* 3. Risk Assessment & 4. Risk-Adjusted Returns */}
       {(shouldRenderSection("risk_assessment") ||
         shouldRenderSection("risk_adjusted_returns")) && (
-        <PageLayout pgNo={1}>
+        <PageLayout pgNo={pgNum++}>
           {shouldRenderSection("risk_assessment") && (
             <FormatSection section={data.risk_assessment} />
           )}
@@ -231,7 +260,7 @@ export default function PfAnalysisReportMessageComponent({
       )}
       {/* 5. Drawdown Analysis */}
       {shouldRenderSection("drawdown_analysis") && drawdownChart && (
-        <PageLayout pgNo={1}>
+        <PageLayout pgNo={pgNum++}>
           <DrawdownAnalysisSection
             data={drawdownChart}
             section={data.drawdown_analysis}
@@ -241,20 +270,20 @@ export default function PfAnalysisReportMessageComponent({
       )}
       {/* Correlation Analysis */}
       {shouldRenderSection("correlation_analysis") && (
-        <PageLayout pgNo={1}>
+        <PageLayout pgNo={pgNum++}>
           <CorrelationAnalysisSection
             section={data.correlation_analysis}
             heatmapData={correlationHeatmap}
           />
         </PageLayout>
       )}
-      <PageLayout pgNo={1}>
+      <PageLayout pgNo={pgNum++}>
         <FinancialFitness />
       </PageLayout>
 
       {/* Personal Comment Section */}
       {personalComment && (
-        <PageLayout pgNo={1}>
+        <PageLayout pgNo={pgNum++}>
           <div className="mt-8" />
           <hr className="border-t-2 border-gray-800" />
           <div className="mt-8" />
@@ -271,7 +300,7 @@ export default function PfAnalysisReportMessageComponent({
         </PageLayout>
       )}
 
-      <PageLayout pgNo={1}>
+      <PageLayout pgNo={pgNum++}>
         <Disclaimer />
       </PageLayout>
 
@@ -699,13 +728,13 @@ function JsonDataDisplay({ data }: { data: any }) {
 }
 
 // FinSharpe Analysis Section Component
-function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
+function FinSharpeAnalysisSection({ data, pgNo }: { data: PFFinSharpeAnalysisData; pgNo: number }) {
   if (!data) {
     return null;
   }
 
   return (
-    <PageLayout pgNo={1}>
+    <PageLayout pgNo={pgNo}>
       <div className="space-y-6">
         {/* Main Analysis Section */}
         <FormatSection section={data.analysis} />
@@ -748,7 +777,7 @@ function RecommendationSection({ section }: { section: Section }) {
   );
 }
 
-function AllocationsPage({ data }: { data: PFFinSharpeAnalysisData }) {
+function AllocationsPage({ data, pgNo }: { data: PFFinSharpeAnalysisData; pgNo: number }) {
   if (!data) {
     return null;
   }
@@ -768,7 +797,7 @@ function AllocationsPage({ data }: { data: PFFinSharpeAnalysisData }) {
     color: SIZE_COLORS[item.name as string] || PIE_COLORS[0],
   }));
   return (
-    <PageLayout pgNo={1}>
+    <PageLayout pgNo={pgNo}>
       {/* Score Charts Grid */}
       <div className="space-y-6">
         {/* Industry Distribution */}
