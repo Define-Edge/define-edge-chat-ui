@@ -30,6 +30,7 @@ const PF_SECTIONS: PfAnalysisSection[] = [
   { key: "drawdown_analysis", label: "Drawdown Analysis" },
   { key: "correlation_analysis", label: "Correlation Analysis" },
   { key: "returns_chart", label: "Returns Chart" },
+  { key: "monthly_returns_heatmap", label: "Monthly Returns Heatmap" },
   { key: "finsharpe_analysis", label: "FinSharpe Analysis" },
   { key: "summary", label: "Summary" },
   { key: "recommendation", label: "Recommendation" },

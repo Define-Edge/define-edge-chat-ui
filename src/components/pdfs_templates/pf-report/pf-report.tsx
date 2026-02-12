@@ -66,6 +66,10 @@ export default function PfAnalysisReportMessageComponent({
     | DrawdownChartData
     | null
     | undefined;
+  const monthlyReturnsHeatmap = data.monthly_returns_heatmap as
+    | MonthlyReturnsHeatmapData
+    | undefined;
+  const monthlyReturnsSummary = data.monthly_returns_summary;
 
   // Helper function to check if a section should be rendered
   const shouldRenderSection = (sectionKey: string) => {
@@ -127,6 +131,17 @@ export default function PfAnalysisReportMessageComponent({
               )}
             </div>
           </div>
+        </PageLayout>
+      )}
+
+      {/* Monthly Returns Heatmap */}
+      {shouldRenderSection("monthly_returns_heatmap") &&
+        monthlyReturnsHeatmap && (
+          <PageLayout pgNo={1}>
+            <MonthlyReturnsHeatmap
+              heatmap={monthlyReturnsHeatmap}
+              summary={monthlyReturnsSummary}
+            />
         </PageLayout>
       )}
 
