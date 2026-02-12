@@ -16,7 +16,6 @@
     "Smallcap"
   ],
   "tailwindCSS.rootFontSize": 14,
-  "tailwindCSS.experimental.configFile": "./src/app/globals.css",
   "workbench.colorCustomizations": {
     "activityBar.activeBackground": "#335970",
     "activityBar.background": "#335970",
