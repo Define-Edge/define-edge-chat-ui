@@ -36,5 +36,11 @@
     "titleBar.inactiveForeground": "#e7e7e799"
   },
   "peacock.color": "#233D4D",
-  "editor.colorDecorators": true
+  "editor.colorDecorators": true,
+  "json.schemas": [
+    {
+      "fileMatch": ["components.json"],
+      "url": "https://ui.shadcn.com/schema.json"
+    }
+  ]
 }
