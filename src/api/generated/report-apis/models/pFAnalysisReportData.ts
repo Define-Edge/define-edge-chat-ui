@@ -9,6 +9,7 @@ import type { Section } from "./section";
 import type { PFAnalysisReportDataFinsharpeAnalysis } from "./pFAnalysisReportDataFinsharpeAnalysis";
 import type { PFAnalysisReportDataReturnsChart } from "./pFAnalysisReportDataReturnsChart";
 import type { PFAnalysisReportDataDrawdownChart } from "./pFAnalysisReportDataDrawdownChart";
+import type { PFAnalysisReportDataMonthlyReturnsHeatmap } from "./pFAnalysisReportDataMonthlyReturnsHeatmap";
 
 /**
  * Portfolio analysis report data.
@@ -23,6 +24,8 @@ export interface PFAnalysisReportData {
   finsharpe_analysis?: PFAnalysisReportDataFinsharpeAnalysis;
   returns_chart?: PFAnalysisReportDataReturnsChart;
   drawdown_chart?: PFAnalysisReportDataDrawdownChart;
+  monthly_returns_heatmap?: PFAnalysisReportDataMonthlyReturnsHeatmap;
+  monthly_returns_summary?: string;
   summary: Section;
   recommendation: Section;
 }

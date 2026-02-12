@@ -13,6 +13,8 @@ export * from "./pFAnalysisReportData";
 export * from "./pFAnalysisReportDataDrawdownChart";
 export * from "./pFAnalysisReportDataDrawdownChartAnyOf";
 export * from "./pFAnalysisReportDataFinsharpeAnalysis";
+export * from "./pFAnalysisReportDataMonthlyReturnsHeatmap";
+export * from "./pFAnalysisReportDataMonthlyReturnsHeatmapAnyOf";
 export * from "./pFAnalysisReportDataReturnsChart";
 export * from "./pFAnalysisReportDataReturnsChartAnyOf";
 export * from "./pFFinSharpeAnalysisData";
