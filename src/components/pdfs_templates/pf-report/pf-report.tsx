@@ -34,6 +34,8 @@ import FinSharpeScoresRadarChart from "./FinSharpeScoresRadarChart";
 import DrawdownIcon from "@/components/icons/DrawdownIcon";
 import CorrelationHeatmap from "./CorrelationHeatmap";
 import type { CorrelationHeatmapRow } from "./CorrelationHeatmap";
+import FinancialFitness from "../layout/FinancialFitness";
+import Disclaimer from "../layout/Disclaimer";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -246,6 +248,9 @@ export default function PfAnalysisReportMessageComponent({
           />
         </PageLayout>
       )}
+      <PageLayout pgNo={1}>
+        <FinancialFitness />
+      </PageLayout>
 
       {/* Personal Comment Section */}
       {personalComment && (
@@ -265,6 +270,10 @@ export default function PfAnalysisReportMessageComponent({
           </div>
         </PageLayout>
       )}
+
+      <PageLayout pgNo={1}>
+        <Disclaimer />
+      </PageLayout>
 
       <div
         className="mx-12 max-w-3xl space-y-8 pt-12"
@@ -456,7 +465,10 @@ function PortfolioOverviewSection({
   return (
     <div className="space-y-4">
       {sectionForTitle && <FormatSection section={sectionForTitle} />}
-      <DataTable columns={columns} data={items} />
+      <DataTable
+        columns={columns}
+        data={items}
+      />
     </div>
   );
 }
