@@ -7,6 +7,7 @@
  */
 
 export * from "./distributionItem";
+export * from "./finSharpeScoreItem";
 export * from "./pFAnalysis";
 export * from "./pFAnalysisPortfolioItem";
 export * from "./pFAnalysisReportData";

@@ -31,6 +31,7 @@ import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
 import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
 import StockWiseAllocationPie from "./StockWiseAllocation";
 import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
+import FinSharpeScoresRadarChart from "./FinSharpeScoresRadarChart";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -510,8 +511,11 @@ function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
 
   return (
     <PageLayout pgNo={1}>
-      {/* Main Analysis Section */}
-      <FormatSection section={data.analysis} />
+      <div className="space-y-6">
+        {/* Main Analysis Section */}
+        <FormatSection section={data.analysis} />
+        <FinSharpeScoresRadarChart data={data.scores_comparison} />
+      </div>
     </PageLayout>
   );
 }

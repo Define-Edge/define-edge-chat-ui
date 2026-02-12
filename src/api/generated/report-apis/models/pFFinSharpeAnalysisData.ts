@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { Section } from "./section";
+import type { FinSharpeScoreItem } from "./finSharpeScoreItem";
 import type { ScoreChartDataItem } from "./scoreChartDataItem";
 import type { DistributionItem } from "./distributionItem";
 
@@ -14,6 +15,7 @@ import type { DistributionItem } from "./distributionItem";
  */
 export interface PFFinSharpeAnalysisData {
   analysis: Section;
+  scores_comparison?: FinSharpeScoreItem[];
   overall_score_summary?: string;
   risk_score_summary?: string;
   industry_allocation_summary?: string;
