@@ -26,6 +26,7 @@ export interface PFAnalysisReportData {
   drawdown_chart?: PFAnalysisReportDataDrawdownChart;
   monthly_returns_heatmap?: PFAnalysisReportDataMonthlyReturnsHeatmap;
   monthly_returns_summary?: string;
+  weight_allocation_summary?: string;
   summary: Section;
   recommendation: Section;
 }

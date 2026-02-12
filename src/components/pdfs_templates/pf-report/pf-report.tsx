@@ -27,6 +27,10 @@ import ChartContainer from "../layout/ChartContainer";
 import BulbIcon from "@/components/icons/BulbIcon";
 import Actionables from "../layout/Actionables";
 import Summary from "../layout/Summary/Summary";
+import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
+import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
+import StockWiseAllocationPie from "./StockWiseAllocation";
+import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -102,10 +106,35 @@ export default function PfAnalysisReportMessageComponent({
           }
         />
       </IntroPageContainer>
+      {data.finsharpe_analysis && (
+        <AllocationsPage data={data.finsharpe_analysis} />
+      )}
+      <PageLayout pgNo={1}>
+        {" "}
+        <ChartContainer
+          Icon={BulbIcon}
+          containerClasses="mt-4"
+          desc={
+            data.weight_allocation_summary ||
+            "Stock wise allocation shows how your investments are distributed across different stocks in your portfolio. A well-diversified stock allocation can help reduce risk and improve potential returns by spreading investments across multiple companies."
+          }
+          context="Diversification across multiple stocks reduces the portfolio's overall level of volatility and potential risk. When one stock performs poorly, others in the portfolio can offset the losses."
+        >
+          <StockWiseAllocationPie
+            data={shuffleArray(
+              groupSmallFragments(analysis.portfolio, {
+                id: "Ticker",
+                maxFragments: 6,
+              }),
+            )}
+            label="Stock Wise Allocations"
+            labelKey="Ticker"
+          />
+        </ChartContainer>
+      </PageLayout>
       {/* FinSharpe Analysis (if present) */}
       {shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis && (
         <>
-          <AllocationsPage data={data.finsharpe_analysis} />
           <FinSharpeAnalysisSection data={data.finsharpe_analysis} />
         </>
       )}
@@ -142,8 +171,8 @@ export default function PfAnalysisReportMessageComponent({
               heatmap={monthlyReturnsHeatmap}
               summary={monthlyReturnsSummary}
             />
-        </PageLayout>
-      )}
+          </PageLayout>
+        )}
 
       <Actionables pgNo={1} />
 
