@@ -72,6 +72,7 @@ export default function ScoresPie({ data, width = 325, label }: Props) {
           outerRadius={80}
           innerRadius={55}
           dataKey="value"
+          isAnimationActive={false}
         >
           {data.map((_, index) => (
             <Cell

@@ -1,42 +1,55 @@
 "use client";
-import React from "react";
+import BulbIcon from "@/components/icons/BulbIcon";
+import DrawdownIcon from "@/components/icons/DrawdownIcon";
 import { MarkdownText } from "@/components/thread/markdown-text";
+import DataTable from "@/components/ui/data-table/DataTable";
+import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
+import { chunkArray, formatKey } from "@/lib/format-utils";
+import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
+import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
+import { SectionFormatter } from "@/lib/section-formatter";
 import {
-  Section,
-  PfAnalysis,
-  PFFinSharpeAnalysisData,
   ChartData,
   DrawdownChartData,
+  PfAnalysis,
+  PFFinSharpeAnalysisData,
+  Section,
 } from "@/types/pf-analysis";
-import PfWelcome from "./PfWelcome";
-import { SectionFormatter } from "@/lib/section-formatter";
-import { chunkArray, formatKey } from "@/lib/format-utils";
-import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
-import DataTable from "@/components/ui/data-table/DataTable";
-import DrawdownChart from "@/components/thread/messages/client-components/DrawdownChart";
-import LineChart from "@/components/thread/messages/client-components/LineChart";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
-import PageLayout from "../layout/PageLayout";
-import TotalPageCtxProvider from "../stock-report/TotalPageCtx";
-import IntroPageContainer from "../layout/IntroPageContainer";
-import ScoreCard from "../layout/ScoreCard";
-import ChartContainer from "../layout/ChartContainer";
-import BulbIcon from "@/components/icons/BulbIcon";
+import dynamic from "next/dynamic";
+import React from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import Actionables from "../layout/Actionables";
-import Summary from "../layout/Summary/Summary";
-import RecommendationContainer from "../layout/RecommendationContainer";
-import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
-import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
-import StockWiseAllocationPie from "./StockWiseAllocation";
-import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
-import FinSharpeScoresRadarChart from "./FinSharpeScoresRadarChart";
-import DrawdownIcon from "@/components/icons/DrawdownIcon";
-import CorrelationHeatmap from "./CorrelationHeatmap";
-import type { CorrelationHeatmapRow } from "./CorrelationHeatmap";
-import FinancialFitness from "../layout/FinancialFitness";
-import Disclaimer from "../layout/Disclaimer";
 import AdvancedAnalysis from "../layout/AdvancedAnalysis";
+import ChartContainer from "../layout/ChartContainer";
+import Disclaimer from "../layout/Disclaimer";
+import FinancialFitness from "../layout/FinancialFitness";
+import IntroPageContainer from "../layout/IntroPageContainer";
+import PageLayout from "../layout/PageLayout";
+import RecommendationContainer from "../layout/RecommendationContainer";
+import Summary from "../layout/Summary/Summary";
+import TotalPageCtxProvider from "../stock-report/TotalPageCtx";
+import type { CorrelationHeatmapRow } from "./CorrelationHeatmap";
+import CorrelationHeatmap from "./CorrelationHeatmap";
+import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
+import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
+import PfWelcome from "./PfWelcome";
+
+const ScoreCard = dynamic(() => import("../layout/ScoreCard"), { ssr: false });
+const DrawdownChart = dynamic(
+  () => import("@/components/thread/messages/client-components/DrawdownChart"),
+  { ssr: false },
+);
+const LineChart = dynamic(
+  () => import("@/components/thread/messages/client-components/LineChart"),
+  { ssr: false },
+);
+const StockWiseAllocationPie = dynamic(() => import("./StockWiseAllocation"), {
+  ssr: false,
+});
+const FinSharpeScoresRadarChart = dynamic(
+  () => import("./FinSharpeScoresRadarChart"),
+  { ssr: false },
+);
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -113,10 +126,8 @@ export default function PfAnalysisReportMessageComponent({
     totalPages += pfItemsArr.length; // Portfolio Overview (multiple pages)
   totalPages++; // Advanced Analysis intro
   if (shouldRenderSection("risk_assessment")) totalPages++; // Risk Assessment
-  if (shouldRenderSection("drawdown_analysis") && drawdownChart)
-    totalPages++; // Drawdown Analysis
-  if (shouldRenderSection("risk_adjusted_returns"))
-    totalPages++; // Risk-Adjusted Returns
+  if (shouldRenderSection("drawdown_analysis") && drawdownChart) totalPages++; // Drawdown Analysis
+  if (shouldRenderSection("risk_adjusted_returns")) totalPages++; // Risk-Adjusted Returns
   if (shouldRenderSection("correlation_analysis")) totalPages++; // Correlation
   if (personalComment) totalPages++; // Personal Comment
   totalPages++; // Disclaimer
@@ -145,7 +156,10 @@ export default function PfAnalysisReportMessageComponent({
         />
       </IntroPageContainer>
       {data.finsharpe_analysis && (
-        <AllocationsPage data={data.finsharpe_analysis} pgNo={pgNum++} />
+        <AllocationsPage
+          data={data.finsharpe_analysis}
+          pgNo={pgNum++}
+        />
       )}
       <PageLayout pgNo={pgNum++}>
         {" "}
@@ -173,7 +187,10 @@ export default function PfAnalysisReportMessageComponent({
       {/* FinSharpe Analysis (if present) */}
       {shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis && (
         <>
-          <FinSharpeAnalysisSection data={data.finsharpe_analysis} pgNo={pgNum++} />
+          <FinSharpeAnalysisSection
+            data={data.finsharpe_analysis}
+            pgNo={pgNum++}
+          />
         </>
       )}
 
@@ -731,7 +748,13 @@ function JsonDataDisplay({ data }: { data: any }) {
 }
 
 // FinSharpe Analysis Section Component
-function FinSharpeAnalysisSection({ data, pgNo }: { data: PFFinSharpeAnalysisData; pgNo: number }) {
+function FinSharpeAnalysisSection({
+  data,
+  pgNo,
+}: {
+  data: PFFinSharpeAnalysisData;
+  pgNo: number;
+}) {
   if (!data) {
     return null;
   }
@@ -780,7 +803,13 @@ function RecommendationSection({ section }: { section: Section }) {
   );
 }
 
-function AllocationsPage({ data, pgNo }: { data: PFFinSharpeAnalysisData; pgNo: number }) {
+function AllocationsPage({
+  data,
+  pgNo,
+}: {
+  data: PFFinSharpeAnalysisData;
+  pgNo: number;
+}) {
   if (!data) {
     return null;
   }
@@ -833,6 +862,7 @@ function AllocationsPage({ data, pgNo }: { data: PFFinSharpeAnalysisData; pgNo: 
                         outerRadius={80}
                         paddingAngle={2}
                         dataKey="value"
+                        isAnimationActive={false}
                       >
                         {industryWithColors.map((entry, index) => (
                           <Cell

@@ -83,6 +83,7 @@ export default function StockWiseAllocationPie({ data,labelKey, label }: Props) 
           outerRadius={90}
           // innerRadius={50}
           dataKey="weight"
+          isAnimationActive={false}
         >
           {data.map((_, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
