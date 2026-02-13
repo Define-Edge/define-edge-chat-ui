@@ -111,7 +111,8 @@ export default function PfAnalysisReportMessageComponent({
   // Calculate total pages dynamically
   let totalPages = 0;
   totalPages++; // IntroPageContainer
-  if (data.finsharpe_analysis) totalPages++; // AllocationsPage
+  if (data.sector_distribution?.length || data.market_cap_distribution?.length)
+    totalPages++; // AllocationsPage
   totalPages++; // Stock Wise Allocation
   if (shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis)
     totalPages++; // FinSharpe Analysis
@@ -125,9 +126,12 @@ export default function PfAnalysisReportMessageComponent({
   if (shouldRenderSection("portfolio_overview"))
     totalPages += pfItemsArr.length; // Portfolio Overview (multiple pages)
   totalPages++; // Advanced Analysis intro
-  if (shouldRenderSection("risk_assessment")) totalPages++; // Risk Assessment
+  if (
+    shouldRenderSection("risk_assessment") ||
+    shouldRenderSection("risk_adjusted_returns")
+  )
+    totalPages++; // Risk Assessment + Risk-Adjusted Returns
   if (shouldRenderSection("drawdown_analysis") && drawdownChart) totalPages++; // Drawdown Analysis
-  if (shouldRenderSection("risk_adjusted_returns")) totalPages++; // Risk-Adjusted Returns
   if (shouldRenderSection("correlation_analysis")) totalPages++; // Correlation
   if (personalComment) totalPages++; // Personal Comment
   totalPages++; // Disclaimer
@@ -155,9 +159,13 @@ export default function PfAnalysisReportMessageComponent({
           }
         />
       </IntroPageContainer>
-      {data.finsharpe_analysis && (
+      {(data.sector_distribution?.length ||
+        data.market_cap_distribution?.length) && (
         <AllocationsPage
-          data={data.finsharpe_analysis}
+          sectorDistribution={data.sector_distribution}
+          marketCapDistribution={data.market_cap_distribution}
+          sectorAllocationSummary={data.sector_allocation_summary}
+          marketCapAllocationSummary={data.market_cap_allocation_summary}
           pgNo={pgNum++}
         />
       )}
@@ -269,10 +277,16 @@ export default function PfAnalysisReportMessageComponent({
 
       <AdvancedAnalysis pgNo={pgNum++} />
 
-      {/* Risk Assessment */}
-      {shouldRenderSection("risk_assessment") && (
+      {/* Risk Assessment + Risk-Adjusted Returns */}
+      {(shouldRenderSection("risk_assessment") ||
+        shouldRenderSection("risk_adjusted_returns")) && (
         <PageLayout pgNo={pgNum++}>
-          <FormatSection section={data.risk_assessment} />
+          {shouldRenderSection("risk_assessment") && (
+            <FormatSection section={data.risk_assessment} />
+          )}
+          {shouldRenderSection("risk_adjusted_returns") && (
+            <FormatSection section={data.risk_adjusted_returns} />
+          )}
         </PageLayout>
       )}
       {/* Drawdown Analysis */}
@@ -283,12 +297,6 @@ export default function PfAnalysisReportMessageComponent({
             section={data.drawdown_analysis}
             returnsData={returnsChart}
           />
-        </PageLayout>
-      )}
-      {/* Risk-Adjusted Returns */}
-      {shouldRenderSection("risk_adjusted_returns") && (
-        <PageLayout pgNo={pgNum++}>
-          <FormatSection section={data.risk_adjusted_returns} />
         </PageLayout>
       )}
       {/* Correlation Analysis */}
@@ -804,29 +812,31 @@ function RecommendationSection({ section }: { section: Section }) {
 }
 
 function AllocationsPage({
-  data,
+  sectorDistribution,
+  marketCapDistribution,
+  sectorAllocationSummary,
+  marketCapAllocationSummary,
   pgNo,
 }: {
-  data: PFFinSharpeAnalysisData;
+  sectorDistribution?: { name: string; value: number }[];
+  marketCapDistribution?: { name: string; value: number }[];
+  sectorAllocationSummary?: string;
+  marketCapAllocationSummary?: string;
   pgNo: number;
 }) {
-  if (!data) {
-    return null;
-  }
-
   // Cast distribution items to typed arrays with colors
-  const industryWithColors = (data.industry_distribution || []).map(
-    (item: any, index: number) => ({
-      name: item.name as string,
-      value: item.value as number,
+  const industryWithColors = (sectorDistribution || []).map(
+    (item, index) => ({
+      name: item.name,
+      value: item.value,
       color: PIE_COLORS[index % PIE_COLORS.length],
     }),
   );
 
-  const sizeWithColors = (data.size_distribution || []).map((item: any) => ({
-    name: item.name as string,
-    value: item.value as number,
-    color: SIZE_COLORS[item.name as string] || PIE_COLORS[0],
+  const sizeWithColors = (marketCapDistribution || []).map((item) => ({
+    name: item.name,
+    value: item.value,
+    color: SIZE_COLORS[item.name] || PIE_COLORS[0],
   }));
   return (
     <PageLayout pgNo={pgNo}>
@@ -838,14 +848,14 @@ function AllocationsPage({
             Icon={BulbIcon}
             containerClasses="mt-4"
             desc={
-              data.industry_allocation_summary ||
-              "Industry allocation shows how your investments are distributed across different sectors. A well-diversified portfolio typically has allocations spread across multiple industries, which can help reduce risk and improve potential returns over time."
+              sectorAllocationSummary ||
+              "Sector allocation shows how your investments are distributed across different sectors. A well-diversified portfolio typically has allocations spread across multiple sectors, which can help reduce risk and improve potential returns over time."
             }
-            context="Having a well-diversified portfolio across industries helps mitigates concentration risk, i.e., the potential for loss when a group of securities move in an unfavorable direction."
+            context="Having a well-diversified portfolio across sectors helps mitigate concentration risk, i.e., the potential for loss when a group of securities move in an unfavorable direction."
           >
             <div className="p-4">
               <h4 className="mb-4 text-center font-medium text-gray-900">
-                Industry Wise Allocation
+                Sector Wise Allocation
               </h4>
               <div className="flex items-center gap-4">
                 <div className="h-48 flex-shrink-0 md:w-48">
@@ -908,7 +918,7 @@ function AllocationsPage({
             Icon={BulbIcon}
             containerClasses="mt-4"
             desc={
-              data.market_cap_allocation_summary ||
+              marketCapAllocationSummary ||
               "Market cap allocation shows how your investments are distributed across companies of different sizes (large-cap, mid-cap, small-cap). A balanced allocation across market caps can help optimize growth potential while managing risk."
             }
             context="Large-cap stocks are typically more stable but may offer lower growth, while small-cap stocks can offer higher growth potential but with increased volatility. A diversified allocation across market caps can help balance risk and return in your portfolio."

@@ -8,6 +8,7 @@
 import type { Section } from "./section";
 import type { PFAnalysisReportDataCorrelationHeatmap } from "./pFAnalysisReportDataCorrelationHeatmap";
 import type { PFAnalysisReportDataFinsharpeAnalysis } from "./pFAnalysisReportDataFinsharpeAnalysis";
+import type { DistributionItem } from "./distributionItem";
 import type { PFAnalysisReportDataReturnsChart } from "./pFAnalysisReportDataReturnsChart";
 import type { PFAnalysisReportDataDrawdownChart } from "./pFAnalysisReportDataDrawdownChart";
 import type { PFAnalysisReportDataMonthlyReturnsHeatmap } from "./pFAnalysisReportDataMonthlyReturnsHeatmap";
@@ -24,6 +25,10 @@ export interface PFAnalysisReportData {
   correlation_analysis: Section;
   correlation_heatmap?: PFAnalysisReportDataCorrelationHeatmap;
   finsharpe_analysis?: PFAnalysisReportDataFinsharpeAnalysis;
+  sector_distribution?: DistributionItem[];
+  market_cap_distribution?: DistributionItem[];
+  sector_allocation_summary?: string;
+  market_cap_allocation_summary?: string;
   returns_chart?: PFAnalysisReportDataReturnsChart;
   drawdown_chart?: PFAnalysisReportDataDrawdownChart;
   monthly_returns_heatmap?: PFAnalysisReportDataMonthlyReturnsHeatmap;

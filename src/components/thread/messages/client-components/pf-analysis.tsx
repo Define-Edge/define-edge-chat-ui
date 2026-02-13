@@ -107,6 +107,14 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
         <FinSharpeAnalysisSection data={data.finsharpe_analysis} />
       )}
 
+      {/* Distribution Charts (Sector & Market Cap) */}
+      <DistributionChartsSection
+        sectorDistribution={data.sector_distribution}
+        marketCapDistribution={data.market_cap_distribution}
+        sectorAllocationSummary={data.sector_allocation_summary}
+        marketCapAllocationSummary={data.market_cap_allocation_summary}
+      />
+
       {/* 8. Summary */}
       <FormatSection section={data.summary} />
 
@@ -312,21 +320,6 @@ function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
     return null;
   }
 
-  // Cast distribution items to typed arrays with colors
-  const industryWithColors = (data.industry_distribution || []).map(
-    (item: any, index: number) => ({
-      name: item.name as string,
-      value: item.value as number,
-      color: PIE_COLORS[index % PIE_COLORS.length],
-    }),
-  );
-
-  const sizeWithColors = (data.size_distribution || []).map((item: any) => ({
-    name: item.name as string,
-    value: item.value as number,
-    color: SIZE_COLORS[item.name as string] || PIE_COLORS[0],
-  }));
-
   return (
     <div className="my-6">
       {/* Main Analysis Section */}
@@ -366,99 +359,141 @@ function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
             </div>
           )}
       </div>
+    </div>
+  );
+}
 
-      {/* Distribution Charts Grid */}
-      <div className="mt-6 grid gap-6">
-        {/* Industry Distribution */}
-        {industryWithColors.length > 0 && (
-          <div className="rounded-lg border border-gray-200 p-4">
-            <h4 className="mb-4 font-medium text-gray-900">
-              Industry Allocation
-            </h4>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center">
-              <div className="h-48 flex-shrink-0 md:w-48">
-                <ResponsiveContainer
-                  width="100%"
-                  height="100%"
-                >
-                  <PieChart>
-                    <Pie
-                      data={industryWithColors}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {industryWithColors.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={entry.color}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => `${Number(value).toFixed(2)}%`}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="grid flex-1 grid-cols-1 gap-x-6 gap-y-2 md:grid-cols-2">
-                {industryWithColors.map((industry, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between gap-2"
+// Distribution Charts Section (Sector & Market Cap)
+function DistributionChartsSection({
+  sectorDistribution,
+  marketCapDistribution,
+  sectorAllocationSummary,
+  marketCapAllocationSummary,
+}: {
+  sectorDistribution?: { name: string; value: number }[];
+  marketCapDistribution?: { name: string; value: number }[];
+  sectorAllocationSummary?: string;
+  marketCapAllocationSummary?: string;
+}) {
+  const industryWithColors = (sectorDistribution || []).map(
+    (item, index) => ({
+      name: item.name,
+      value: item.value,
+      color: PIE_COLORS[index % PIE_COLORS.length],
+    }),
+  );
+
+  const sizeWithColors = (marketCapDistribution || []).map((item) => ({
+    name: item.name,
+    value: item.value,
+    color: SIZE_COLORS[item.name] || PIE_COLORS[0],
+  }));
+
+  if (industryWithColors.length === 0 && sizeWithColors.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-6 grid gap-6">
+      {/* Sector Distribution */}
+      {industryWithColors.length > 0 && (
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h4 className="mb-4 font-medium text-gray-900">
+            Sector Allocation
+          </h4>
+          {sectorAllocationSummary && (
+            <p className="mb-4 text-sm text-gray-600">
+              {sectorAllocationSummary}
+            </p>
+          )}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            <div className="h-48 flex-shrink-0 md:w-48">
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+                <PieChart>
+                  <Pie
+                    data={industryWithColors}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
                   >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="h-3 w-3 flex-shrink-0 rounded-full"
-                        style={{ backgroundColor: industry.color }}
+                    {industryWithColors.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
                       />
-                      <span className="text-sm text-gray-600">
-                        {industry.name}
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">
-                      {Number(industry.value).toFixed(2)}%
-                    </span>
-                  </div>
-                ))}
-              </div>
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => `${Number(value).toFixed(2)}%`}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          </div>
-        )}
-
-        {/* Size Distribution */}
-        {sizeWithColors.length > 0 && (
-          <div className="rounded-lg border border-gray-200 p-4">
-            <h4 className="mb-4 font-medium text-gray-900">
-              Market Cap Allocation
-            </h4>
-            <div className="space-y-3">
-              {sizeWithColors.map((size, index) => (
-                <div key={index}>
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{size.name}</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {Number(size.value).toFixed(2)}%
+            <div className="grid flex-1 grid-cols-1 gap-x-6 gap-y-2 md:grid-cols-2">
+              {industryWithColors.map((industry, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="h-3 w-3 flex-shrink-0 rounded-full"
+                      style={{ backgroundColor: industry.color }}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {industry.name}
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-gray-100">
-                    <div
-                      className="h-2 rounded-full"
-                      style={{
-                        width: `${size.value}%`,
-                        backgroundColor: size.color,
-                      }}
-                    />
-                  </div>
+                  <span className="text-sm font-medium text-gray-900">
+                    {Number(industry.value).toFixed(2)}%
+                  </span>
                 </div>
               ))}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Market Cap Distribution */}
+      {sizeWithColors.length > 0 && (
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h4 className="mb-4 font-medium text-gray-900">
+            Market Cap Allocation
+          </h4>
+          {marketCapAllocationSummary && (
+            <p className="mb-4 text-sm text-gray-600">
+              {marketCapAllocationSummary}
+            </p>
+          )}
+          <div className="space-y-3">
+            {sizeWithColors.map((size, index) => (
+              <div key={index}>
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{size.name}</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {Number(size.value).toFixed(2)}%
+                  </span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-gray-100">
+                  <div
+                    className="h-2 rounded-full"
+                    style={{
+                      width: `${size.value}%`,
+                      backgroundColor: size.color,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

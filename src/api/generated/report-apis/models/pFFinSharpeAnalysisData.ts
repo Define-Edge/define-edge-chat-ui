@@ -8,7 +8,6 @@
 import type { Section } from "./section";
 import type { FinSharpeScoreItem } from "./finSharpeScoreItem";
 import type { ScoreChartDataItem } from "./scoreChartDataItem";
-import type { DistributionItem } from "./distributionItem";
 
 /**
  * FinSharpe analysis data for portfolio report.
@@ -18,10 +17,6 @@ export interface PFFinSharpeAnalysisData {
   scores_comparison?: FinSharpeScoreItem[];
   overall_score_summary?: string;
   risk_score_summary?: string;
-  industry_allocation_summary?: string;
-  market_cap_allocation_summary?: string;
   overall_score_chart_data: ScoreChartDataItem[];
   risk_score_chart_data: ScoreChartDataItem[];
-  size_distribution: DistributionItem[];
-  industry_distribution: DistributionItem[];
 }
