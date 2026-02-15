@@ -4,8 +4,12 @@ import BulbIcon from "@/components/icons/BulbIcon";
 import DrawdownIcon from "@/components/icons/DrawdownIcon";
 import { MarkdownText } from "@/components/thread/markdown-text";
 import DataTable from "@/components/ui/data-table/DataTable";
-import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
-import { chunkArray, formatKey } from "@/lib/format-utils";
+import {
+  chunkArray,
+  formatKey,
+  getDisplayPortfolio,
+  getPortfolioDisplayTable,
+} from "@/lib/format-utils";
 import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
 import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
 import { SectionFormatter } from "@/lib/section-formatter";
@@ -114,7 +118,10 @@ export default function PfAnalysisReportMessageComponent({
     return selectedSections.includes(sectionKey);
   };
 
-  const portfolio = analysis.portfolio || [];
+  const portfolio = getDisplayPortfolio(
+    analysis.portfolio || [],
+    analysis.portfolio_type,
+  );
   const pfItemsArr = chunkArray(portfolio, MAX_ROWS_PER_PAGE);
 
   // Calculate total pages dynamically
@@ -185,19 +192,32 @@ export default function PfAnalysisReportMessageComponent({
           containerClasses="mt-4"
           desc={
             data.weight_allocation_summary ||
-            "Stock wise allocation shows how your investments are distributed across different stocks in your portfolio. A well-diversified stock allocation can help reduce risk and improve potential returns by spreading investments across multiple companies."
+            (analysis.portfolio_type === "mutual_fund"
+              ? "Fund wise allocation shows how your investments are distributed across different mutual funds in your portfolio. A well-diversified fund allocation can help reduce risk and improve potential returns."
+              : "Stock wise allocation shows how your investments are distributed across different stocks in your portfolio. A well-diversified stock allocation can help reduce risk and improve potential returns by spreading investments across multiple companies.")
           }
           context="Diversification across multiple stocks reduces the portfolio's overall level of volatility and potential risk. When one stock performs poorly, others in the portfolio can offset the losses."
         >
           <StockWiseAllocationPie
             data={shuffleArray(
-              groupSmallFragments(analysis.portfolio, {
-                id: "Ticker",
+              groupSmallFragments(portfolio, {
+                id:
+                  analysis.portfolio_type === "mutual_fund"
+                    ? "Scheme_Name"
+                    : "Ticker",
                 maxFragments: 6,
               }),
             )}
-            label="Stock Wise Allocations"
-            labelKey="Ticker"
+            label={
+              analysis.portfolio_type === "mutual_fund"
+                ? "Fund Wise Allocations"
+                : "Stock Wise Allocations"
+            }
+            labelKey={
+              analysis.portfolio_type === "mutual_fund"
+                ? "Scheme_Name"
+                : "Ticker"
+            }
           />
         </ChartContainer>
       </PageLayout>
@@ -280,6 +300,7 @@ export default function PfAnalysisReportMessageComponent({
               section={data.portfolio_overview}
               portfolio={chunk}
               isFirstChunk={idx === 0}
+              portfolioType={analysis.portfolio_type}
             />
           </PageLayout>
         ))}
@@ -353,7 +374,10 @@ export default function PfAnalysisReportMessageComponent({
             {
               section: {
                 ...data.portfolio_overview,
-                sources: convertToMarkdownTable(analysis.portfolio || []),
+                sources: getPortfolioDisplayTable(
+                  portfolio,
+                  analysis.portfolio_type,
+                ),
               },
               key: "portfolio_overview",
             },
@@ -438,10 +462,12 @@ function PortfolioOverviewSection({
   section,
   portfolio,
   isFirstChunk,
+  portfolioType,
 }: {
   section: Section;
   portfolio?: Record<string, any>[];
   isFirstChunk?: boolean;
+  portfolioType?: string;
 }) {
   if (!section) {
     return null;
@@ -449,6 +475,7 @@ function PortfolioOverviewSection({
 
   const items = portfolio || [];
   const firstItem = items[0] as Record<string, any> | undefined;
+  const isMF = portfolioType === "mutual_fund";
 
   // Build columns dynamically based on available keys
   const columns: {
@@ -457,65 +484,112 @@ function PortfolioOverviewSection({
     meta?: { column?: { align?: "left" | "center" | "right" } };
   }[] = [];
 
-  // Symbol / Ticker column
-  const tickerKey = firstItem
-    ? "symbol" in firstItem
-      ? "symbol"
-      : "Ticker" in firstItem
-        ? "Ticker"
-        : null
-    : null;
-  if (tickerKey) {
-    columns.push({
-      Header: tickerKey === "symbol" ? "Symbol" : "Ticker",
-      accessor: (row) => row[tickerKey] ?? "",
-      meta: { column: { align: "left" } },
-    });
-  }
+  if (isMF) {
+    // Mutual fund columns
+    if (firstItem && "Scheme_Name" in firstItem) {
+      columns.push({
+        Header: "Scheme Name",
+        accessor: (row) => row.Scheme_Name ?? "",
+        meta: { column: { align: "left" } },
+      });
+    }
+    if (firstItem && "Sebi_Category" in firstItem) {
+      columns.push({
+        Header: "SEBI Category",
+        accessor: (row) => row.Sebi_Category ?? "",
+        meta: { column: { align: "left" } },
+      });
+    }
 
-  // Weight column
-  columns.push({
-    Header: "Weight",
-    accessor: (row) =>
-      typeof row.weight === "number" ? `${row.weight.toFixed(2)}%` : row.weight,
-    meta: { column: { align: "right" } },
-  });
-
-  // Quantity column (if present)
-  if (firstItem && "quantity" in firstItem) {
+    // Weight column
     columns.push({
-      Header: "Qty",
-      accessor: (row) => row.quantity,
+      Header: "Weight",
+      accessor: (row) =>
+        typeof row.weight === "number"
+          ? `${row.weight.toFixed(2)}%`
+          : row.weight,
       meta: { column: { align: "right" } },
     });
-  }
 
-  // Action column (if present)
-  if (items.some((item) => "Action" in item)) {
-    columns.push({
-      Header: "Action",
-      accessor: (row) => row.Action ?? "",
-      meta: { column: { align: "left" } },
-    });
-  }
-
-  // FinSharpe score columns (if present)
-  const finsharpeScoreCols = [
-    { key: "FinSharpe_Overall_Score", header: "FinSharpe Overall" },
-    { key: "FinSharpe_Growth_Score", header: "FinSharpe Growth" },
-    { key: "FinSharpe_Performance_Score", header: "FinSharpe Perf." },
-    { key: "FinSharpe_Value_Score", header: "FinSharpe Value" },
-    { key: "FinSharpe_Risk_Score", header: "FinSharpe Risk" },
-  ] as const;
-
-  for (const { key, header } of finsharpeScoreCols) {
-    if (items.some((item) => key in item)) {
+    // MF score columns
+    const mfScoreCols = [
+      { key: "PerformanceScore", header: "Performance" },
+      { key: "RiskAdjReturn", header: "Risk-Adj Return" },
+      { key: "RiskScore", header: "Risk Score" },
+    ] as const;
+    for (const { key, header } of mfScoreCols) {
+      if (items.some((item) => key in item)) {
+        columns.push({
+          Header: header,
+          accessor: (row) =>
+            row[key] != null ? Number(row[key]).toFixed(1) : "N/A",
+          meta: { column: { align: "right" } },
+        });
+      }
+    }
+  } else {
+    // Stock columns (existing logic)
+    const tickerKey = firstItem
+      ? "symbol" in firstItem
+        ? "symbol"
+        : "Ticker" in firstItem
+          ? "Ticker"
+          : null
+      : null;
+    if (tickerKey) {
       columns.push({
-        Header: header,
-        accessor: (row) =>
-          row[key] != null ? Number(row[key]).toFixed(1) : "N/A",
+        Header: tickerKey === "symbol" ? "Symbol" : "Ticker",
+        accessor: (row) => row[tickerKey] ?? "",
+        meta: { column: { align: "left" } },
+      });
+    }
+
+    // Weight column
+    columns.push({
+      Header: "Weight",
+      accessor: (row) =>
+        typeof row.weight === "number"
+          ? `${row.weight.toFixed(2)}%`
+          : row.weight,
+      meta: { column: { align: "right" } },
+    });
+
+    // Quantity column (if present)
+    if (firstItem && "quantity" in firstItem) {
+      columns.push({
+        Header: "Qty",
+        accessor: (row) => row.quantity,
         meta: { column: { align: "right" } },
       });
+    }
+
+    // Action column (if present)
+    if (items.some((item) => "Action" in item)) {
+      columns.push({
+        Header: "Action",
+        accessor: (row) => row.Action ?? "",
+        meta: { column: { align: "left" } },
+      });
+    }
+
+    // FinSharpe score columns (if present)
+    const finsharpeScoreCols = [
+      { key: "FinSharpe_Overall_Score", header: "FinSharpe Overall" },
+      { key: "FinSharpe_Growth_Score", header: "FinSharpe Growth" },
+      { key: "FinSharpe_Performance_Score", header: "FinSharpe Perf." },
+      { key: "FinSharpe_Value_Score", header: "FinSharpe Value" },
+      { key: "FinSharpe_Risk_Score", header: "FinSharpe Risk" },
+    ] as const;
+
+    for (const { key, header } of finsharpeScoreCols) {
+      if (items.some((item) => key in item)) {
+        columns.push({
+          Header: header,
+          accessor: (row) =>
+            row[key] != null ? Number(row[key]).toFixed(1) : "N/A",
+          meta: { column: { align: "right" } },
+        });
+      }
     }
   }
 
@@ -524,7 +598,7 @@ function PortfolioOverviewSection({
     ? {
         title: section.title,
         content: "",
-        sources: convertToMarkdownTable(items),
+        sources: getPortfolioDisplayTable(items, portfolioType),
       }
     : null;
 

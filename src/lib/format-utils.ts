@@ -17,15 +17,69 @@ export function formatKey(key: string): string {
 }
 
 /**
+ * Filters portfolio items to only display-relevant entries.
+ * For mutual_fund portfolios, removes NAV-level tracking items (identifier_type === "symbol").
+ * For stock portfolios (or undefined type), returns as-is.
+ */
+export function getDisplayPortfolio(
+  portfolio: Record<string, any>[],
+  portfolioType?: string,
+): Record<string, any>[] {
+  if (portfolioType === "mutual_fund") {
+    return portfolio.filter((item) => item.identifier_type !== "symbol");
+  }
+  return portfolio;
+}
+
+/**
  * Filters portfolio to display columns and converts to a markdown table.
  * Display columns: symbol/Ticker, weight, and optionally quantity, CMP, value.
+ * For mutual_fund portfolios: shows Scheme_Name, Sebi_Category, weight, and MF score columns.
  */
 export function getPortfolioDisplayTable(
   portfolio?: Record<string, any>[],
+  portfolioType?: string,
 ): string {
   if (!portfolio || portfolio.length === 0) return "";
 
-  const firstItem = portfolio[0];
+  // Filter to display items only
+  const displayItems =
+    portfolioType === "mutual_fund"
+      ? portfolio.filter((item) => item.identifier_type !== "symbol")
+      : portfolio;
+
+  if (displayItems.length === 0) return "";
+
+  const firstItem = displayItems[0];
+
+  // Mutual fund flow
+  if (portfolioType === "mutual_fund") {
+    const mfScoreCols = [
+      { key: "PerformanceScore", display: "Performance" },
+      { key: "RiskAdjReturn", display: "Risk-Adj Return" },
+      { key: "RiskScore", display: "Risk Score" },
+    ] as const;
+    const presentMfScoreCols = mfScoreCols.filter((col) =>
+      displayItems.some((item) => col.key in item),
+    );
+
+    const filteredData = displayItems.map((item) => {
+      const filtered: Record<string, any> = {};
+      if ("Scheme_Name" in item) filtered["Scheme Name"] = item.Scheme_Name;
+      if ("Sebi_Category" in item)
+        filtered["SEBI Category"] = item.Sebi_Category;
+      if ("weight" in item) filtered["Weight"] = `${item.weight.toFixed(2)}%`;
+      for (const col of presentMfScoreCols) {
+        filtered[col.display] =
+          item[col.key] != null ? Number(item[col.key]).toFixed(1) : "N/A";
+      }
+      return filtered;
+    });
+
+    return convertToMarkdownTable(filteredData);
+  }
+
+  // Stock flow (existing logic)
   const displayCols: string[] = [];
 
   // Select symbol/ticker column
@@ -52,10 +106,10 @@ export function getPortfolioDisplayTable(
     FinSharpe_Risk_Score: "FinSharpe Risk",
   };
   const presentFsColumns = finsharpeScoreCols.filter((col) =>
-    portfolio.some((item) => col in item),
+    displayItems.some((item) => col in item),
   );
 
-  const filteredData = portfolio.map((item) => {
+  const filteredData = displayItems.map((item) => {
     const filtered: Record<string, any> = {};
     for (const col of displayCols) {
       if (col in item) {

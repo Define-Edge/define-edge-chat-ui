@@ -4,7 +4,11 @@ import type { ScreenerCoverage } from "@/api/generated/report-apis/models";
 import ScreenerCoverageBadge from "@/components/pdfs_templates/pf-report/ScreenerCoverageBadge";
 import { Button } from "@/components/ui/button";
 import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
-import { formatKey, getPortfolioDisplayTable } from "@/lib/format-utils";
+import {
+  formatKey,
+  getDisplayPortfolio,
+  getPortfolioDisplayTable,
+} from "@/lib/format-utils";
 import groupSmallFragments from "@/lib/groupSmallFragments";
 import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
 import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
@@ -77,6 +81,7 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       <PortfolioOverviewSection
         section={data.portfolio_overview}
         portfolio={analysis.portfolio}
+        portfolioType={analysis.portfolio_type}
       />
 
       {/* 2. Performance Analysis + Returns Chart */}
@@ -182,22 +187,30 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
 function PortfolioOverviewSection({
   section,
   portfolio,
+  portfolioType,
 }: {
   section: Section;
   portfolio?: Record<string, any>[];
+  portfolioType?: string;
 }) {
   if (!section) {
     return null;
   }
 
-  const portfolioTable = getPortfolioDisplayTable(portfolio);
+  const displayPortfolio = portfolio
+    ? getDisplayPortfolio(portfolio, portfolioType)
+    : [];
+  const portfolioTable = getPortfolioDisplayTable(
+    displayPortfolio,
+    portfolioType,
+  );
 
   const content = `${section.content}\n\n${portfolioTable ? `\n${portfolioTable}\n` : ""}`;
 
   const _section: Section = {
     title: section.title,
     content: content,
-    sources: convertToMarkdownTable(portfolio || []),
+    sources: convertToMarkdownTable(displayPortfolio),
   };
 
   return <FormatSection section={_section} />;
