@@ -5,5 +5,8 @@
  * LangGraph-based multi-agent system for financial market analysis
  * OpenAPI spec version: 1.0.0
  */
+import type { CorrelationSectionHeatmapAnyOfItem } from "./correlationSectionHeatmapAnyOfItem";
 
-export type PFAnalysisReportDataDrawdownChartAnyOf = { [key: string]: unknown };
+export type CorrelationSectionHeatmap =
+  | CorrelationSectionHeatmapAnyOfItem[]
+  | null;

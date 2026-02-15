@@ -21,9 +21,31 @@ export type DrawdownChartData = {
     start_date: number;
     end_date: number;
     drawdown_pct: number;
-    duration: string;
+    duration?: string;
   }>;
   colors: Record<string, string>;
   title: string;
   description?: string;
+};
+
+export type CorrelationHeatmapRow = {
+  symbol: string;
+  [key: string]: number | string;
+};
+
+export type HeatmapRow = {
+  year: number;
+  [month: string]: number | null;
+};
+
+export type MonthlyReturnsHeatmapData = {
+  portfolio: HeatmapRow[];
+  benchmark: HeatmapRow[];
+  active: HeatmapRow[];
+  months: string[];
+} | null;
+
+export type DistributionItem = {
+  name: string;
+  value: number;
 };

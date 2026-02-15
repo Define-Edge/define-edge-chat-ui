@@ -5,7 +5,7 @@
  * LangGraph-based multi-agent system for financial market analysis
  * OpenAPI spec version: 1.0.0
  */
+import type { MonthlyReturnsSectionHeatmapAnyOf } from "./monthlyReturnsSectionHeatmapAnyOf";
 
-export type PFAnalysisReportDataMonthlyReturnsHeatmapAnyOf = {
-  [key: string]: unknown;
-};
+export type MonthlyReturnsSectionHeatmap =
+  MonthlyReturnsSectionHeatmapAnyOf | null;

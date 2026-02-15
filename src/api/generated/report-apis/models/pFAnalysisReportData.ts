@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { Section } from "./section";
-import type { PFAnalysisReportDataCorrelationHeatmap } from "./pFAnalysisReportDataCorrelationHeatmap";
-import type { PFAnalysisReportDataFinsharpeAnalysis } from "./pFAnalysisReportDataFinsharpeAnalysis";
-import type { DistributionItem } from "./distributionItem";
+import type { DrawdownSection } from "./drawdownSection";
+import type { CorrelationSection } from "./correlationSection";
+import type { DistributionSection } from "./distributionSection";
 import type { PFAnalysisReportDataReturnsChart } from "./pFAnalysisReportDataReturnsChart";
-import type { PFAnalysisReportDataDrawdownChart } from "./pFAnalysisReportDataDrawdownChart";
-import type { PFAnalysisReportDataMonthlyReturnsHeatmap } from "./pFAnalysisReportDataMonthlyReturnsHeatmap";
+import type { MonthlyReturnsSection } from "./monthlyReturnsSection";
+import type { PFAnalysisReportDataFinsharpeAnalysis } from "./pFAnalysisReportDataFinsharpeAnalysis";
 
 /**
  * Portfolio analysis report data.
@@ -21,18 +21,13 @@ export interface PFAnalysisReportData {
   performance_analysis: Section;
   risk_assessment: Section;
   risk_adjusted_returns: Section;
-  drawdown_analysis: Section;
-  correlation_analysis: Section;
-  correlation_heatmap?: PFAnalysisReportDataCorrelationHeatmap;
-  finsharpe_analysis?: PFAnalysisReportDataFinsharpeAnalysis;
-  sector_distribution?: DistributionItem[];
-  market_cap_distribution?: DistributionItem[];
-  sector_allocation_summary?: string;
-  market_cap_allocation_summary?: string;
+  drawdown: DrawdownSection;
+  correlation: CorrelationSection;
+  sector_allocation: DistributionSection;
+  market_cap_allocation: DistributionSection;
   returns_chart?: PFAnalysisReportDataReturnsChart;
-  drawdown_chart?: PFAnalysisReportDataDrawdownChart;
-  monthly_returns_heatmap?: PFAnalysisReportDataMonthlyReturnsHeatmap;
-  monthly_returns_summary?: string;
+  monthly_returns: MonthlyReturnsSection;
+  finsharpe_analysis?: PFAnalysisReportDataFinsharpeAnalysis;
   weight_allocation_summary?: string;
   summary: Section;
   recommendation: Section;

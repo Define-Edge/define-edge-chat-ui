@@ -2,6 +2,12 @@
 
 import ChartContainer from "../layout/ChartContainer";
 import BulbIcon from "@/components/icons/BulbIcon";
+import type {
+  HeatmapRow,
+  MonthlyReturnsHeatmapData,
+} from "@/types/pf-analysis";
+
+export type { MonthlyReturnsHeatmapData } from "@/types/pf-analysis";
 
 const MONTHS = [
   "Jan",
@@ -18,20 +24,8 @@ const MONTHS = [
   "Dec",
 ] as const;
 
-type HeatmapRow = {
-  year: number;
-  [month: string]: number | null;
-};
-
-export type MonthlyReturnsHeatmapData = {
-  portfolio: HeatmapRow[];
-  benchmark: HeatmapRow[];
-  active: HeatmapRow[];
-  months: string[];
-} | null;
-
 type Props = {
-  heatmap: MonthlyReturnsHeatmapData;
+  heatmap?: MonthlyReturnsHeatmapData;
   summary?: string;
 };
 
@@ -229,11 +223,14 @@ function HeatmapTable({
 }
 
 export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
-  if (!heatmap) return null;
+  if (!heatmap && !summary) return null;
 
-  const { portfolio, benchmark, active } = heatmap;
+  const portfolio = heatmap?.portfolio;
+  const benchmark = heatmap?.benchmark;
+  const active = heatmap?.active;
   const hasBenchmark = benchmark && benchmark.length > 0;
   const hasActive = active && active.length > 0;
+  const hasPortfolio = portfolio && portfolio.length > 0;
 
   return (
     <div className="space-y-4">
@@ -249,26 +246,28 @@ export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
         }
         context="Tracking monthly returns helps identify seasonal patterns and consistency in portfolio performance relative to the benchmark."
       >
-        <div className="space-y-8 p-4">
-          <HeatmapTable
-            label="Portfolio Returns (%)"
-            rows={portfolio}
-          />
-
-          {hasBenchmark && (
+        {hasPortfolio && (
+          <div className="space-y-8 p-4">
             <HeatmapTable
-              label="Benchmark Returns (%) — Nifty 500"
-              rows={benchmark}
+              label="Portfolio Returns (%)"
+              rows={portfolio}
             />
-          )}
 
-          {hasActive && (
-            <HeatmapTable
-              label="Active Returns (%) — Portfolio vs Benchmark"
-              rows={active}
-            />
-          )}
-        </div>
+            {hasBenchmark && (
+              <HeatmapTable
+                label="Benchmark Returns (%) — Nifty 500"
+                rows={benchmark}
+              />
+            )}
+
+            {hasActive && (
+              <HeatmapTable
+                label="Active Returns (%) — Portfolio vs Benchmark"
+                rows={active}
+              />
+            )}
+          </div>
+        )}
       </ChartContainer>
     </div>
   );

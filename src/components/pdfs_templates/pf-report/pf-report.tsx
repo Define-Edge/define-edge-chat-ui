@@ -9,9 +9,11 @@ import { chunkArray, formatKey } from "@/lib/format-utils";
 import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
 import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
 import { SectionFormatter } from "@/lib/section-formatter";
-import {
+import type {
   ChartData,
+  CorrelationHeatmapRow,
   DrawdownChartData,
+  MonthlyReturnsHeatmapData,
   PfAnalysis,
   PFFinSharpeAnalysisData,
   Section,
@@ -29,9 +31,7 @@ import PageLayout from "../layout/PageLayout";
 import RecommendationContainer from "../layout/RecommendationContainer";
 import Summary from "../layout/Summary/Summary";
 import TotalPageCtxProvider from "../stock-report/TotalPageCtx";
-import type { CorrelationHeatmapRow } from "./CorrelationHeatmap";
 import CorrelationHeatmap from "./CorrelationHeatmap";
-import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
 import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
 import PfWelcome from "./PfWelcome";
 import ScreenerCoverageBadge from "./ScreenerCoverageBadge";
@@ -87,18 +87,25 @@ export default function PfAnalysisReportMessageComponent({
 }) {
   const { data } = analysis;
   const returnsChart = data.returns_chart as ChartData | null | undefined;
-  const drawdownChart = data.drawdown_chart as
-    | DrawdownChartData
-    | null
+
+  // Drawdown section (nested: { analysis, chart })
+  const drawdownSection = data.drawdown as
+    | { analysis?: Section; chart?: DrawdownChartData | null }
     | undefined;
-  const monthlyReturnsHeatmap = data.monthly_returns_heatmap as
-    | MonthlyReturnsHeatmapData
+  const drawdownChart = drawdownSection?.chart ?? null;
+
+  // Correlation section (nested: { analysis, heatmap })
+  const correlationSection = data.correlation as
+    | { analysis?: Section; heatmap?: CorrelationHeatmapRow[] | null }
     | undefined;
-  const monthlyReturnsSummary = data.monthly_returns_summary;
-  const correlationHeatmap = data.correlation_heatmap as
-    | CorrelationHeatmapRow[]
-    | null
+  const correlationHeatmap = correlationSection?.heatmap ?? null;
+
+  // Monthly returns section (nested: { heatmap, summary })
+  const monthlyReturnsSection = data.monthly_returns as
+    | { heatmap?: MonthlyReturnsHeatmapData; summary?: string }
     | undefined;
+  const monthlyReturnsHeatmap = monthlyReturnsSection?.heatmap ?? null;
+  const monthlyReturnsSummary = monthlyReturnsSection?.summary;
 
   // Helper function to check if a section should be rendered
   const shouldRenderSection = (sectionKey: string) => {
@@ -113,14 +120,13 @@ export default function PfAnalysisReportMessageComponent({
   // Calculate total pages dynamically
   let totalPages = 0;
   totalPages++; // IntroPageContainer
-  if (data.sector_distribution?.length || data.market_cap_distribution?.length)
+  if (data.sector_allocation?.items?.length || data.market_cap_allocation?.items?.length)
     totalPages++; // AllocationsPage
   totalPages++; // Stock Wise Allocation
   if (shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis)
     totalPages++; // FinSharpe Analysis
   if (shouldRenderSection("performance_analysis")) totalPages++; // Performance
-  if (shouldRenderSection("monthly_returns_heatmap") && monthlyReturnsHeatmap)
-    totalPages++; // Monthly Returns Heatmap
+  if (shouldRenderSection("monthly_returns")) totalPages++; // Monthly Returns
   totalPages++; // Financial Fitness
   totalPages++; // Actionables
   if (shouldRenderSection("summary")) totalPages++; // Summary
@@ -133,8 +139,8 @@ export default function PfAnalysisReportMessageComponent({
     shouldRenderSection("risk_adjusted_returns")
   )
     totalPages++; // Risk Assessment + Risk-Adjusted Returns
-  if (shouldRenderSection("drawdown_analysis") && drawdownChart) totalPages++; // Drawdown Analysis
-  if (shouldRenderSection("correlation_analysis")) totalPages++; // Correlation
+  if (shouldRenderSection("drawdown")) totalPages++; // Drawdown Analysis
+  if (shouldRenderSection("correlation")) totalPages++; // Correlation
   if (personalComment) totalPages++; // Personal Comment
   totalPages++; // Disclaimer
 
@@ -168,13 +174,13 @@ export default function PfAnalysisReportMessageComponent({
           coverage={data.finsharpe_analysis?.screener_coverage}
         />
       </IntroPageContainer>
-      {(data.sector_distribution?.length ||
-        data.market_cap_distribution?.length) && (
+      {(data.sector_allocation?.items?.length ||
+        data.market_cap_allocation?.items?.length) && (
         <AllocationsPage
-          sectorDistribution={data.sector_distribution}
-          marketCapDistribution={data.market_cap_distribution}
-          sectorAllocationSummary={data.sector_allocation_summary}
-          marketCapAllocationSummary={data.market_cap_allocation_summary}
+          sectorDistribution={data.sector_allocation?.items}
+          marketCapDistribution={data.market_cap_allocation?.items}
+          sectorAllocationSummary={data.sector_allocation?.summary}
+          marketCapAllocationSummary={data.market_cap_allocation?.summary}
           pgNo={pgNum++}
         />
       )}
@@ -236,16 +242,15 @@ export default function PfAnalysisReportMessageComponent({
         </PageLayout>
       )}
 
-      {/* Monthly Returns Heatmap */}
-      {shouldRenderSection("monthly_returns_heatmap") &&
-        monthlyReturnsHeatmap && (
-          <PageLayout pgNo={pgNum++}>
-            <MonthlyReturnsHeatmap
-              heatmap={monthlyReturnsHeatmap}
-              summary={monthlyReturnsSummary}
-            />
-          </PageLayout>
-        )}
+      {/* Monthly Returns */}
+      {shouldRenderSection("monthly_returns") && (
+        <PageLayout pgNo={pgNum++}>
+          <MonthlyReturnsHeatmap
+            heatmap={monthlyReturnsHeatmap}
+            summary={monthlyReturnsSummary}
+          />
+        </PageLayout>
+      )}
 
       <PageLayout pgNo={pgNum++}>
         <FinancialFitness />
@@ -300,20 +305,20 @@ export default function PfAnalysisReportMessageComponent({
         </PageLayout>
       )}
       {/* Drawdown Analysis */}
-      {shouldRenderSection("drawdown_analysis") && drawdownChart && (
+      {shouldRenderSection("drawdown") && (
         <PageLayout pgNo={pgNum++}>
           <DrawdownAnalysisSection
+            section={drawdownSection?.analysis}
             data={drawdownChart}
-            section={data.drawdown_analysis}
             returnsData={returnsChart}
           />
         </PageLayout>
       )}
       {/* Correlation Analysis */}
-      {shouldRenderSection("correlation_analysis") && (
+      {shouldRenderSection("correlation") && (
         <PageLayout pgNo={pgNum++}>
           <CorrelationAnalysisSection
-            section={data.correlation_analysis}
+            section={correlationSection?.analysis}
             heatmapData={correlationHeatmap}
           />
         </PageLayout>
@@ -364,8 +369,8 @@ export default function PfAnalysisReportMessageComponent({
               section: data.risk_adjusted_returns,
               key: "risk_adjusted_returns",
             },
-            { section: data.drawdown_analysis, key: "drawdown_analysis" },
-            { section: data.correlation_analysis, key: "correlation_analysis" },
+            { section: drawdownSection?.analysis, key: "drawdown" },
+            { section: correlationSection?.analysis, key: "correlation" },
             ...(data.finsharpe_analysis
               ? [
                   {
@@ -393,7 +398,7 @@ export default function PfAnalysisReportMessageComponent({
 function FormatSectionSourcesAndInDepthAnalysis({
   section,
 }: {
-  section: Section;
+  section?: Section;
 }) {
   if (!section) {
     return null;
@@ -575,8 +580,8 @@ function DrawdownAnalysisSection({
   data,
   returnsData,
 }: {
-  section: Section;
-  data: DrawdownChartData;
+  section?: Section;
+  data?: DrawdownChartData | null;
   returnsData?: ChartData | null | undefined;
 }) {
   if (!section) return null;
@@ -615,10 +620,12 @@ function DrawdownAnalysisSection({
         context="Maximum drawdown is one of the most important risk metrics as it shows the worst-case scenario an investor would have experienced. Lower drawdowns indicate more stable portfolio performance."
         DescComp="div"
       >
-        <DrawdownChart
-          data={data}
-          returnsData={returnsData?.data}
-        />
+        {data && (
+          <DrawdownChart
+            data={data}
+            returnsData={returnsData?.data}
+          />
+        )}
       </ChartContainer>
     </div>
   );
@@ -628,7 +635,7 @@ function CorrelationAnalysisSection({
   section,
   heatmapData,
 }: {
-  section: Section;
+  section?: Section;
   heatmapData?: CorrelationHeatmapRow[] | null;
 }) {
   if (!section) return null;

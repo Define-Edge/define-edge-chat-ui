@@ -7,9 +7,11 @@ import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
 import { formatKey, getPortfolioDisplayTable } from "@/lib/format-utils";
 import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
 import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
-import {
+import type {
   ChartData,
+  CorrelationHeatmapRow,
   DrawdownChartData,
+  MonthlyReturnsHeatmapData,
   PfAnalysis,
   PFFinSharpeAnalysisData,
   Section,
@@ -48,10 +50,24 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
   const returnsChart = data.returns_chart as ChartData | null | undefined;
-  const drawdownChart = data.drawdown_chart as
-    | DrawdownChartData
-    | null
+
+  // Drawdown section (nested)
+  const drawdownSection = data.drawdown as
+    | { analysis?: Section; chart?: DrawdownChartData | null }
     | undefined;
+  const drawdownChart = drawdownSection?.chart ?? null;
+
+  // Correlation section (nested)
+  const correlationSection = data.correlation as
+    | { analysis?: Section; heatmap?: CorrelationHeatmapRow[] | null }
+    | undefined;
+  // const correlationHeatmap = correlationSection?.heatmap ?? null;
+
+  // Monthly returns section (nested)
+  const monthlyReturnsSection = data.monthly_returns as
+    | { heatmap?: MonthlyReturnsHeatmapData; summary?: string }
+    | undefined;
+
   const topRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -82,29 +98,42 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       <FormatSection section={data.risk_adjusted_returns} />
 
       {/* 5. Drawdown Analysis + Drawdown Chart */}
-      <FormatSection section={data.drawdown_analysis} />
-      {drawdownChart && (
-        <div className="my-4">
-          <div className="mx-auto grid min-w-[calc(100dvw-2rem)] grid-rows-[auto] gap-6 md:min-w-3xl">
-            <div className="overflow-hidden rounded-lg border border-gray-200">
-              <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
-                <h3 className="font-medium text-gray-900">
-                  {drawdownChart.title}
-                </h3>
+      {drawdownSection?.analysis && (
+        <>
+          <FormatSection section={drawdownSection.analysis} />
+          {drawdownChart && (
+            <div className="my-4">
+              <div className="mx-auto grid min-w-[calc(100dvw-2rem)] grid-rows-[auto] gap-6 md:min-w-3xl">
+                <div className="overflow-hidden rounded-lg border border-gray-200">
+                  <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
+                    <h3 className="font-medium text-gray-900">
+                      {drawdownChart.title}
+                    </h3>
+                  </div>
+                  <DrawdownChart
+                    data={drawdownChart}
+                    returnsData={returnsChart?.data}
+                  />
+                </div>
               </div>
-              <DrawdownChart
-                data={drawdownChart}
-                returnsData={returnsChart?.data}
-              />
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
       {/* 6. Correlation Analysis */}
-      <FormatSection section={data.correlation_analysis} />
+      {correlationSection?.analysis && (
+        <FormatSection section={correlationSection.analysis} />
+      )}
 
-      {/* 7. FinSharpe Analysis (if present - stock portfolios only) */}
+      {/* 7. Monthly Returns */}
+      {monthlyReturnsSection?.summary && (
+        <div className="my-4">
+          <MarkdownText>{`## Monthly Returns\n${monthlyReturnsSection.summary}\n\n---\n`}</MarkdownText>
+        </div>
+      )}
+
+      {/* 8. FinSharpe Analysis (if present - stock portfolios only) */}
       {data.finsharpe_analysis && (
         <FinSharpeAnalysisSection
           data={data.finsharpe_analysis}
@@ -114,10 +143,10 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
 
       {/* Distribution Charts (Sector & Market Cap) */}
       <DistributionChartsSection
-        sectorDistribution={data.sector_distribution}
-        marketCapDistribution={data.market_cap_distribution}
-        sectorAllocationSummary={data.sector_allocation_summary}
-        marketCapAllocationSummary={data.market_cap_allocation_summary}
+        sectorDistribution={data.sector_allocation?.items}
+        marketCapDistribution={data.market_cap_allocation?.items}
+        sectorAllocationSummary={data.sector_allocation?.summary}
+        marketCapAllocationSummary={data.market_cap_allocation?.summary}
       />
 
       {/* 8. Summary */}

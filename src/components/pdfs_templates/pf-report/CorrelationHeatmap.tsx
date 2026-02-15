@@ -1,11 +1,8 @@
 "use client";
 
-const MAX_STOCKS = 10;
+import type { CorrelationHeatmapRow } from "@/types/pf-analysis";
 
-export type CorrelationHeatmapRow = {
-  symbol: string;
-  [key: string]: number | string;
-};
+const MAX_STOCKS = 10;
 
 /** Linearly interpolate between two [r,g,b] colors */
 function lerpColor(
@@ -92,7 +89,7 @@ export default function CorrelationHeatmap({ data }: Props) {
         {symbols.map((s) => (
           <div
             key={`hdr-${s}`}
-            className="flex items-end justify-center px-0.5 py-1 text-[8px] font-semibold leading-tight text-gray-600"
+            className="flex items-end justify-center px-0.5 py-1 text-[8px] leading-tight font-semibold text-gray-600"
             style={{ writingMode: "vertical-lr", transform: "rotate(180deg)" }}
           >
             {s}

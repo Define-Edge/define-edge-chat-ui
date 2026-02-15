@@ -6,18 +6,22 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from "./correlationSection";
+export * from "./correlationSectionHeatmap";
+export * from "./correlationSectionHeatmapAnyOfItem";
 export * from "./distributionItem";
+export * from "./distributionSection";
+export * from "./drawdownSection";
+export * from "./drawdownSectionChart";
+export * from "./drawdownSectionChartAnyOf";
 export * from "./finSharpeScoreItem";
+export * from "./monthlyReturnsSection";
+export * from "./monthlyReturnsSectionHeatmap";
+export * from "./monthlyReturnsSectionHeatmapAnyOf";
 export * from "./pFAnalysis";
 export * from "./pFAnalysisPortfolioItem";
 export * from "./pFAnalysisReportData";
-export * from "./pFAnalysisReportDataCorrelationHeatmap";
-export * from "./pFAnalysisReportDataCorrelationHeatmapAnyOfItem";
-export * from "./pFAnalysisReportDataDrawdownChart";
-export * from "./pFAnalysisReportDataDrawdownChartAnyOf";
 export * from "./pFAnalysisReportDataFinsharpeAnalysis";
-export * from "./pFAnalysisReportDataMonthlyReturnsHeatmap";
-export * from "./pFAnalysisReportDataMonthlyReturnsHeatmapAnyOf";
 export * from "./pFAnalysisReportDataReturnsChart";
 export * from "./pFAnalysisReportDataReturnsChartAnyOf";
 export * from "./pFFinSharpeAnalysisData";
