@@ -30,7 +30,7 @@ export default function IntroPageContainer({ children, pgNo = 1 }: Props) {
           you the right investment advice.
         </p>
       </div>
-      <div className="flex gap-6">{children}</div>
+      {children}
     </PageLayout>
   );
 }

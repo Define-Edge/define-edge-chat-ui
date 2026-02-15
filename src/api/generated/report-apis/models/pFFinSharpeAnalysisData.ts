@@ -8,6 +8,7 @@
 import type { Section } from "./section";
 import type { FinSharpeScoreItem } from "./finSharpeScoreItem";
 import type { ScoreChartDataItem } from "./scoreChartDataItem";
+import type { PFFinSharpeAnalysisDataScreenerCoverage } from "./pFFinSharpeAnalysisDataScreenerCoverage";
 
 /**
  * FinSharpe analysis data for portfolio report.
@@ -19,4 +20,5 @@ export interface PFFinSharpeAnalysisData {
   risk_score_summary?: string;
   overall_score_chart_data: ScoreChartDataItem[];
   risk_score_chart_data: ScoreChartDataItem[];
+  screener_coverage?: PFFinSharpeAnalysisDataScreenerCoverage;
 }

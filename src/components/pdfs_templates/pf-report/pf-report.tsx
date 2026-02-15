@@ -1,4 +1,5 @@
 "use client";
+import type { ScreenerCoverage } from "@/api/generated/report-apis/models";
 import BulbIcon from "@/components/icons/BulbIcon";
 import DrawdownIcon from "@/components/icons/DrawdownIcon";
 import { MarkdownText } from "@/components/thread/markdown-text";
@@ -33,6 +34,7 @@ import CorrelationHeatmap from "./CorrelationHeatmap";
 import type { MonthlyReturnsHeatmapData } from "./MonthlyReturnsHeatmap";
 import MonthlyReturnsHeatmap from "./MonthlyReturnsHeatmap";
 import PfWelcome from "./PfWelcome";
+import ScreenerCoverageBadge from "./ScreenerCoverageBadge";
 
 const ScoreCard = dynamic(() => import("../layout/ScoreCard"), { ssr: false });
 const DrawdownChart = dynamic(
@@ -142,21 +144,28 @@ export default function PfAnalysisReportMessageComponent({
     <TotalPageCtxProvider value={totalPages}>
       <PfWelcome analysis={analysis} />
       <IntroPageContainer pgNo={pgNum++}>
-        <ScoreCard
-          label="Overall score"
-          data={data.finsharpe_analysis?.overall_score_chart_data || []}
-          desc={
-            data.finsharpe_analysis?.overall_score_summary ||
-            "Overall score is a comprehensive metric that evaluates the overall health and performance of your portfolio based on various factors such as returns, risk, diversification, and other key indicators. A higher overall score indicates a stronger portfolio, while a lower score may suggest areas for improvement."
-          }
-        />
-        <ScoreCard
-          label="Risk score"
-          data={data.finsharpe_analysis?.risk_score_chart_data || []}
-          desc={
-            data.finsharpe_analysis?.risk_score_summary ||
-            "Risk score is a measure of the portfolio's exposure to potential losses. A lower risk score indicates a more conservative portfolio with less volatility, while a higher risk score suggests a more aggressive portfolio with higher potential returns but also higher risk."
-          }
+        <div className="flex gap-6">
+          <ScoreCard
+            label="Overall score"
+            data={data.finsharpe_analysis?.overall_score_chart_data || []}
+            desc={
+              data.finsharpe_analysis?.overall_score_summary ||
+              "Overall score is a comprehensive metric that evaluates the overall health and performance of your portfolio based on various factors such as returns, risk, diversification, and other key indicators. A higher overall score indicates a stronger portfolio, while a lower score may suggest areas for improvement."
+            }
+          />
+          <ScoreCard
+            label="Risk score"
+            data={data.finsharpe_analysis?.risk_score_chart_data || []}
+            desc={
+              data.finsharpe_analysis?.risk_score_summary ||
+              "Risk score is a measure of the portfolio's exposure to potential losses. A lower risk score indicates a more conservative portfolio with less volatility, while a higher risk score suggests a more aggressive portfolio with higher potential returns but also higher risk."
+            }
+          />
+        </div>
+        <ScreenerCoverageBadge
+          showMissing={true}
+          className="mt-2"
+          coverage={data.finsharpe_analysis?.screener_coverage}
         />
       </IntroPageContainer>
       {(data.sector_distribution?.length ||
@@ -197,6 +206,7 @@ export default function PfAnalysisReportMessageComponent({
         <>
           <FinSharpeAnalysisSection
             data={data.finsharpe_analysis}
+            screenerCoverage={data.finsharpe_analysis.screener_coverage}
             pgNo={pgNum++}
           />
         </>
@@ -758,9 +768,11 @@ function JsonDataDisplay({ data }: { data: any }) {
 // FinSharpe Analysis Section Component
 function FinSharpeAnalysisSection({
   data,
+  screenerCoverage,
   pgNo,
 }: {
   data: PFFinSharpeAnalysisData;
+  screenerCoverage?: ScreenerCoverage | null;
   pgNo: number;
 }) {
   if (!data) {
@@ -773,6 +785,10 @@ function FinSharpeAnalysisSection({
         {/* Main Analysis Section */}
         <FormatSection section={data.analysis} />
         <FinSharpeScoresRadarChart data={data.scores_comparison} />
+        <ScreenerCoverageBadge
+          coverage={screenerCoverage}
+          showMissing={true}
+        />
       </div>
     </PageLayout>
   );
@@ -825,13 +841,11 @@ function AllocationsPage({
   pgNo: number;
 }) {
   // Cast distribution items to typed arrays with colors
-  const industryWithColors = (sectorDistribution || []).map(
-    (item, index) => ({
-      name: item.name,
-      value: item.value,
-      color: PIE_COLORS[index % PIE_COLORS.length],
-    }),
-  );
+  const industryWithColors = (sectorDistribution || []).map((item, index) => ({
+    name: item.name,
+    value: item.value,
+    color: PIE_COLORS[index % PIE_COLORS.length],
+  }));
 
   const sizeWithColors = (marketCapDistribution || []).map((item) => ({
     name: item.name,

@@ -1,25 +1,27 @@
 "use client";
 
+import type { ScreenerCoverage } from "@/api/generated/report-apis/models";
+import ScreenerCoverageBadge from "@/components/pdfs_templates/pf-report/ScreenerCoverageBadge";
 import { Button } from "@/components/ui/button";
+import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
 import { formatKey, getPortfolioDisplayTable } from "@/lib/format-utils";
+import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
+import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
 import {
-  PfAnalysis,
-  Section,
-  PFFinSharpeAnalysisData,
   ChartData,
   DrawdownChartData,
+  PfAnalysis,
+  PFFinSharpeAnalysisData,
+  Section,
 } from "@/types/pf-analysis";
 import { ArrowUp } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useRef } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { MarkdownText } from "../../markdown-text";
-import { PfAnalysisDownloadDialog } from "./pf-analysis-download-dialog";
-import LineChart from "./LineChart";
 import DrawdownChart from "./DrawdownChart";
-import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
-import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
+import LineChart from "./LineChart";
+import { PfAnalysisDownloadDialog } from "./pf-analysis-download-dialog";
 
 // Color palette for pie charts (same as OverviewTab)
 const PIE_COLORS = [
@@ -104,7 +106,10 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
 
       {/* 7. FinSharpe Analysis (if present - stock portfolios only) */}
       {data.finsharpe_analysis && (
-        <FinSharpeAnalysisSection data={data.finsharpe_analysis} />
+        <FinSharpeAnalysisSection
+          data={data.finsharpe_analysis}
+          screenerCoverage={data.finsharpe_analysis.screener_coverage}
+        />
       )}
 
       {/* Distribution Charts (Sector & Market Cap) */}
@@ -315,7 +320,13 @@ function JsonDataDisplay({ data }: { data: any }) {
 }
 
 // FinSharpe Analysis Section Component
-function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
+function FinSharpeAnalysisSection({
+  data,
+  screenerCoverage,
+}: {
+  data: PFFinSharpeAnalysisData;
+  screenerCoverage?: ScreenerCoverage | null;
+}) {
   if (!data) {
     return null;
   }
@@ -359,6 +370,12 @@ function FinSharpeAnalysisSection({ data }: { data: PFFinSharpeAnalysisData }) {
             </div>
           )}
       </div>
+
+      <ScreenerCoverageBadge
+        coverage={screenerCoverage}
+        showMissing={true}
+        className="mt-4"
+      />
     </div>
   );
 }
