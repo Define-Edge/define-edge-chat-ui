@@ -485,18 +485,17 @@ function PortfolioOverviewSection({
   }[] = [];
 
   if (isMF) {
-    // Mutual fund columns
-    if (firstItem && "Scheme_Name" in firstItem) {
+    // Mutual fund columns - show Scheme_Name with fallback to symbol/ISIN
+    columns.push({
+      Header: "Scheme Name",
+      accessor: (row) => row.Scheme_Name ?? row.symbol ?? row.ISIN ?? "",
+      meta: { column: { align: "left" } },
+    });
+    // Support both Category (new) and Sebi_Category (legacy)
+    if (items.some((item) => "Category" in item || "Sebi_Category" in item)) {
       columns.push({
-        Header: "Scheme Name",
-        accessor: (row) => row.Scheme_Name ?? "",
-        meta: { column: { align: "left" } },
-      });
-    }
-    if (firstItem && "Sebi_Category" in firstItem) {
-      columns.push({
-        Header: "SEBI Category",
-        accessor: (row) => row.Sebi_Category ?? "",
+        Header: "Category",
+        accessor: (row) => row.Category ?? row.Sebi_Category ?? "",
         meta: { column: { align: "left" } },
       });
     }
@@ -511,8 +510,14 @@ function PortfolioOverviewSection({
       meta: { column: { align: "right" } },
     });
 
-    // MF score columns
+    // MF metric columns
     const mfScoreCols = [
+      { key: "Sharpe_Ratio", header: "Sharpe Ratio" },
+      { key: "Sortino_Ratio", header: "Sortino Ratio" },
+      { key: "Alpha", header: "Alpha" },
+      { key: "Beta", header: "Beta" },
+      { key: "Expense_Ratio", header: "Expense Ratio" },
+      // Legacy fields
       { key: "PerformanceScore", header: "Performance" },
       { key: "RiskAdjReturn", header: "Risk-Adj Return" },
       { key: "RiskScore", header: "Risk Score" },
@@ -522,7 +527,7 @@ function PortfolioOverviewSection({
         columns.push({
           Header: header,
           accessor: (row) =>
-            row[key] != null ? Number(row[key]).toFixed(1) : "N/A",
+            row[key] != null ? Number(row[key]).toFixed(3) : "N/A",
           meta: { column: { align: "right" } },
         });
       }

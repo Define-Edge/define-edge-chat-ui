@@ -17,24 +17,20 @@ export function formatKey(key: string): string {
 }
 
 /**
- * Filters portfolio items to only display-relevant entries.
- * For mutual_fund portfolios, removes NAV-level tracking items (identifier_type === "symbol").
- * For stock portfolios (or undefined type), returns as-is.
+ * Returns portfolio items for display.
+ * All items are included regardless of identifier_type.
  */
 export function getDisplayPortfolio(
   portfolio: Record<string, any>[],
-  portfolioType?: string,
+  _portfolioType?: string,
 ): Record<string, any>[] {
-  if (portfolioType === "mutual_fund") {
-    return portfolio.filter((item) => item.identifier_type !== "symbol");
-  }
   return portfolio;
 }
 
 /**
  * Filters portfolio to display columns and converts to a markdown table.
  * Display columns: symbol/Ticker, weight, and optionally quantity, CMP, value.
- * For mutual_fund portfolios: shows Scheme_Name, Sebi_Category, weight, and MF score columns.
+ * For mutual_fund portfolios: shows Scheme_Name, Category, weight, and MF metric columns.
  */
 export function getPortfolioDisplayTable(
   portfolio?: Record<string, any>[],
@@ -42,11 +38,7 @@ export function getPortfolioDisplayTable(
 ): string {
   if (!portfolio || portfolio.length === 0) return "";
 
-  // Filter to display items only
-  const displayItems =
-    portfolioType === "mutual_fund"
-      ? portfolio.filter((item) => item.identifier_type !== "symbol")
-      : portfolio;
+  const displayItems = portfolio;
 
   if (displayItems.length === 0) return "";
 
@@ -55,6 +47,12 @@ export function getPortfolioDisplayTable(
   // Mutual fund flow
   if (portfolioType === "mutual_fund") {
     const mfScoreCols = [
+      { key: "Sharpe_Ratio", display: "Sharpe Ratio" },
+      { key: "Sortino_Ratio", display: "Sortino Ratio" },
+      { key: "Alpha", display: "Alpha" },
+      { key: "Beta", display: "Beta" },
+      { key: "Expense_Ratio", display: "Expense Ratio" },
+      // Legacy fields for backward compatibility
       { key: "PerformanceScore", display: "Performance" },
       { key: "RiskAdjReturn", display: "Risk-Adj Return" },
       { key: "RiskScore", display: "Risk Score" },
@@ -65,13 +63,15 @@ export function getPortfolioDisplayTable(
 
     const filteredData = displayItems.map((item) => {
       const filtered: Record<string, any> = {};
-      if ("Scheme_Name" in item) filtered["Scheme Name"] = item.Scheme_Name;
-      if ("Sebi_Category" in item)
-        filtered["SEBI Category"] = item.Sebi_Category;
+      filtered["Scheme Name"] =
+        item.Scheme_Name ?? item.symbol ?? item.ISIN ?? "";
+      // Support both Category (new) and Sebi_Category (legacy)
+      if (displayItems.some((i) => "Category" in i || "Sebi_Category" in i))
+        filtered["Category"] = item.Category ?? item.Sebi_Category ?? "";
       if ("weight" in item) filtered["Weight"] = `${item.weight.toFixed(2)}%`;
       for (const col of presentMfScoreCols) {
         filtered[col.display] =
-          item[col.key] != null ? Number(item[col.key]).toFixed(1) : "N/A";
+          item[col.key] != null ? Number(item[col.key]).toFixed(3) : "N/A";
       }
       return filtered;
     });
