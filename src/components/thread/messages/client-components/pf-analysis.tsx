@@ -361,45 +361,52 @@ function FinSharpeAnalysisSection({
     return null;
   }
 
+  const gaugeSections = (data.sections || []).filter(
+    (s) => s.chart_type === "gauge" && s.chart_data?.length,
+  );
+
   return (
     <div className="my-6">
       {/* Main Analysis Section */}
       <FormatSection section={data.analysis} />
 
       {/* Score Charts Grid */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Overall Score Chart */}
-        {data.overall_score_chart_data &&
-          data.overall_score_chart_data.length > 0 && (
-            <div className="rounded-lg border border-gray-200 p-6">
-              <h4 className="mb-4 text-lg font-semibold text-gray-900">
-                Overall Score
-              </h4>
-              <div className="relative h-[28vh] w-full sm:h-[50vh]">
-                <OverallScorePie
-                  data={data.overall_score_chart_data as any}
-                  shouldRenderActiveShapeLabel={true}
-                />
-              </div>
-            </div>
-          )}
+      {gaugeSections.length > 0 && (
+        <div className="grid gap-6 md:grid-cols-2">
+          {gaugeSections.map((section) => {
+            const isRisk = section.title.toLowerCase().includes("risk");
+            return (
+              <div
+                key={section.title}
+                className="rounded-lg border border-gray-200 p-6"
+              >
+                <h4 className="mb-4 text-lg font-semibold text-gray-900">
+                  {section.title}
+                </h4>
 
-        {/* Risk Score Chart */}
-        {data.risk_score_chart_data &&
-          data.risk_score_chart_data.length > 0 && (
-            <div className="rounded-lg border border-gray-200 p-6">
-              <h4 className="mb-4 text-lg font-semibold text-gray-900">
-                Risk Score
-              </h4>
-              <div className="relative h-[28vh] w-full sm:h-[50vh]">
-                <RiskScorePie
-                  data={data.risk_score_chart_data as any}
-                  shouldRenderActiveShapeLabel={true}
-                />
+                <div className="relative h-[28vh] w-full sm:h-[50vh]">
+                  {isRisk ? (
+                    <RiskScorePie
+                      data={section.chart_data as any}
+                      shouldRenderActiveShapeLabel={true}
+                    />
+                  ) : (
+                    <OverallScorePie
+                      data={section.chart_data as any}
+                      shouldRenderActiveShapeLabel={true}
+                    />
+                  )}
+                </div>
+                {section.summary && (
+                  <p className="mt-4 text-sm text-gray-600">
+                    {section.summary}
+                  </p>
+                )}
               </div>
-            </div>
-          )}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <ScreenerCoverageBadge
         coverage={screenerCoverage}
@@ -447,9 +454,7 @@ function DistributionChartsSection({
       {/* Sector Distribution */}
       {industryWithColors.length > 0 && (
         <div className="rounded-lg border border-gray-200 p-4">
-          <h4 className="mb-4 font-medium text-gray-900">
-            Sector Allocation
-          </h4>
+          <h4 className="mb-4 font-medium text-gray-900">Sector Allocation</h4>
           {sectorAllocationSummary && (
             <p className="mb-4 text-sm text-gray-600">
               {sectorAllocationSummary}

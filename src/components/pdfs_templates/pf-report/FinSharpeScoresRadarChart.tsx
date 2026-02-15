@@ -1,5 +1,5 @@
+import type { FinSharpeScoreItem } from "@/api/generated/report-apis/models";
 import { a4PageSizes } from "@/configs/pdf-constants";
-import { PFFinSharpeAnalysisData } from "@/types/pf-analysis";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -10,7 +10,7 @@ import {
 } from "recharts";
 
 type Props = {
-  data: PFFinSharpeAnalysisData["scores_comparison"];
+  data?: FinSharpeScoreItem[];
 };
 
 function getScoreColor(value: number, isRisk: boolean): string {

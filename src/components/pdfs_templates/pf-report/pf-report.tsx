@@ -151,22 +151,16 @@ export default function PfAnalysisReportMessageComponent({
       <PfWelcome analysis={analysis} />
       <IntroPageContainer pgNo={pgNum++}>
         <div className="flex gap-6">
-          <ScoreCard
-            label="Overall score"
-            data={data.finsharpe_analysis?.overall_score_chart_data || []}
-            desc={
-              data.finsharpe_analysis?.overall_score_summary ||
-              "Overall score is a comprehensive metric that evaluates the overall health and performance of your portfolio based on various factors such as returns, risk, diversification, and other key indicators. A higher overall score indicates a stronger portfolio, while a lower score may suggest areas for improvement."
-            }
-          />
-          <ScoreCard
-            label="Risk score"
-            data={data.finsharpe_analysis?.risk_score_chart_data || []}
-            desc={
-              data.finsharpe_analysis?.risk_score_summary ||
-              "Risk score is a measure of the portfolio's exposure to potential losses. A lower risk score indicates a more conservative portfolio with less volatility, while a higher risk score suggests a more aggressive portfolio with higher potential returns but also higher risk."
-            }
-          />
+          {(data.finsharpe_analysis?.sections || [])
+            .filter((s) => s.chart_type === "gauge" && s.chart_data?.length)
+            .map((section) => (
+              <ScoreCard
+                key={section.title}
+                label={section.title}
+                data={section.chart_data || []}
+                desc={section.summary || ""}
+              />
+            ))}
         </div>
         <ScreenerCoverageBadge
           showMissing={true}
@@ -786,12 +780,23 @@ function FinSharpeAnalysisSection({
     return null;
   }
 
+  const radarSections = (data.sections || []).filter(
+    (s) => s.chart_type === "radar" && s.scores_comparison?.length,
+  );
+
   return (
     <PageLayout pgNo={pgNo}>
       <div className="space-y-6">
         {/* Main Analysis Section */}
         <FormatSection section={data.analysis} />
-        <FinSharpeScoresRadarChart data={data.scores_comparison} />
+        {radarSections.map((section) => (
+          <div key={section.title}>
+            {section.summary && (
+              <p className="mb-2 text-sm text-gray-600">{section.summary}</p>
+            )}
+            <FinSharpeScoresRadarChart data={section.scores_comparison} />
+          </div>
+        ))}
         <ScreenerCoverageBadge
           coverage={screenerCoverage}
           showMissing={true}

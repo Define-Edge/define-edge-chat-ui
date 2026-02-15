@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { Section } from "./section";
-import type { FinSharpeScoreItem } from "./finSharpeScoreItem";
-import type { ScoreChartDataItem } from "./scoreChartDataItem";
+import type { ScoreSection } from "./scoreSection";
 import type { PFFinSharpeAnalysisDataScreenerCoverage } from "./pFFinSharpeAnalysisDataScreenerCoverage";
 
 /**
@@ -15,10 +14,6 @@ import type { PFFinSharpeAnalysisDataScreenerCoverage } from "./pFFinSharpeAnaly
  */
 export interface PFFinSharpeAnalysisData {
   analysis: Section;
-  scores_comparison?: FinSharpeScoreItem[];
-  overall_score_summary?: string;
-  risk_score_summary?: string;
-  overall_score_chart_data: ScoreChartDataItem[];
-  risk_score_chart_data: ScoreChartDataItem[];
+  sections?: ScoreSection[];
   screener_coverage?: PFFinSharpeAnalysisDataScreenerCoverage;
 }

@@ -27,6 +27,8 @@ export * from "./pFAnalysisReportDataReturnsChartAnyOf";
 export * from "./pFFinSharpeAnalysisData";
 export * from "./pFFinSharpeAnalysisDataScreenerCoverage";
 export * from "./scoreChartDataItem";
+export * from "./scoreSection";
+export * from "./scoreSectionChartType";
 export * from "./screenerCoverage";
 export * from "./screenerCoverageMissingHoldingsItem";
 export * from "./section";
