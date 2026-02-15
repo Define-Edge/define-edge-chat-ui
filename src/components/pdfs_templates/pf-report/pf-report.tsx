@@ -848,7 +848,11 @@ function AllocationsPage({
   pgNo: number;
 }) {
   // Cast distribution items to typed arrays with colors
-  const industryWithColors = (sectorDistribution || []).map((item, index) => ({
+  const industryWithColors = groupSmallFragments(sectorDistribution || [], {
+    id: "name",
+    value: "value",
+    maxFragments: 15,
+  }).map((item, index) => ({
     name: item.name,
     value: item.value,
     color: PIE_COLORS[index % PIE_COLORS.length],

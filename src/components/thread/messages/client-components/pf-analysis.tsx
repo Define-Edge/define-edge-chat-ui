@@ -5,6 +5,7 @@ import ScreenerCoverageBadge from "@/components/pdfs_templates/pf-report/Screene
 import { Button } from "@/components/ui/button";
 import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
 import { formatKey, getPortfolioDisplayTable } from "@/lib/format-utils";
+import groupSmallFragments from "@/lib/groupSmallFragments";
 import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
 import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
 import type {
@@ -421,13 +422,15 @@ function DistributionChartsSection({
   sectorAllocationSummary?: string;
   marketCapAllocationSummary?: string;
 }) {
-  const industryWithColors = (sectorDistribution || []).map(
-    (item, index) => ({
-      name: item.name,
-      value: item.value,
-      color: PIE_COLORS[index % PIE_COLORS.length],
-    }),
-  );
+  const industryWithColors = groupSmallFragments(sectorDistribution || [], {
+    id: "name",
+    value: "value",
+    maxFragments: 15,
+  }).map((item, index) => ({
+    name: item.name,
+    value: item.value,
+    color: PIE_COLORS[index % PIE_COLORS.length],
+  }));
 
   const sizeWithColors = (marketCapDistribution || []).map((item) => ({
     name: item.name,
