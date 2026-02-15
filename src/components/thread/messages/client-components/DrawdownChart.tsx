@@ -20,9 +20,10 @@ type Props = {
   data: DrawdownChartData;
   returnsData?: Record<string, number>[];
   className?: string;
+  disableAnimation?: boolean;
 };
 
-export default function DrawdownChart({ data, returnsData, className }: Props) {
+export default function DrawdownChart({ data, returnsData, className, disableAnimation }: Props) {
   const isMobile = useIsMobile();
   const { underwater_plot, worst_periods, colors, description } = data;
 
@@ -42,12 +43,15 @@ export default function DrawdownChart({ data, returnsData, className }: Props) {
   const uwMin = Math.min(...allUnderwaterValues, 0);
   const yMinUW = Math.floor(uwMin); // e.g. -5.29 → -6
 
+  const Wrapper = disableAnimation ? "div" : motion.div;
+  const wrapperProps = disableAnimation
+    ? {}
+    : { initial: false, animate: { height: "auto" }, transition: { duration: 0.3 } };
+
   return (
-    <motion.div
+    <Wrapper
       className="bg-gray-100"
-      initial={false}
-      animate={{ height: "auto" }}
-      transition={{ duration: 0.3 }}
+      {...wrapperProps}
     >
       <div className="flex flex-col gap-2 p-4">
         {/* Chart 1: Strategy - Worst 5 Drawdown Periods */}
@@ -120,6 +124,7 @@ export default function DrawdownChart({ data, returnsData, className }: Props) {
                     stroke={colors?.[key] || "#035BFF"}
                     strokeWidth={2}
                     dot={false}
+                    isAnimationActive={!disableAnimation}
                   />
                 ))}
               </LineChart>
@@ -207,6 +212,7 @@ export default function DrawdownChart({ data, returnsData, className }: Props) {
                       fillOpacity={0.1}
                       strokeWidth={2}
                       dot={false}
+                      isAnimationActive={!disableAnimation}
                     />
                   );
                 })}
@@ -221,6 +227,6 @@ export default function DrawdownChart({ data, returnsData, className }: Props) {
           <p className="text-sm text-gray-500">{description}</p>
         </div>
       )}
-    </motion.div>
+    </Wrapper>
   );
 }

@@ -248,6 +248,7 @@ export default function PfAnalysisReportMessageComponent({
                     colors={returnsChart.colors}
                     title={returnsChart.title}
                     description={returnsChart.description}
+                    disableAnimation
                   />
                 </div>
               )}
@@ -697,6 +698,7 @@ function DrawdownAnalysisSection({
           <DrawdownChart
             data={data}
             returnsData={returnsData?.data}
+            disableAnimation
           />
         )}
       </ChartContainer>
