@@ -1,0 +1,285 @@
+# Frontend Integration Guide: Stock Scanner Interrupt Options
+
+## Overview
+
+Two new interrupt actions have been added to the stock scanner flow:
+1. **Relax Criteria** - Request the system to regenerate a less restrictive query
+2. **Manual Edit Query** - Allow users to directly edit the scanner query string
+
+These options appear during the scanner approval interrupt, alongside the existing `approve`, `modify`, and `cancel` actions.
+
+---
+
+## Changes to Interrupt Payload
+
+### Custom Scanner (`approve_custom_scanner`)
+
+The interrupt payload now includes two additional instruction options:
+
+```json
+{
+  "action": "approve_custom_scanner",
+  "message": "Click approve to accept or click retry to generate another response.",
+  "scanner_details": {
+    "search_query": "PE < 15 AND ROE > 10",
+    "ratios_used": ["PE", "ROE"],
+    "explanation": "Finds undervalued stocks with strong returns...",
+    "page_number": 1,
+    "page_size": 50,
+    "segment": "0",
+    "group_type": "predefined",
+    "show_only_latest_quarter_data": "0"
+  },
+  "instructions": {
+    "approve": "...",
+    "modify": "...",
+    "cancel": "...",
+    "relax_criteria": "To relax screening criteria, respond with: {'action': 'relax_criteria', 'feedback': 'optional specific feedback about what to relax'}",
+    "edit_query": "To manually edit the query, respond with: {'action': 'edit_query', 'query': 'your edited query string'}"
+  }
+}
+```
+
+### Saved Scanner (`approve_saved_scanner`)
+
+Only `relax_criteria` is available (no `edit_query` since saved scanners have fixed queries):
+
+```json
+{
+  "action": "approve_saved_scanner",
+  "message": "...",
+  "scanner_details": {
+    "scanner_id": 123,
+    "page_number": 1,
+    "page_size": 10,
+    "show_only_latest_quarter_data": "0"
+  },
+  "instructions": {
+    "approve": "...",
+    "modify": "...",
+    "cancel": "...",
+    "relax_criteria": "To relax screening criteria, respond with: {'action': 'relax_criteria', 'feedback': 'optional feedback'} - Note: This will suggest using a custom scan instead since saved scanners have fixed criteria"
+  }
+}
+```
+
+---
+
+## New User Actions
+
+### 1. Relax Criteria
+
+**Purpose**: User wants less restrictive screening conditions (e.g., more stocks in results)
+
+**Request Format**:
+```json
+{
+  "action": "relax_criteria",
+  "feedback": "optional string - user's specific feedback"
+}
+```
+
+**Examples**:
+```json
+// Without feedback
+{ "action": "relax_criteria" }
+
+// With feedback
+{ "action": "relax_criteria", "feedback": "The PE threshold is too strict, allow up to 25" }
+{ "action": "relax_criteria", "feedback": "Remove the debt condition" }
+```
+
+**Behavior**:
+- **Custom Scanner**: System regenerates the query with relaxed conditions and presents a new approval interrupt
+- **Saved Scanner**: System suggests creating a custom scan instead (saved scanner criteria cannot be modified)
+
+---
+
+### 2. Manual Edit Query (Custom Scanner Only)
+
+**Purpose**: User wants to directly modify the generated query string
+
+**Request Format**:
+```json
+{
+  "action": "edit_query",
+  "query": "string - the user's edited query"
+}
+```
+
+**Example**:
+```json
+{
+  "action": "edit_query",
+  "query": "PE < 25 AND ROE > 8 AND Market Cap > 10000"
+}
+```
+
+**Validation**:
+- `query` field is **required** and must be non-empty
+- If empty, system returns an error message asking for a query string
+
+**Behavior**:
+- System executes the scan immediately with the user-provided query
+- No re-approval is required
+
+---
+
+## Suggested UI Implementation
+
+### Option A: Button Group with Modal
+
++-------------------------------------------------------------+
+|  Scanner Query Preview                                       |
+|                                                              |
+|  Query: PE < 15 AND ROE > 10 AND Debt to Equity < 0.5       |
+|  Ratios: PE, ROE, Debt to Equity                            |
+|  Explanation: Finds undervalued stocks with strong...       |
+|                                                              |
+|  +----------+ +----------+ +--------------+ +------------+  |
+|  | Approve  | |  Cancel  | | Relax Criteria| | Edit Query |  |
+|  +----------+ +----------+ +--------------+ +------------+  |
++-------------------------------------------------------------+
+
+**Relax Criteria Modal**:
++-------------------------------------------------+
+|  Relax Screening Criteria                        |
+|                                                  |
+|  The system will generate a less restrictive    |
+|  query with wider thresholds.                   |
+|                                                  |
+|  Feedback (optional):                           |
+|  +-----------------------------------------+   |
+|  | e.g., "Allow PE up to 25"               |   |
+|  +-----------------------------------------+   |
+|                                                  |
+|        +--------+  +-------------------+         |
+|        | Cancel |  | Relax & Regenerate|         |
+|        +--------+  +-------------------+         |
++-------------------------------------------------+
+
+**Edit Query Modal**:
++-------------------------------------------------+
+|  Edit Scanner Query                              |
+|                                                  |
+|  Modify the query directly:                     |
+|  +-----------------------------------------+   |
+|  | PE < 15 AND ROE > 10 AND Debt to Eq... |   |
+|  +-----------------------------------------+   |
+|                                                  |
+|  Syntax: Use AND, OR, <, >, <=, >=, =          |
+|  Available ratios: PE, ROE, Debt to Equity...  |
+|                                                  |
+|        +--------+  +-------------------+         |
+|        | Cancel |  | Execute Query     |         |
+|        +--------+  +-------------------+         |
++-------------------------------------------------+
+
+### Option B: Dropdown Menu
+
++----------+ +----------+ +---------------------+
+| Approve  | |  Cancel  | | More Options    v   |
++----------+ +----------+ +---------------------+
+                          +---------------------+
+                          | > Relax Criteria    |
+                          | > Edit Query        |
+                          | > Modify Parameters |
+                          +---------------------+
+
+---
+
+## Action Summary Table
+
+| Action          | Applies To  | Required Fields   | Optional Fields   | Result                                                      |
+|-----------------|-------------|-------------------|-------------------|-------------------------------------------------------------|
+| approve         | Both        | None              | None              | Executes scan                                               |
+| cancel          | Both        | None              | None              | Cancels scan                                                |
+| modify          | Both        | params object     | -                 | Executes with modified params                               |
+| relax_criteria  | Both        | None              | feedback (string) | Regenerates query (custom) or suggests custom scan (saved)  |
+| edit_query      | Custom only | query (string)    | None              | Executes with user's query                                  |
+
+---
+
+## Error Handling
+
+### Empty Query on Edit
+If user submits `edit_query` with empty/missing `query` field:
+```json
+// Response will contain error message
+{
+  "content": "No query provided for manual edit. Please provide a query string."
+}
+```
+
+**UI Recommendation**: Validate query field is non-empty before submission.
+
+### Relax Criteria on Saved Scanner
+When user selects `relax_criteria` on a saved scanner, the response will guide them toward creating a custom scan:
+
+"Saved scanners have fixed criteria that cannot be modified.
+To relax criteria, please suggest using a custom scan instead..."
+
+**UI Recommendation**: Consider showing a different message or flow for saved scanners, perhaps prompting "Create Custom Scan with Relaxed Criteria" instead.
+
+---
+
+## Flow Diagrams
+
+### Relax Criteria Flow (Custom Scan)
+
+User triggers custom scan
+        |
+        v
+Interrupt shown with query preview
+        |
+        v
+User clicks "Relax Criteria"
+        |
+        v
+(Optional) User enters feedback
+        |
+        v
+Submit { action: "relax_criteria", feedback: "..." }
+        |
+        v
+System regenerates query
+        |
+        v
+New interrupt shown with relaxed query
+        |
+        v
+User approves or continues editing
+
+### Edit Query Flow (Custom Scan)
+
+User triggers custom scan
+        |
+        v
+Interrupt shown with query preview
+        |
+        v
+User clicks "Edit Query"
+        |
+        v
+Modal shows current query in editable text field
+        |
+        v
+User modifies query
+        |
+        v
+Submit { action: "edit_query", query: "..." }
+        |
+        v
+System executes scan immediately
+        |
+        v
+Results displayed
+
+---
+
+## Questions?
+
+Contact the backend team if you need:
+- Additional fields in the interrupt payload
+- Different response formats
+- Clarification on query syntax for the edit modal

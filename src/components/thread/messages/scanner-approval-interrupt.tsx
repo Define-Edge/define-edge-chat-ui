@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, Edit3, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, Edit3, RefreshCcw, Sliders, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,8 @@ import {
   ScannerApprovalInterrupt,
   isCustomScannerApprovalInterrupt,
 } from "@/lib/scanner-approval-interrupt";
+import { RelaxCriteriaModal } from "./scanner-approval-modals";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ScannerApprovalInterruptProps {
   interrupt: ScannerApprovalInterrupt;
@@ -19,11 +21,16 @@ export function ScannerApprovalInterruptView({
   interrupt,
 }: ScannerApprovalInterruptProps) {
   const thread = useStreamContext();
+  const isCustomScanner = isCustomScannerApprovalInterrupt(interrupt);
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [showModifyForm, setShowModifyForm] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const isCustomScanner = isCustomScannerApprovalInterrupt(interrupt);
+  const [showRelaxModal, setShowRelaxModal] = useState(false);
+  const [isEditingQuery, setIsEditingQuery] = useState(false);
+  const [editedQuery, setEditedQuery] = useState(
+    isCustomScanner ? interrupt.scanner_details.search_query : "",
+  );
 
   // Form state for modify parameters
   const [pageNumber, setPageNumber] = useState(
@@ -155,6 +162,102 @@ export function ScannerApprovalInterruptView({
     }
   };
 
+  const handleRelaxCriteria = async (feedback?: string) => {
+    setLoading(true);
+    try {
+      const args: Record<string, any> = { action: "relax_criteria" };
+      if (feedback) {
+        args.feedback = feedback;
+      }
+
+      thread.submit(
+        {},
+        {
+          command: {
+            resume: [
+              {
+                type: "response",
+                args,
+              },
+            ],
+          },
+        },
+      );
+
+      setShowRelaxModal(false);
+      toast.success("Relaxing criteria", {
+        description: "The system will generate a less restrictive query.",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error relaxing criteria:", error);
+      toast.error("Error", {
+        description: "Failed to relax criteria.",
+        richColors: true,
+        closeButton: true,
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditQuery = async () => {
+    const trimmedQuery = editedQuery.trim();
+    if (!trimmedQuery) {
+      toast.error("Error", {
+        description: "Query cannot be empty.",
+        richColors: true,
+        closeButton: true,
+        duration: 3000,
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      thread.submit(
+        {},
+        {
+          command: {
+            resume: [
+              {
+                type: "response",
+                args: {
+                  action: "edit_query",
+                  query: trimmedQuery,
+                },
+              },
+            ],
+          },
+        },
+      );
+
+      setIsEditingQuery(false);
+      toast.success("Query updated", {
+        description: "The scanner will use your modified query.",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error editing query:", error);
+      toast.error("Error", {
+        description: "Failed to update query.",
+        richColors: true,
+        closeButton: true,
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedQuery(
+      isCustomScanner ? interrupt.scanner_details.search_query : "",
+    );
+    setIsEditingQuery(false);
+  };
+
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       {/* Header */}
@@ -176,12 +279,56 @@ export function ScannerApprovalInterruptView({
         {/* Scanner ID (for saved scanners) or Search Query (for custom scanners) */}
         {isCustomScanner ? (
           <div>
-            <h4 className="text-sm font-medium text-foreground mb-2">
-              Search Query
-            </h4>
-            <code className="block rounded-md bg-muted px-3 py-2 font-mono text-sm text-foreground">
-              {interrupt.scanner_details.search_query}
-            </code>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-foreground">
+                Search Query
+              </h4>
+              {!isEditingQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingQuery(true)}
+                  disabled={loading}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Pencil className="h-3 w-3 mr-1" />
+                  Edit
+                </Button>
+              )}
+            </div>
+            {isEditingQuery ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={editedQuery}
+                  onChange={(e) => setEditedQuery(e.target.value)}
+                  rows={4}
+                  disabled={loading}
+                  className="font-mono text-sm bg-background"
+                  autoFocus
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleEditQuery}
+                    disabled={loading}
+                  >
+                    Save & Run
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <code className="block rounded-md bg-muted px-3 py-2 font-mono text-sm text-foreground">
+                {interrupt.scanner_details.search_query}
+              </code>
+            )}
           </div>
         ) : (
           <div>
@@ -323,6 +470,16 @@ export function ScannerApprovalInterruptView({
 
           <Button
             variant="outline"
+            onClick={() => setShowRelaxModal(true)}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <Sliders className="h-4 w-4" />
+            Relax Criteria
+          </Button>
+
+          <Button
+            variant="outline"
             onClick={() => setShowModifyForm(!showModifyForm)}
             disabled={loading}
             className="items-center gap-2 hidden"
@@ -421,6 +578,14 @@ export function ScannerApprovalInterruptView({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Modals */}
+        <RelaxCriteriaModal
+          open={showRelaxModal}
+          onOpenChange={setShowRelaxModal}
+          onSubmit={handleRelaxCriteria}
+          loading={loading}
+        />
       </div>
     </div>
   );
