@@ -51,11 +51,7 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
               const ly = y + (dy / dist) * offset;
               // Determine text anchor based on horizontal position
               const anchor =
-                Math.abs(dx) < 5
-                  ? "middle"
-                  : dx > 0
-                    ? "start"
-                    : "end";
+                Math.abs(dx) < 5 ? "middle" : dx > 0 ? "start" : "end";
 
               return (
                 <g>
@@ -76,7 +72,7 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
                     fill={color}
                     className="text-xs font-semibold"
                   >
-                    {value}%
+                    {value}
                   </text>
                 </g>
               );
@@ -86,6 +82,7 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
             dataKey="portfolio"
             fill="#8884d8"
             fillOpacity={0.6}
+            isAnimationActive={false}
           />
           <Tooltip formatter={(value) => [`${value}%`]} />
         </RadarChart>
