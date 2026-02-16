@@ -6,6 +6,7 @@ import SimulationChart from "./SimulationChart";
 import LineChart from "./LineChart";
 import StockAnalysisComponent from "./stock-analysis";
 import MfAnalysisComponent from "./mf-analysis";
+import PfAnalysisComponent from "./pf-analysis";
 
 import ReportStatus from "./report-status";
 
@@ -16,6 +17,7 @@ const ClientComponentsRegistry: Record<string, ComponentType<any>> = {
   line_chart: LineChart,
   stock_analysis: StockAnalysisComponent,
   mf_analysis: MfAnalysisComponent,
+  pf_analysis: PfAnalysisComponent,
   report_status: ReportStatus,
 };
 
