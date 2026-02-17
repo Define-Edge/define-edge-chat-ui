@@ -6,5 +6,6 @@ export enum ConsentType {
     MUTUAL_FUNDS = 'MUTUAL_FUNDS',
     EQUITIES = 'EQUITIES',
     ETF = 'ETF',
-    BANK_ACCOUNTS = 'BANK_ACCOUNTS'
+    BANK_ACCOUNTS = 'BANK_ACCOUNTS',
+    SIP = 'SIP'
 };

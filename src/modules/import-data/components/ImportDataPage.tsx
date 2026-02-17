@@ -13,6 +13,7 @@ import {
   Landmark,
   PieChart,
   Shield,
+  Repeat,
   TrendingUp,
 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -29,6 +30,7 @@ import { BankAccountsPreviewModal } from "./modals/BankAccountsPreviewModal";
 import { EquitiesPreviewModal } from "./modals/EquitiesPreviewModal";
 import { EtfPreviewModal } from "./modals/EtfPreviewModal";
 import { MutualFundsPreviewModal } from "./modals/MutualFundsPreviewModal";
+import { SipPreviewModal } from "./modals/SipPreviewModal";
 import { NetworthGraph } from "./NetworthGraph";
 import { QuickUpload } from "./QuickUpload";
 import { CollapsibleInstructions } from "../../core/common/ui/CollapsibleInstructions";
@@ -119,6 +121,15 @@ export function ImportDataPage() {
               title="ETF Holdings"
               description="Connect to sync Exchange Traded Fund holdings"
               AnalysisModal={EtfPreviewModal}
+            />
+
+            {/* SIP Accounts - MoneyOne */}
+            <MoneyOneHoldingsCard
+              consentType={ConsentType.SIP}
+              icon={Repeat}
+              title="SIP Accounts"
+              description="View your Systematic Investment Plan registrations"
+              AnalysisModal={SipPreviewModal}
             />
 
             {/* Fixed Deposits - Manual */}
