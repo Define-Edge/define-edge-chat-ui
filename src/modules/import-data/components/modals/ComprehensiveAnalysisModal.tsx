@@ -43,6 +43,7 @@ export function ComprehensiveAnalysisModal() {
       [ConsentType.MUTUAL_FUNDS]: null,
       [ConsentType.ETF]: null,
       [ConsentType.BANK_ACCOUNTS]: null,
+      [ConsentType.SIP]: null,
     };
 
     allConsents.forEach((consent) => {

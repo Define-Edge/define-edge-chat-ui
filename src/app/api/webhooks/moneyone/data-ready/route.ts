@@ -5,6 +5,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 const productIdToConsentTypeMap: { [productId: string]: ConsentType } = {
   [process.env.MONEY_ONE_EQUITIES_CONSENT_FORM as string]: ConsentType.EQUITIES,
   [process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM as string]: ConsentType.MUTUAL_FUNDS,
+  [process.env.MONEY_ONE_SIP_CONSENT_FORM as string]: ConsentType.SIP,
 };
 
 export async function POST(request: Request) {

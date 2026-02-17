@@ -19,6 +19,7 @@ const consentFormMap = {
   [ConsentType.MUTUAL_FUNDS]: process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM,
   [ConsentType.ETF]: process.env.MONEY_ONE_ETF_CONSENT_FORM,
   [ConsentType.BANK_ACCOUNTS]: process.env.MONEY_ONE_BANK_ACCOUNTS_CONSENT_FORM,
+  [ConsentType.SIP]: process.env.MONEY_ONE_SIP_CONSENT_FORM,
 } as const;
 
 const consentFipIdsMap = {
@@ -35,6 +36,10 @@ const consentFipIdsMap = {
   // Bank Accounts FIPS is optional - may not be required by MoneyOne
   [ConsentType.BANK_ACCOUNTS]: process.env.MONEY_ONE_BANK_ACCOUNTS_FIPS
     ? process.env.MONEY_ONE_BANK_ACCOUNTS_FIPS.split(",")
+    : null,
+  // SIP FIPS is optional - may not be required by MoneyOne
+  [ConsentType.SIP]: process.env.MONEY_ONE_SIP_FIPS
+    ? process.env.MONEY_ONE_SIP_FIPS.split(",")
     : null,
 } as const;
 
@@ -333,7 +338,7 @@ export const getAllFiData = async (consentID: string, waitTime?: number) => {
     if (response?.errorCode === "NoDataFound") throw response;
 
     if (response?.status === "success") {
-      if (!response.data.some((item: any) => item.Summary))
+      if (!response.data.some((item: any) => item.Summary || item.Profile))
         throw new Error("NoDataFound");
       if (process.env.NODE_ENV === "development")
         console.log("---Fetched fi data", response);

@@ -74,4 +74,5 @@ export const ASSET_TYPE_MAP: Record<ConsentType, string> = {
   [ConsentType.MUTUAL_FUNDS]: "Mutual Fund",
   [ConsentType.ETF]: "ETF",
   [ConsentType.BANK_ACCOUNTS]: "Bank Account",
+  [ConsentType.SIP]: "SIP",
 } as const;

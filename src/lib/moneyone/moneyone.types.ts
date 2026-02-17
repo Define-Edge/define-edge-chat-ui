@@ -156,6 +156,22 @@ type AccountType = {
   fiType: string;
   bank: string;
   Summary?: FiDataAccountSummary;
+  Profile?: {
+    Holders: {
+      type: string;
+      Holder: Array<{
+        dob: string;
+        pan: string;
+        name: string;
+        email: string;
+        mobile: string;
+        address: string;
+        nominee: string;
+        landline: string;
+        kycCompliance: string;
+      }>;
+    };
+  };
 };
 
 export type FiDataResponse = AccountType[];
