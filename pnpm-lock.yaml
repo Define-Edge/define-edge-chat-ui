@@ -13,13 +13,13 @@ importers:
         version: 5.2.2(react-hook-form@7.66.1(react@19.1.0))
       '@langchain/core':
         specifier: ^0.3.44
-        version: 0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4))
+        version: 0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4))
       '@langchain/langgraph':
         specifier: ^0.2.63
-        version: 0.2.72(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.24.4))
+        version: 0.2.72(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.24.4))
       '@langchain/langgraph-sdk':
         specifier: ^0.0.73
-        version: 0.0.73(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))(react@19.1.0)
+        version: 0.0.73(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))(react@19.1.0)
       '@radix-ui/react-avatar':
         specifier: ^1.1.3
         version: 1.1.9(@types/react-dom@19.1.5(@types/react@19.1.4))(@types/react@19.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -57,8 +57,8 @@ importers:
         specifier: ^1.1.8
         version: 1.2.6(@types/react-dom@19.1.5(@types/react@19.1.4))(@types/react@19.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@sparticuz/chromium-min':
-        specifier: ^143.0.0
-        version: 143.0.0
+        specifier: ^143.0.4
+        version: 143.0.4
       '@tanstack/react-query':
         specifier: ^5.90.10
         version: 5.90.10(react@19.1.0)
@@ -92,9 +92,9 @@ importers:
       katex:
         specifier: ^0.16.22
         version: 0.16.22
-      langgraph-nextjs-api-passthrough:
-        specifier: ^0.0.4
-        version: 0.0.4(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.52.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      keycloak-js:
+        specifier: ^26.2.2
+        version: 26.2.2
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -163,8 +163,8 @@ importers:
         specifier: ^9.19.0
         version: 9.27.0
       '@sparticuz/chromium':
-        specifier: ^143.0.0
-        version: 143.0.0
+        specifier: ^143.0.4
+        version: 143.0.4
       '@tailwindcss/postcss':
         specifier: ^4.0.13
         version: 4.1.7
@@ -220,8 +220,8 @@ importers:
         specifier: ^0.6.11
         version: 0.6.11(prettier@3.5.3)
       puppeteer:
-        specifier: ^24.33.0
-        version: 24.33.0(typescript@5.7.3)
+        specifier: ^24.37.5
+        version: 24.37.5(typescript@5.7.3)
       shadcn:
         specifier: ^3.5.0
         version: 3.5.0(@cfworker/json-schema@4.1.1)(@types/node@22.15.18)(typescript@5.7.3)
@@ -966,6 +966,11 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  '@puppeteer/browsers@2.13.0':
+    resolution: {integrity: sha512-46BZJYJjc/WwmKjsvDFykHtXrtomsCIrwYQPOP7VfMJoZY2bsDF9oROBABR3paDjDcmkUye1Pb1BqdcdiipaWA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   '@radix-ui/number@1.1.1':
     resolution: {integrity: sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==}
 
@@ -1534,12 +1539,12 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@sparticuz/chromium-min@143.0.0':
-    resolution: {integrity: sha512-B9nRt5kQi6q8wW+bmLlGqKC3VEulZgq3XWYAevK5B9ep3izIJGasIsVgczRvXuLeE9iGUQ8/dgSfNmC0/CbW/g==}
+  '@sparticuz/chromium-min@143.0.4':
+    resolution: {integrity: sha512-vAV731SUEVH0FUmMc+404ZoRq0glq7DlhEGpAX0C7/rXupZ0HasOIJHbrjNNNE+VElenkdmwBm8MVTzwYcFPyQ==}
     engines: {node: '>=20.11.0'}
 
-  '@sparticuz/chromium@143.0.0':
-    resolution: {integrity: sha512-/vvplFwu1yDNt/Q1uwXQUwxmfZutU9K+WtzSYwptLWV8IeSdSF6vwW9hW11fZA8Gl9+2mytAGUe6/otgd2VeXA==}
+  '@sparticuz/chromium@143.0.4':
+    resolution: {integrity: sha512-/6I7uQTRhRDD2/gGPQ1Gkf+Dqk0RYDACPJDZfSzz0OWk4JmUTonNHPXbrn6UIklOHlnDLf8xAAzkOZKB/cJpLA==}
     engines: {node: '>=20.11.0'}
 
   '@standard-schema/utils@0.3.0':
@@ -2209,6 +2214,11 @@ packages:
     peerDependencies:
       devtools-protocol: '*'
 
+  chromium-bidi@14.0.0:
+    resolution: {integrity: sha512-9gYlLtS6tStdRWzrtXaTMnqcM4dudNegMXJxkR0I/CXObHalYeYcAMPrL19eroNZHtJ8DQmu1E+ZNOYu/IXMXw==}
+    peerDependencies:
+      devtools-protocol: '*'
+
   class-variance-authority@0.7.1:
     resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
 
@@ -2491,6 +2501,9 @@ packages:
 
   devtools-protocol@0.0.1534754:
     resolution: {integrity: sha512-26T91cV5dbOYnXdJi5qQHoTtUoNEqwkHcAyu/IKtjIAxiEqPMrDiRkDOPWVsGfNZGmlQVHQbZRSjD8sxagWVsQ==}
+
+  devtools-protocol@0.0.1566079:
+    resolution: {integrity: sha512-MJfAEA1UfVhSs7fbSQOG4czavUp1ajfg6prlAN0+cmfa2zNjaIbvq8VneP7do1WAQQIvgNJWSMeP6UyI90gIlQ==}
 
   diff@8.0.2:
     resolution: {integrity: sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==}
@@ -3439,6 +3452,9 @@ packages:
     resolution: {integrity: sha512-XCHRdUw4lf3SKBaJe4EvgqIuWwkPSo9XoeO8GjQW94Bp7TWv9hNhzZjZ+OH9yf1UmLygb7DIT5GSFQiyt16zYg==}
     hasBin: true
 
+  keycloak-js@26.2.2:
+    resolution: {integrity: sha512-ug7pNZ1xNkd7PPkerOJCEU2VnUhS7CYStDOCFJgqCNQ64h53ppxaKrh4iXH0xM8hFu5b1W6e6lsyYWqBMvaQFg==}
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -3449,11 +3465,6 @@ packages:
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
-
-  langgraph-nextjs-api-passthrough@0.0.4:
-    resolution: {integrity: sha512-Hhey2o7/hvbvr4t8qT+w/5YT2L6m381RJ1K6mBQPJt+W2fJJ1youS3EEtVkAHQDJcn1cdCccOc0GTPsqT6F9IQ==}
-    peerDependencies:
-      next: '*'
 
   langsmith@0.3.29:
     resolution: {integrity: sha512-JPF2B339qpYy9FyuY4Yz1aWYtgPlFc/a+VTj3L/JcFLHCiMP7+Ig8I9jO+o1QwVa+JU3iugL1RS0wwc+Glw0zA==}
@@ -4296,8 +4307,12 @@ packages:
     resolution: {integrity: sha512-tPTxVg+Qdj/8av4cy6szv3GlhxeOoNhiiMZ955fjxQyvPQE/6DjCa6ZyF/x0WJrlgBZtaLSP8TQgJb7FdLDXXA==}
     engines: {node: '>=18'}
 
-  puppeteer@24.33.0:
-    resolution: {integrity: sha512-nl3wsAztq5F8zybn4Tk41OCnYIzFIzGC6AN0WcF2KCUnWenajvRRPgBmS6LvNUV2HEeIzT2zRZHH0TgVxLDKew==}
+  puppeteer-core@24.37.5:
+    resolution: {integrity: sha512-ybL7iE78YPN4T6J+sPLO7r0lSByp/0NN6PvfBEql219cOnttoTFzCWKiBOjstXSqi/OKpwae623DWAsL7cn2MQ==}
+    engines: {node: '>=18'}
+
+  puppeteer@24.37.5:
+    resolution: {integrity: sha512-3PAOIQLceyEmn1Fi76GkGO2EVxztv5OtdlB1m8hMUZL3f8KDHnlvXbvCXv+Ls7KzF1R0KdKBqLuT/Hhrok12hQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4514,6 +4529,11 @@ packages:
 
   semver@7.7.3:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.7.4:
+    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -5014,6 +5034,9 @@ packages:
   webdriver-bidi-protocol@0.3.9:
     resolution: {integrity: sha512-uIYvlRQ0PwtZR1EzHlTMol1G0lAlmOe6wPykF9a77AK3bkpvZHzIVxRE2ThOx5vjy2zISe0zhwf5rzuUfbo1PQ==}
 
+  webdriver-bidi-protocol@0.4.1:
+    resolution: {integrity: sha512-ARrjNjtWRRs2w4Tk7nqrf2gBI0QXWuOmMCx2hU+1jUt6d00MjMxURrhxhGbrsoiZKJrhTSTzbIrc554iKI10qw==}
+
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -5063,6 +5086,18 @@ packages:
 
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.19.0:
+    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -5664,14 +5699,14 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4))':
+  '@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4))':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.20
-      langsmith: 0.3.29(openai@4.100.0(ws@8.18.3)(zod@3.24.4))
+      langsmith: 0.3.29(openai@4.100.0(ws@8.19.0)(zod@3.24.4))
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -5681,26 +5716,26 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))':
+  '@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))':
     dependencies:
-      '@langchain/core': 0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4))
+      '@langchain/core': 0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4))
       uuid: 10.0.0
 
-  '@langchain/langgraph-sdk@0.0.73(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))(react@19.1.0)':
+  '@langchain/langgraph-sdk@0.0.73(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))(react@19.1.0)':
     dependencies:
       '@types/json-schema': 7.0.15
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 9.0.1
     optionalDependencies:
-      '@langchain/core': 0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4))
+      '@langchain/core': 0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4))
       react: 19.1.0
 
-  '@langchain/langgraph@0.2.72(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.24.4))':
+  '@langchain/langgraph@0.2.72(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.24.4))':
     dependencies:
-      '@langchain/core': 0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4))
-      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))
-      '@langchain/langgraph-sdk': 0.0.73(@langchain/core@0.3.56(openai@4.100.0(ws@8.18.3)(zod@3.24.4)))(react@19.1.0)
+      '@langchain/core': 0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4))
+      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))
+      '@langchain/langgraph-sdk': 0.0.73(@langchain/core@0.3.56(openai@4.100.0(ws@8.19.0)(zod@3.24.4)))(react@19.1.0)
       uuid: 10.0.0
       zod: 3.24.4
     optionalDependencies:
@@ -5820,6 +5855,21 @@ snapshots:
       progress: 2.0.3
       proxy-agent: 6.5.0
       semver: 7.7.3
+      tar-fs: 3.1.1
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
+
+  '@puppeteer/browsers@2.13.0':
+    dependencies:
+      debug: 4.4.3
+      extract-zip: 2.0.1
+      progress: 2.0.3
+      proxy-agent: 6.5.0
+      semver: 7.7.4
       tar-fs: 3.1.1
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -6376,7 +6426,7 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@sparticuz/chromium-min@143.0.0':
+  '@sparticuz/chromium-min@143.0.4':
     dependencies:
       follow-redirects: 1.15.11
       tar-fs: 3.1.1
@@ -6386,7 +6436,7 @@ snapshots:
       - debug
       - react-native-b4a
 
-  '@sparticuz/chromium@143.0.0':
+  '@sparticuz/chromium@143.0.4':
     dependencies:
       follow-redirects: 1.15.11
       tar-fs: 3.1.1
@@ -7055,6 +7105,12 @@ snapshots:
       mitt: 3.0.1
       zod: 3.24.4
 
+  chromium-bidi@14.0.0(devtools-protocol@0.0.1566079):
+    dependencies:
+      devtools-protocol: 0.0.1566079
+      mitt: 3.0.1
+      zod: 3.24.4
+
   class-variance-authority@0.7.1:
     dependencies:
       clsx: 2.1.1
@@ -7292,6 +7348,8 @@ snapshots:
       dequal: 2.0.3
 
   devtools-protocol@0.0.1534754: {}
+
+  devtools-protocol@0.0.1566079: {}
 
   diff@8.0.2: {}
 
@@ -8478,6 +8536,8 @@ snapshots:
     dependencies:
       commander: 8.3.0
 
+  keycloak-js@26.2.2: {}
+
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -8486,11 +8546,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  langgraph-nextjs-api-passthrough@0.0.4(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.52.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)):
-    dependencies:
-      next: 15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.52.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-
-  langsmith@0.3.29(openai@4.100.0(ws@8.18.3)(zod@3.24.4)):
+  langsmith@0.3.29(openai@4.100.0(ws@8.19.0)(zod@3.24.4)):
     dependencies:
       '@types/uuid': 10.0.0
       chalk: 4.1.2
@@ -8500,7 +8556,7 @@ snapshots:
       semver: 7.7.2
       uuid: 10.0.0
     optionalDependencies:
-      openai: 4.100.0(ws@8.18.3)(zod@3.24.4)
+      openai: 4.100.0(ws@8.19.0)(zod@3.24.4)
 
   language-subtag-registry@0.3.23: {}
 
@@ -9201,7 +9257,7 @@ snapshots:
     dependencies:
       mimic-function: 5.0.1
 
-  openai@4.100.0(ws@8.18.3)(zod@3.24.4):
+  openai@4.100.0(ws@8.19.0)(zod@3.24.4):
     dependencies:
       '@types/node': 18.19.100
       '@types/node-fetch': 2.6.12
@@ -9211,7 +9267,7 @@ snapshots:
       formdata-node: 4.4.1
       node-fetch: 2.7.0
     optionalDependencies:
-      ws: 8.18.3
+      ws: 8.19.0
       zod: 3.24.4
     transitivePeerDependencies:
       - encoding
@@ -9509,13 +9565,30 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  puppeteer@24.33.0(typescript@5.7.3):
+  puppeteer-core@24.37.5:
     dependencies:
-      '@puppeteer/browsers': 2.11.0
-      chromium-bidi: 11.0.0(devtools-protocol@0.0.1534754)
+      '@puppeteer/browsers': 2.13.0
+      chromium-bidi: 14.0.0(devtools-protocol@0.0.1566079)
+      debug: 4.4.3
+      devtools-protocol: 0.0.1566079
+      typed-query-selector: 2.12.0
+      webdriver-bidi-protocol: 0.4.1
+      ws: 8.19.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bufferutil
+      - react-native-b4a
+      - supports-color
+      - utf-8-validate
+
+  puppeteer@24.37.5(typescript@5.7.3):
+    dependencies:
+      '@puppeteer/browsers': 2.13.0
+      chromium-bidi: 14.0.0(devtools-protocol@0.0.1566079)
       cosmiconfig: 9.0.0(typescript@5.7.3)
-      devtools-protocol: 0.0.1534754
-      puppeteer-core: 24.33.0
+      devtools-protocol: 0.0.1566079
+      puppeteer-core: 24.37.5
       typed-query-selector: 2.12.0
     transitivePeerDependencies:
       - bare-abort-controller
@@ -9813,6 +9886,8 @@ snapshots:
   semver@7.7.2: {}
 
   semver@7.7.3: {}
+
+  semver@7.7.4: {}
 
   send@1.2.0:
     dependencies:
@@ -10480,6 +10555,8 @@ snapshots:
 
   webdriver-bidi-protocol@0.3.9: {}
 
+  webdriver-bidi-protocol@0.4.1: {}
+
   webidl-conversions@3.0.1:
     optional: true
 
@@ -10555,6 +10632,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.18.3: {}
+
+  ws@8.19.0: {}
 
   xtend@4.0.2: {}
 

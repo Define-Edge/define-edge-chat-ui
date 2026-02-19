@@ -14,7 +14,18 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { PanelRightOpen, PanelRightClose } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import keycloak from "../../../providers/keycloak";
+// import { Button } from "../../ui/button"
+// ===============================
+// 🔴 NEW: Logout handler function
+// ===============================
+const handleLogout = () => {
+  if (!keycloak) return;
 
+  keycloak.logout({
+    redirectUri: window.location.origin, // 🔁 redirect back to login page
+  });
+};
 function ThreadList({
   threads,
   onThreadClick,
@@ -118,6 +129,30 @@ export default function ThreadHistory() {
         ) : (
           <ThreadList threads={threads} />
         )}
+               {/* ================================================= */}
+        {/* 🔴 NEW: User info + Logout button (BOTTOM SECTION) */}
+        {/* ================================================= */}
+        <div className="sticky bottom-4 mx-3 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-2 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white font-semibold">
+              {keycloak?.tokenParsed?.preferred_username?.[0]?.toUpperCase() || "U"}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-800">
+                {keycloak?.tokenParsed?.preferred_username || "User"}
+              </span>
+              <span className="text-xs text-gray-500">Active</span>
+            </div>
+          </div>
+
+          <Button
+            size="sm"
+            className="text-xs font-medium bg-red-500 hover:bg-red-600 text-white"
+            onClick={handleLogout} // 🔴 logout call
+          >
+            Logout
+          </Button>
+        </div>
       </div>
       <div className="lg:hidden">
         <Sheet
@@ -138,7 +173,7 @@ export default function ThreadHistory() {
               threads={threads}
               onThreadClick={() => setChatHistoryOpen((o) => !o)}
             />
-          </SheetContent>
+          </SheetContent>      
         </Sheet>
       </div>
     </>

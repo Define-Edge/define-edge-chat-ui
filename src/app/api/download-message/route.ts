@@ -18,6 +18,12 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // Forward the auth token so the report page can authenticate with LangGraph
+  const authHeader = request.headers.get("authorization");
+  const authToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : undefined;
+
   const origin =
     request.headers.get("origin") ||
     process.env.NEXT_PUBLIC_API_URL ||
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
     : "stock-analysis-report";
 
   const gotoRoute = new URL(
-    `${origin}/api/download-message/${reportPath}`,
+    `${origin}/download-message/${reportPath}`,
   );
   gotoRoute.searchParams.set("threadId", threadId);
   gotoRoute.searchParams.set("analysisId", analysisId);
@@ -40,6 +46,9 @@ export async function POST(request: NextRequest) {
   }
   if (personalComment) {
     gotoRoute.searchParams.set("personalComment", personalComment);
+  }
+  if (authToken) {
+    gotoRoute.searchParams.set("authToken", authToken);
   }
 
   let browser;

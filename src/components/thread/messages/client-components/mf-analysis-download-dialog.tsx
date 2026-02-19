@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DownloadIcon, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { useKeycloak } from "@/providers/KeycloakProvider";
 
 type MfAnalysisSection = {
   key: string;
@@ -48,6 +49,7 @@ export function MfAnalysisDownloadDialog({
   analysisId,
   schemeName,
 }: MfAnalysisDownloadDialogProps) {
+  const { token } = useKeycloak();
   const [open, setOpen] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>(
     MF_SECTIONS.map((s) => s.key)
@@ -56,11 +58,14 @@ export function MfAnalysisDownloadDialog({
 
   const mutation = useMutation({
     mutationFn: async () => {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const response = await fetch("/api/download-message", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
           threadId: threadId,
           analysisId: analysisId,

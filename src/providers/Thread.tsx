@@ -12,6 +12,7 @@ import {
 } from "react";
 import { validate } from "uuid";
 import { createClient } from "./client";
+import { useKeycloak } from "./KeycloakProvider";
 
 interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
@@ -36,12 +37,17 @@ function getThreadSearchMetadata(
 export function ThreadProvider({ children }: { children: ReactNode }) {
   const [apiUrl] = useApiUrl()
   const [assistantId] = useAssistantId()
+  const { token } = useKeycloak();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
     if (!apiUrl || !assistantId) return [];
-    const client = createClient(apiUrl, getApiKey() ?? undefined);
+    const client = createClient(
+      apiUrl,
+      getApiKey() ?? undefined,
+      token ? { Authorization: `Bearer ${token}` } : undefined,
+    );
 
     const threads = await client.threads.search({
       metadata: {
@@ -51,7 +57,7 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
     });
 
     return threads;
-  }, [apiUrl, assistantId]);
+  }, [apiUrl, assistantId, token]);
 
   const value = {
     getThreads,
