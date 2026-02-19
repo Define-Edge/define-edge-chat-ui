@@ -15,6 +15,8 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
   const selectedSectionsParam = params.selectedSections as string | undefined;
   const personalComment = params.personalComment as string | undefined;
 
+  const authToken = params.authToken as string | undefined;
+
   // Parse selected sections from JSON string
   let selectedSections: string[] | undefined;
   if (selectedSectionsParam) {
@@ -28,6 +30,7 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
   const client = createClient(
     process.env.NEXT_PUBLIC_API_URL!,
     process.env.LANGSMITH_API_KEY,
+    authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
   );
   const state = await client.threads.getState(threadId as string);
 
@@ -65,7 +68,6 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
           />
         );
       })}
-      {/* <MarkdownText>{String(message.content ?? "")}</MarkdownText>; */}
     </main>
   );
 }

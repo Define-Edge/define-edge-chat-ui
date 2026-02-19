@@ -26,6 +26,7 @@ import React, {
 import { toast } from "sonner";
 import { useThreads } from "./Thread";
 import { PlannerModels } from "@/configs/models";
+import { useKeycloak } from "./KeycloakProvider";
 
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
 
@@ -40,7 +41,7 @@ const useTypedStream = useStream<
     CustomEventType: UIMessage | RemoveUIMessage;
     ConfigurableType: {
       planner_agent_model: PlannerModels;
-    }
+    };
   }
 >;
 
@@ -54,14 +55,15 @@ async function sleep(ms = 4000) {
 async function checkGraphStatus(
   apiUrl: string,
   apiKey: string | null,
+  token?: string,
 ): Promise<boolean> {
   try {
+    const headers: Record<string, string> = {};
+    if (apiKey) headers["X-Api-Key"] = apiKey;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
     const res = await fetch(`${apiUrl}/info`, {
-      ...(apiKey && {
-        headers: {
-          "X-Api-Key": apiKey,
-        },
-      }),
+      headers,
     });
 
     return res.ok;
@@ -82,6 +84,8 @@ const StreamSession = ({
   apiUrl: string;
   assistantId: string;
 }) => {
+  const { token } = useKeycloak();
+
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
   const streamValue = useTypedStream({
@@ -89,6 +93,9 @@ const StreamSession = ({
     apiKey: apiKey ?? undefined,
     assistantId,
     threadId: threadId ?? null,
+    defaultHeaders: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
@@ -106,7 +113,7 @@ const StreamSession = ({
   });
 
   useEffect(() => {
-    checkGraphStatus(apiUrl, apiKey).then((ok) => {
+    checkGraphStatus(apiUrl, apiKey, token).then((ok) => {
       if (!ok) {
         toast.error("Failed to connect to LangGraph server", {
           description: () => (
@@ -121,7 +128,7 @@ const StreamSession = ({
         });
       }
     });
-  }, [apiKey, apiUrl]);
+  }, [apiKey, apiUrl, token]);
 
   return (
     <StreamContext.Provider value={streamValue}>
@@ -143,8 +150,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     process.env.NEXT_PUBLIC_ASSISTANT_ID;
 
   // Use URL params with env var fallbacks
-  const [apiUrl, setApiUrl] = useApiUrl()
-  const [assistantId, setAssistantId] = useAssistantId()
+  const [apiUrl, setApiUrl] = useApiUrl();
+  const [assistantId, setAssistantId] = useAssistantId();
 
   // For API key, use localStorage with env var fallback
   const [apiKey, _setApiKey] = useState(() => {
@@ -165,7 +172,7 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   if (!finalApiUrl || !finalAssistantId) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4">
-        <div className="animate-in fade-in-0 zoom-in-95 bg-background flex chat-container flex-col rounded-lg border shadow-lg">
+        <div className="animate-in fade-in-0 zoom-in-95 bg-background chat-container flex flex-col rounded-lg border shadow-lg">
           <div className="mt-14 flex flex-col gap-2 border-b p-6">
             <div className="flex flex-col items-start gap-2">
               <LangGraphLogoSVG className="h-7" />
