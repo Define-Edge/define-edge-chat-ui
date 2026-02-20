@@ -5,13 +5,22 @@ import {
 } from "@/lib/puppeteer-utils";
 
 export async function POST(request: NextRequest) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new NextResponse("Invalid request body: expected valid JSON.", {
+      status: 400,
+    });
+  }
+
   const {
     threadId,
     analysisId,
     analysisType = "stock_analysis",
     selectedSections,
     personalComment,
-  } = await request.json();
+  } = body;
   if (!threadId || !analysisId) {
     return new NextResponse("Please provide a threadId and analysisId.", {
       status: 400,
@@ -45,7 +54,8 @@ export async function POST(request: NextRequest) {
     );
   }
   if (personalComment) {
-    gotoRoute.searchParams.set("personalComment", personalComment);
+    const sanitizedComment = String(personalComment).slice(0, 2000);
+    gotoRoute.searchParams.set("personalComment", sanitizedComment);
   }
 
   let browser;
@@ -121,7 +131,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'inline; filename="screenshot.pdf"',
+        "Content-Disposition": 'inline; filename="report.pdf"',
       },
     });
   } catch (error: unknown) {
@@ -129,13 +139,17 @@ export async function POST(request: NextRequest) {
     const message =
       error instanceof Error ? error.message : "Unknown error";
     return new NextResponse(
-      `An error occurred while generating the screenshot: ${message}`,
+      `An error occurred while generating the PDF report: ${message}`,
       { status: 500 },
     );
   } finally {
     // Always clean up browser resources
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.warn("Failed to close browser:", closeError);
+      }
     }
   }
 }
