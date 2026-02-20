@@ -31,7 +31,7 @@ export default function groupSmallFragments(
     return i === 0 || el[value] === arr[i - 1][value];
   });
 
-  // If all the values are alloted equally and above the threshold
+  // If all values are allocated equally and above the threshold
   if (weightsAreAllotedEqually && newData[0][value] > threshold) {
     return newData;
   }

@@ -7,7 +7,7 @@ type Props = {
   label: string;
 };
 
-/* CSS HSL */
+/* Blue-scale palette from light to dark */
 const COLORS = ["#d1dbe4", "#a3b7ca", "#7593af", "#476f95", "#194a7a"];
 
 const CustomizedLabel = (props: any) => {

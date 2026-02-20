@@ -115,7 +115,7 @@ export function getPortfolioDisplayTable(
     for (const col of displayCols) {
       if (col in item) {
         if (typeof item[col] === "number" && col !== "quantity") {
-          // Format weight and value columns as percentages or currency
+          // Format weight as percentage, other numeric columns to 2 decimal places
           filtered[col] =
             col === "weight"
               ? `${item[col].toFixed(2)}%`

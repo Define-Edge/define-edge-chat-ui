@@ -3,7 +3,7 @@
  */
 
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { BaseHolding, BaseAccountType, ColumnConfig } from "./common";
+import { BaseHolding, BaseAccountType } from "./common";
 
 /**
  * Mutual Fund-specific holding type
@@ -56,16 +56,6 @@ export interface MutualFundMarkdownFormat {
   "ISIN": string;
   "Closing Units": string;
 }
-
-/**
- * Column configurations for mutual fund holdings table
- */
-export const MUTUAL_FUND_COLUMNS: readonly ColumnConfig[] = [
-  { key: "description", label: "Description", align: "left" },
-  { key: "isin", label: "ISIN", align: "left" },
-  { key: "quantity", label: "Closing Units", align: "right" },
-  { key: "action", label: "Action", align: "center" },
-] as const;
 
 /**
  * Quantity field name for mutual funds

@@ -3,7 +3,7 @@
  */
 
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { BaseHolding, BaseAccountType, ColumnConfig } from "./common";
+import { BaseHolding, BaseAccountType } from "./common";
 
 /**
  * ETF-specific holding type
@@ -49,16 +49,6 @@ export interface ETFMarkdownFormat {
   "Units": string;
   "NAV": string;
 }
-
-/**
- * Column configurations for ETF holdings table
- */
-export const ETF_COLUMNS: readonly ColumnConfig[] = [
-  { key: "isinDescription", label: "ETF Name", align: "left" },
-  { key: "isin", label: "ISIN", align: "left" },
-  { key: "quantity", label: "Units", align: "right" },
-  { key: "action", label: "Action", align: "center" },
-] as const;
 
 /**
  * Quantity field name for ETFs
