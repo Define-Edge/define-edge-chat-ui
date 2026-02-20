@@ -10,6 +10,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { PortfolioAnalyticsTabs } from "@/modules/core/portfolio/components/PortfolioAnalyticsTabs";
 import { BarChart3, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   EquityHoldingWithQuantity,
   EquitiesFiDataResponse,
@@ -84,7 +85,10 @@ export function EquitiesPreviewForm({
   };
 
   const handleFormSubmit = (data: HoldingFormData) => {
-    if (!fiData) return;
+    if (!fiData) {
+      toast.error("Holdings data is not available. Please try again.");
+      return;
+    }
 
     // Transform form data back to equities (filters quantity=0)
     const convertedEquities = transformFormDataToEquities(
@@ -97,6 +101,7 @@ export function EquitiesPreviewForm({
     );
 
     if (!firstAccountWithInvestment?.Summary?.Investment) {
+      toast.error("No valid investment account found in holdings data.");
       return;
     }
 

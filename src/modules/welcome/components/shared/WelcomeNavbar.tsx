@@ -36,7 +36,7 @@ export default function WelcomeNavbar() {
           <span
             className={cn(
               "text-lg font-semibold transition-colors duration-300",
-              scrolled ? "text-primary-main-dark" : "text-primary-main-dark",
+              scrolled ? "text-primary-main-dark" : "text-white",
             )}
           >
             {appConfig.appName}

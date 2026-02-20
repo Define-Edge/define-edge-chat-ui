@@ -10,6 +10,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { MFPortfolioAnalyticsTabs } from "@/modules/core/portfolio/mf-portfolio/components/MFPortfolioAnalyticsTabs";
 import { BarChart3, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { ETFHoldingWithQuantity, ETFFiDataResponse } from "@/modules/import-data/types/etf";
 import { MutualFundHoldingWithQuantity } from "@/modules/import-data/types/mutual-funds";
 import { transformFormDataToETFs } from "./utils/etf-transformer";
@@ -83,7 +84,10 @@ export function EtfPreviewForm({
   };
 
   const handleFormSubmit = (data: HoldingFormData) => {
-    if (!fiData) return;
+    if (!fiData) {
+      toast.error("Holdings data is not available. Please try again.");
+      return;
+    }
 
     // Transform form data back to ETFs (filters quantity=0)
     const convertedETFs = transformFormDataToETFs(
@@ -96,6 +100,7 @@ export function EtfPreviewForm({
     );
 
     if (!firstAccountWithInvestment?.Summary?.Investment) {
+      toast.error("No valid investment account found in holdings data.");
       return;
     }
 
