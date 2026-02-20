@@ -1,66 +1,13 @@
 "use client";
 
 import type { CorrelationHeatmapRow } from "@/types/pf-analysis";
+import { getCellBg as _getCellBg, getCellText as _getCellText } from "@/lib/heatmap-colors";
 
 const MAX_STOCKS = 10;
+const SCALE = 1;
 
-/** Linearly interpolate between two [r,g,b] colors */
-function lerpColor(
-  a: [number, number, number],
-  b: [number, number, number],
-  t: number,
-): string {
-  const r = Math.round(a[0] + (b[0] - a[0]) * t);
-  const g = Math.round(a[1] + (b[1] - a[1]) * t);
-  const bl = Math.round(a[2] + (b[2] - a[2]) * t);
-  return `rgb(${r},${g},${bl})`;
-}
-
-// Gradient stops: dark red → red → salmon → cream → light green → green → dark green
-const NEG_DARK: [number, number, number] = [153, 27, 27]; // #991B1B
-const NEG_MID: [number, number, number] = [220, 70, 55]; // #DC4637
-const NEG_LIGHT: [number, number, number] = [245, 190, 170]; // #F5BEAA
-const NEUTRAL: [number, number, number] = [252, 246, 228]; // #FCF6E4
-const POS_LIGHT: [number, number, number] = [190, 225, 160]; // #BEE1A0
-const POS_MID: [number, number, number] = [80, 180, 60]; // #50B43C
-const POS_DARK: [number, number, number] = [22, 101, 52]; // #166534
-
-/** Diverging color for correlation values: red ↔ cream ↔ green, range -1 to 1 */
-function getCellBg(value: number | null): string {
-  if (value == null) return "#F3F4F6";
-  const clamped = Math.max(-1, Math.min(1, value));
-
-  if (clamped < -0.5) {
-    const t = (clamped + 1) / 0.5; // -1→0, -0.5→1
-    return lerpColor(NEG_DARK, NEG_MID, t);
-  }
-  if (clamped < -0.1) {
-    const t = (clamped + 0.5) / 0.4; // -0.5→0, -0.1→1
-    return lerpColor(NEG_MID, NEG_LIGHT, t);
-  }
-  if (clamped < 0) {
-    const t = (clamped + 0.1) / 0.1; // -0.1→0, 0→1
-    return lerpColor(NEG_LIGHT, NEUTRAL, t);
-  }
-  if (clamped < 0.1) {
-    const t = clamped / 0.1; // 0→0, 0.1→1
-    return lerpColor(NEUTRAL, POS_LIGHT, t);
-  }
-  if (clamped < 0.5) {
-    const t = (clamped - 0.1) / 0.4; // 0.1→0, 0.5→1
-    return lerpColor(POS_LIGHT, POS_MID, t);
-  }
-  // 0.5 to 1
-  const t = (clamped - 0.5) / 0.5; // 0.5→0, 1→1
-  return lerpColor(POS_MID, POS_DARK, t);
-}
-
-/** Text color: white on dark backgrounds, dark gray otherwise */
-function getCellText(value: number | null): string {
-  if (value == null) return "#9CA3AF";
-  if (value > 0.7 || value < -0.7) return "#FFFFFF";
-  return "#1F2937";
-}
+const getCellBg = (v: number | null) => _getCellBg(v, SCALE);
+const getCellText = (v: number | null) => _getCellText(v, SCALE);
 
 type Props = {
   data: CorrelationHeatmapRow[];

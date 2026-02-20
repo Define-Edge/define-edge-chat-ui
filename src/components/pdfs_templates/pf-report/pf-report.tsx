@@ -1,6 +1,7 @@
 "use client";
 import type { ScreenerCoverage } from "@/api/generated/report-apis/models";
 import BulbIcon from "@/components/icons/BulbIcon";
+import CompassIcon from "@/components/icons/CompassIcon";
 import DrawdownIcon from "@/components/icons/DrawdownIcon";
 import { MarkdownText } from "@/components/thread/markdown-text";
 import DataTable from "@/components/ui/data-table/DataTable";
@@ -25,14 +26,13 @@ import type {
 import dynamic from "next/dynamic";
 import React from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import Actionables from "../layout/Actionables";
-import AdvancedAnalysis from "../layout/AdvancedAnalysis";
 import ChartContainer from "../layout/ChartContainer";
 import Disclaimer from "../layout/Disclaimer";
 import FinancialFitness from "../layout/FinancialFitness";
+import InsightContainer from "../layout/InsightContainer";
 import IntroPageContainer from "../layout/IntroPageContainer";
 import PageLayout from "../layout/PageLayout";
-import RecommendationContainer from "../layout/RecommendationContainer";
+import SectionDivider from "../layout/SectionDivider";
 import Summary from "../layout/Summary/Summary";
 import TotalPageCtxProvider from "../stock-report/TotalPageCtx";
 import CorrelationHeatmap from "./CorrelationHeatmap";
@@ -57,26 +57,8 @@ const FinSharpeScoresRadarChart = dynamic(
   { ssr: false },
 );
 
-// Color palette for pie charts (same as OverviewTab)
-const PIE_COLORS = [
-  "#4F46E5",
-  "#06B6D4",
-  "#8B5CF6",
-  "#EC4899",
-  "#F59E0B",
-  "#10B981",
-  "#EF4444",
-  "#6366F1",
-  "#14B8A6",
-  "#F97316",
-];
-
-// Color palette for size distribution bars
-const SIZE_COLORS: Record<string, string> = {
-  Large: "#4F46E5",
-  Mid: "#06B6D4",
-  Small: "#8B5CF6",
-};
+import { PIE_COLORS, SIZE_COLORS } from "@/configs/chart-colors";
+import { JsonDataDisplay } from "../shared/JsonDataDisplay";
 
 export const MAX_ROWS_PER_PAGE = 17;
 
@@ -271,7 +253,7 @@ export default function PfAnalysisReportMessageComponent({
         <FinancialFitness />
       </PageLayout>
 
-      <Actionables pgNo={pgNum++} />
+      <SectionDivider title="ACTIONABLES" pgNo={pgNum++} />
 
       {/* Summary */}
       {shouldRenderSection("summary") && (
@@ -306,7 +288,7 @@ export default function PfAnalysisReportMessageComponent({
           </PageLayout>
         ))}
 
-      <AdvancedAnalysis pgNo={pgNum++} />
+      <SectionDivider title="ADVANCED ANALYSIS" pgNo={pgNum++} />
 
       {/* Risk Assessment + Risk-Adjusted Returns */}
       {(shouldRenderSection("risk_assessment") ||
@@ -783,70 +765,6 @@ function SourcesDisplay({ sources }: { sources: Record<string, any> }) {
   );
 }
 
-function JsonDataDisplay({ data }: { data: any }) {
-  if (data === null || data === undefined) {
-    return <span className="text-gray-500">N/A</span>;
-  }
-
-  // If it's a primitive value
-  if (typeof data !== "object") {
-    return (
-      <span className="text-gray-700 dark:text-gray-300">{String(data)}</span>
-    );
-  }
-
-  // If it's an array
-  if (Array.isArray(data)) {
-    if (data.length === 0) {
-      return <span className="text-gray-500">Empty</span>;
-    }
-    return (
-      <ul className="list-inside list-disc space-y-1 text-sm">
-        {data.map((item, idx) => (
-          <li
-            key={idx}
-            className="text-gray-700 dark:text-gray-300"
-          >
-            <JsonDataDisplay data={item} />
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  // If it's an object, render as a table or nested structure
-  const entries = Object.entries(data);
-  if (entries.length === 0) {
-    return <span className="text-gray-500">Empty object</span>;
-  }
-
-  return (
-    <div className="overflow-x-auto rounded border border-gray-300 dark:border-gray-600">
-      <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-          {entries.map(([key, value]) => (
-            <tr
-              key={key}
-              className="hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <td className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">
-                {formatKey(key)}
-              </td>
-              <td className="px-4 py-2 text-gray-700 dark:text-gray-300">
-                {typeof value === "object" ? (
-                  <JsonDataDisplay data={value} />
-                ) : (
-                  String(value)
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 // FinSharpe Analysis Section Component
 function FinSharpeAnalysisSection({
   data,
@@ -895,28 +813,29 @@ function RecommendationSection({ section }: { section: Section }) {
   const hasRefs = Boolean(section.in_depth_analysis || section.sources);
 
   return (
-    <RecommendationContainer
+    <InsightContainer
       header="Expert Recommendations"
       subHeader="Clear Directed Actionable"
-      content={
-        <div className="space-y-3">
-          <div id={anchorId} />
-          {hasRefs && (
-            <div className="text-xs">
-              <a
-                className="text-primary font-medium underline underline-offset-4"
-                href={`#refs-${anchorId}`}
-              >
-                Sources & In-depth Analysis
-              </a>
-            </div>
-          )}
-          <div className="summary-container">
-            <MarkdownText>{section.content}</MarkdownText>
+      Icon={CompassIcon}
+      gradientDirection="recommendation"
+    >
+      <div className="space-y-3">
+        <div id={anchorId} />
+        {hasRefs && (
+          <div className="text-xs">
+            <a
+              className="text-primary font-medium underline underline-offset-4"
+              href={`#refs-${anchorId}`}
+            >
+              Sources & In-depth Analysis
+            </a>
           </div>
+        )}
+        <div className="summary-container">
+          <MarkdownText>{section.content}</MarkdownText>
         </div>
-      }
-    />
+      </div>
+    </InsightContainer>
   );
 }
 
