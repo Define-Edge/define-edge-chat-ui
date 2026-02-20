@@ -9,6 +9,9 @@ export const SUPPORTED_FILE_TYPES = [
   "image/gif",
   "image/webp",
   "application/pdf",
+  "text/csv",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ];
 
 interface UseFileUploadOptions {
@@ -24,16 +27,10 @@ export function useFileUpload({
   const [dragOver, setDragOver] = useState(false);
   const dragCounter = useRef(0);
 
+  const IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
   const isDuplicate = (file: File, blocks: Base64ContentBlock[]) => {
-    if (file.type === "application/pdf") {
-      return blocks.some(
-        (b) =>
-          b.type === "file" &&
-          b.mime_type === "application/pdf" &&
-          b.metadata?.filename === file.name,
-      );
-    }
-    if (SUPPORTED_FILE_TYPES.includes(file.type)) {
+    if (IMAGE_TYPES.includes(file.type)) {
       return blocks.some(
         (b) =>
           b.type === "image" &&
@@ -41,7 +38,13 @@ export function useFileUpload({
           b.mime_type === file.type,
       );
     }
-    return false;
+    // PDF, CSV, Excel — all stored as "file" type blocks
+    return blocks.some(
+      (b) =>
+        b.type === "file" &&
+        b.mime_type === file.type &&
+        b.metadata?.filename === file.name,
+    );
   };
 
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +66,7 @@ export function useFileUpload({
 
     if (invalidFiles.length > 0) {
       toast.error(
-        "You have uploaded invalid file type. Please upload a JPEG, PNG, GIF, WEBP image or a PDF.",
+        "Invalid file type. Please upload an image, PDF, CSV, or Excel file.",
       );
     }
     if (duplicateFiles.length > 0) {
@@ -123,7 +126,7 @@ export function useFileUpload({
 
       if (invalidFiles.length > 0) {
         toast.error(
-          "You have uploaded invalid file type. Please upload a JPEG, PNG, GIF, WEBP image or a PDF.",
+          "Invalid file type. Please upload an image, PDF, CSV, or Excel file.",
         );
       }
       if (duplicateFiles.length > 0) {
@@ -221,15 +224,7 @@ export function useFileUpload({
       (file) => !SUPPORTED_FILE_TYPES.includes(file.type),
     );
     const isDuplicate = (file: File) => {
-      if (file.type === "application/pdf") {
-        return contentBlocks.some(
-          (b) =>
-            b.type === "file" &&
-            b.mime_type === "application/pdf" &&
-            b.metadata?.filename === file.name,
-        );
-      }
-      if (SUPPORTED_FILE_TYPES.includes(file.type)) {
+      if (IMAGE_TYPES.includes(file.type)) {
         return contentBlocks.some(
           (b) =>
             b.type === "image" &&
@@ -237,13 +232,18 @@ export function useFileUpload({
             b.mime_type === file.type,
         );
       }
-      return false;
+      return contentBlocks.some(
+        (b) =>
+          b.type === "file" &&
+          b.mime_type === file.type &&
+          b.metadata?.filename === file.name,
+      );
     };
     const duplicateFiles = validFiles.filter(isDuplicate);
     const uniqueFiles = validFiles.filter((file) => !isDuplicate(file));
     if (invalidFiles.length > 0) {
       toast.error(
-        "You have pasted an invalid file type. Please paste a JPEG, PNG, GIF, WEBP image or a PDF.",
+        "Invalid file type. Please paste an image, PDF, CSV, or Excel file.",
       );
     }
     if (duplicateFiles.length > 0) {

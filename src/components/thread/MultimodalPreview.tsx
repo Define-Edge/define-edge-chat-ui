@@ -52,14 +52,10 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
     );
   }
 
-  // PDF block
-  if (
-    block.type === "file" &&
-    block.source_type === "base64" &&
-    block.mime_type === "application/pdf"
-  ) {
+  // File block (PDF, CSV, Excel)
+  if (block.type === "file" && block.source_type === "base64") {
     const filename =
-      block.metadata?.filename || block.metadata?.name || "PDF file";
+      block.metadata?.filename || block.metadata?.name || "Uploaded file";
     return (
       <div
         className={cn(
@@ -86,7 +82,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
             type="button"
             className="ml-2 self-start rounded-full bg-gray-200 p-1 text-teal-700 hover:bg-gray-300"
             onClick={onRemove}
-            aria-label="Remove PDF"
+            aria-label="Remove file"
           >
             <XIcon className="h-4 w-4" />
           </button>
