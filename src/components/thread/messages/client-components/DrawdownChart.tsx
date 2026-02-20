@@ -37,10 +37,13 @@ export default function DrawdownChart({ data, returnsData, className, disableAni
     (k) => k !== "date",
   );
   // Calculate nice Y-axis domain for underwater plot
-  const allUnderwaterValues = (underwater_plot || []).flatMap((d) =>
-    underwaterKeys.map((k) => Number(d[k]) || 0),
-  );
-  const uwMin = Math.min(...allUnderwaterValues, 0);
+  const uwMin = (underwater_plot || []).reduce((min, d) => {
+    for (const k of underwaterKeys) {
+      const v = Number(d[k]) || 0;
+      if (v < min) min = v;
+    }
+    return min;
+  }, 0);
   const yMinUW = Math.floor(uwMin); // e.g. -5.29 → -6
 
   const Wrapper = disableAnimation ? "div" : motion.div;
