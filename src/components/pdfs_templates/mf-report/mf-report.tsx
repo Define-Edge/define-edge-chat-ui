@@ -1,4 +1,5 @@
 import { MarkdownText } from "@/components/thread/markdown-text";
+import { JsonDataDisplay } from "@/components/pdfs_templates/shared/JsonDataDisplay";
 import { Section, MfAnalysis } from "@/types/mf-analysis";
 import MfWelcome from "./MfWelcome";
 import { SectionFormatter } from "@/lib/section-formatter";
@@ -223,66 +224,3 @@ function SourcesDisplay({ sources }: { sources: Record<string, any> }) {
   );
 }
 
-function JsonDataDisplay({ data }: { data: any }) {
-  if (data === null || data === undefined) {
-    return <span className="text-gray-500">N/A</span>;
-  }
-
-  // If it's a primitive value
-  if (typeof data !== "object") {
-    return (
-      <span className="text-gray-700 dark:text-gray-300">{String(data)}</span>
-    );
-  }
-
-  // If it's an array
-  if (Array.isArray(data)) {
-    if (data.length === 0) {
-      return <span className="text-gray-500">Empty</span>;
-    }
-    return (
-      <ul className="list-inside list-disc space-y-1 text-sm">
-        {data.map((item, idx) => (
-          <li
-            key={idx}
-            className="text-gray-700 dark:text-gray-300"
-          >
-            <JsonDataDisplay data={item} />
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  // If it's an object, render as a table or nested structure
-  const entries = Object.entries(data);
-  if (entries.length === 0) {
-    return <span className="text-gray-500">Empty object</span>;
-  }
-
-  return (
-    <div className="overflow-x-auto rounded border border-gray-300 dark:border-gray-600">
-      <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-          {entries.map(([key, value]) => (
-            <tr
-              key={key}
-              className="hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <td className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">
-                {formatKey(key)}
-              </td>
-              <td className="px-4 py-2 text-gray-700 dark:text-gray-300">
-                {typeof value === "object" ? (
-                  <JsonDataDisplay data={value} />
-                ) : (
-                  String(value)
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
