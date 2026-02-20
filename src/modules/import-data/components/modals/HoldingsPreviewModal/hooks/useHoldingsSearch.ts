@@ -37,7 +37,7 @@ async function fetchSearchResults(
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   if (!apiUrl) {
-    return [];
+    throw new Error("Search API URL is not configured");
   }
 
   const endpoint =
@@ -57,7 +57,7 @@ async function fetchSearchResults(
   });
 
   if (!response.ok) {
-    return [];
+    throw new Error(`Search failed (${response.status})`);
   }
 
   const data: StockSearchResponse | MutualFundSearchResponse =

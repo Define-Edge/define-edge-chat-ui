@@ -17,17 +17,6 @@ export function formatKey(key: string): string {
 }
 
 /**
- * Returns portfolio items for display.
- * All items are included regardless of identifier_type.
- */
-export function getDisplayPortfolio(
-  portfolio: Record<string, any>[],
-  _portfolioType?: string,
-): Record<string, any>[] {
-  return portfolio;
-}
-
-/**
  * Filters portfolio to display columns and converts to a markdown table.
  * Display columns: symbol/Ticker, weight, and optionally quantity, CMP, value.
  * For mutual_fund portfolios: shows Scheme_Name, Category, weight, and MF metric columns.

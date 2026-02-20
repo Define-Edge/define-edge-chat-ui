@@ -12,7 +12,7 @@ import {
   FiDataResponse,
   FiRequestResponse,
 } from "./moneyone.types";
-import { getErrMsgKey } from "./moneyone.utils";
+import { extractErrorMessage, getErrMsgKey } from "./moneyone.utils";
 
 const consentFormMap = {
   [ConsentType.EQUITIES]: process.env.MONEY_ONE_EQUITIES_CONSENT_FORM,
@@ -85,11 +85,10 @@ export const createConsentRequest = async (
   } catch (error) {
     console.error("---Error occurred while creating consent", error);
 
-    // Extract error message from MoneyOne API response or Error object
     const message =
       error instanceof Error
         ? error.message
-        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(error) || ReasonPhrases.INTERNAL_SERVER_ERROR;
 
     return { error: message };
   }
@@ -154,11 +153,10 @@ export const createConsentRequestV3 = async (
   } catch (error) {
     console.error("---Error occurred while creating v3 consent", error);
 
-    // Extract error message from MoneyOne API response or Error object
     const message =
       error instanceof Error
         ? error.message
-        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(error) || ReasonPhrases.INTERNAL_SERVER_ERROR;
 
     return { error: message };
   }
@@ -216,7 +214,7 @@ export const getEncryptedUrl = async (
     const message =
       error instanceof Error
         ? error.message
-        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(error) || ReasonPhrases.INTERNAL_SERVER_ERROR;
     return { error: message };
   }
 };
@@ -393,7 +391,7 @@ export const getAllFiData = async (consentID: string, waitTime?: number) => {
     const message =
       e instanceof Error
         ? e.message
-        : getErrMsgKey(e, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(e) || ReasonPhrases.INTERNAL_SERVER_ERROR;
     return { error: message };
   }
 };
@@ -441,7 +439,7 @@ export const requestFiData = async (
     const message =
       e instanceof Error
         ? e.message
-        : getErrMsgKey(e, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(e) || ReasonPhrases.INTERNAL_SERVER_ERROR;
     return { error: message };
   }
 };

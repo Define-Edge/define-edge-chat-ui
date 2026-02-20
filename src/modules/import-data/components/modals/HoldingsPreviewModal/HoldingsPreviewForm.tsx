@@ -4,6 +4,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { FiDataResponse } from "@/lib/moneyone/moneyone.types";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { HoldingsSearch } from "./components/HoldingsSearch";
 import { HoldingsSummaryCard } from "./components/HoldingsSummaryCard";
 import { HoldingsTable } from "./components/HoldingsTable";
@@ -55,7 +56,10 @@ export function HoldingsPreviewForm({
   const assetType = getAssetTypeName(consentType);
 
   const handleFormSubmit = (data: HoldingFormData) => {
-    if (!fiData) return;
+    if (!fiData) {
+      toast.error("Holdings data is not available. Please try again.");
+      return;
+    }
 
     const convertedHoldings = transformFormDataToHoldings(
       data.holdings,
@@ -68,6 +72,7 @@ export function HoldingsPreviewForm({
     );
 
     if (!firstAccountWithInvestment?.Summary?.Investment) {
+      toast.error("Could not find investment data. Please refresh and try again.");
       return;
     }
 

@@ -7,7 +7,7 @@ const USER_ID_KEY = "moneyone:userId";
 const CONSENT_KEY_PREFIX = "moneyone:consent:";
 const USER_CONSENTS_INDEX_PREFIX = "moneyone:user:";
 
-// Interface matching Prisma Consent model
+// Client-side consent data structure stored in localStorage
 export interface ConsentData {
   consentID: string;
   consentCreationData: string; // ISO date string
@@ -46,7 +46,13 @@ export function saveConsent(consent: ConsentData): void {
   const userId = getUserId();
   const userConsentsKey = `${USER_CONSENTS_INDEX_PREFIX}${userId}:consents`;
   const existingConsents = localStorage.getItem(userConsentsKey);
-  const consentIds = existingConsents ? JSON.parse(existingConsents) : [];
+  let consentIds: string[];
+  try {
+    consentIds = existingConsents ? JSON.parse(existingConsents) : [];
+  } catch (e) {
+    console.warn("Corrupted consent index in localStorage, resetting:", e);
+    consentIds = [];
+  }
 
   if (!consentIds.includes(consent.consentID)) {
     consentIds.push(consent.consentID);
@@ -138,9 +144,14 @@ export function deleteConsent(consentID: string): void {
   const existingConsents = localStorage.getItem(userConsentsKey);
 
   if (existingConsents) {
-    const consentIds: string[] = JSON.parse(existingConsents);
-    const filtered = consentIds.filter((id) => id !== consentID);
-    localStorage.setItem(userConsentsKey, JSON.stringify(filtered));
+    try {
+      const consentIds: string[] = JSON.parse(existingConsents);
+      const filtered = consentIds.filter((id) => id !== consentID);
+      localStorage.setItem(userConsentsKey, JSON.stringify(filtered));
+    } catch (e) {
+      console.warn("Corrupted consent index in localStorage, clearing:", e);
+      localStorage.removeItem(userConsentsKey);
+    }
   }
 
   // Dispatch custom event for same-tab updates

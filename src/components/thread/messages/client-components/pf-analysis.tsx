@@ -4,11 +4,7 @@ import type { ScreenerCoverage } from "@/api/generated/report-apis/models";
 import ScreenerCoverageBadge from "@/components/pdfs_templates/pf-report/ScreenerCoverageBadge";
 import { Button } from "@/components/ui/button";
 import { convertToMarkdownTable } from "@/lib/convertToMarkdownTable";
-import {
-  formatKey,
-  getDisplayPortfolio,
-  getPortfolioDisplayTable,
-} from "@/lib/format-utils";
+import { formatKey, getPortfolioDisplayTable } from "@/lib/format-utils";
 import groupSmallFragments from "@/lib/groupSmallFragments";
 import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
 import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
@@ -88,7 +84,9 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
     {
       id: "monthly",
       label: "Monthly",
-      show: !!(monthlyReturnsSection?.summary || monthlyReturnsSection?.heatmap),
+      show: !!(
+        monthlyReturnsSection?.summary || monthlyReturnsSection?.heatmap
+      ),
     },
     { id: "finsharpe", label: "FinSharpe", show: !!data.finsharpe_analysis },
     {
@@ -117,12 +115,12 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-indigo-300">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-semibold tracking-widest text-indigo-300 uppercase">
                 {analysis.portfolio_type === "mutual_fund"
                   ? "Mutual Fund"
                   : "Stock"}
               </span>
-              <span className="text-[11px] tabular-nums text-slate-400">
+              <span className="text-[11px] text-slate-400 tabular-nums">
                 {analysis.holdings_count} holdings
               </span>
               {analysis.date && (
@@ -146,7 +144,7 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       </div>
 
       {/* Navigation */}
-      <nav className="overflow-x-auto scrollbar-none">
+      <nav className="scrollbar-none overflow-x-auto">
         <div className="flex gap-1.5 pb-1">
           {navItems.map((item) => (
             <button
@@ -373,20 +371,14 @@ function PortfolioOverviewSection({
 }) {
   if (!section) return null;
 
-  const displayPortfolio = portfolio
-    ? getDisplayPortfolio(portfolio, portfolioType)
-    : [];
-  const portfolioTable = getPortfolioDisplayTable(
-    displayPortfolio,
-    portfolioType,
-  );
+  const portfolioTable = getPortfolioDisplayTable(portfolio, portfolioType);
 
   const content = `${section.content}\n\n${portfolioTable ? `\n${portfolioTable}\n` : ""}`;
 
   const _section: Section = {
     title: section.title,
     content: content,
-    sources: convertToMarkdownTable(displayPortfolio),
+    sources: convertToMarkdownTable(portfolio || []),
   };
 
   return (
@@ -613,7 +605,7 @@ function DistributionChartsSection({
                         {industry.name}
                       </span>
                     </div>
-                    <span className="shrink-0 text-xs font-medium tabular-nums text-slate-800">
+                    <span className="shrink-0 text-xs font-medium text-slate-800 tabular-nums">
                       {Number(industry.value).toFixed(1)}%
                     </span>
                   </div>
@@ -645,7 +637,7 @@ function DistributionChartsSection({
                     <span className="text-xs font-medium text-slate-700">
                       {size.name}
                     </span>
-                    <span className="text-xs font-semibold tabular-nums text-slate-900">
+                    <span className="text-xs font-semibold text-slate-900 tabular-nums">
                       {Number(size.value).toFixed(1)}%
                     </span>
                   </div>
@@ -761,7 +753,7 @@ function JsonDataDisplay({ data }: { data: any }) {
               key={key}
               className="hover:bg-slate-50"
             >
-              <td className="whitespace-nowrap px-4 py-2 text-xs font-medium text-slate-800">
+              <td className="px-4 py-2 text-xs font-medium whitespace-nowrap text-slate-800">
                 {formatKey(key)}
               </td>
               <td className="px-4 py-2 text-xs text-slate-600">

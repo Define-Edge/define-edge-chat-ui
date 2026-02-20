@@ -8,7 +8,6 @@ import DataTable from "@/components/ui/data-table/DataTable";
 import {
   chunkArray,
   formatKey,
-  getDisplayPortfolio,
   getPortfolioDisplayTable,
 } from "@/lib/format-utils";
 import groupSmallFragments, { shuffleArray } from "@/lib/groupSmallFragments";
@@ -100,16 +99,17 @@ export default function PfAnalysisReportMessageComponent({
     return selectedSections.includes(sectionKey);
   };
 
-  const portfolio = getDisplayPortfolio(
-    analysis.portfolio || [],
-    analysis.portfolio_type,
-  );
+  const portfolio = analysis.portfolio;
+
   const pfItemsArr = chunkArray(portfolio, MAX_ROWS_PER_PAGE);
 
   // Calculate total pages dynamically
   let totalPages = 0;
   totalPages++; // IntroPageContainer
-  if (data.sector_allocation?.items?.length || data.market_cap_allocation?.items?.length)
+  if (
+    data.sector_allocation?.items?.length ||
+    data.market_cap_allocation?.items?.length
+  )
     totalPages++; // AllocationsPage
   totalPages++; // Stock Wise Allocation
   if (shouldRenderSection("finsharpe_analysis") && data.finsharpe_analysis)
@@ -253,7 +253,10 @@ export default function PfAnalysisReportMessageComponent({
         <FinancialFitness />
       </PageLayout>
 
-      <SectionDivider title="ACTIONABLES" pgNo={pgNum++} />
+      <SectionDivider
+        title="ACTIONABLES"
+        pgNo={pgNum++}
+      />
 
       {/* Summary */}
       {shouldRenderSection("summary") && (
@@ -288,7 +291,10 @@ export default function PfAnalysisReportMessageComponent({
           </PageLayout>
         ))}
 
-      <SectionDivider title="ADVANCED ANALYSIS" pgNo={pgNum++} />
+      <SectionDivider
+        title="ADVANCED ANALYSIS"
+        pgNo={pgNum++}
+      />
 
       {/* Risk Assessment + Risk-Adjusted Returns */}
       {(shouldRenderSection("risk_assessment") ||

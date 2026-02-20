@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DownloadIcon, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type MfAnalysisSection = {
   key: string;
@@ -93,7 +94,9 @@ export function MfAnalysisDownloadDialog({
     },
     onError: (error: Error) => {
       console.error("PDF generation error:", error);
-      // Error will be shown in the UI via mutation.error
+      toast.error("Failed to generate PDF report", {
+        description: error.message || "An unexpected error occurred. Please try again.",
+      });
     },
   });
 
