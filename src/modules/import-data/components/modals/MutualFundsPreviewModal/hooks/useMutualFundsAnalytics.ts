@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import {
   useGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost,
   getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse200,
@@ -6,6 +5,7 @@ import {
 import { AnalysisInputUnit } from "@/api/generated/mf-portfolio-apis/models/analysisInputUnit";
 import { MutualFundHoldingWithQuantity } from "@/modules/import-data/types/mutual-funds";
 import { transformMutualFundsToPortfolioItems } from "../utils/mutual-funds-to-portfolio-items";
+import { toast } from "sonner";
 
 /**
  * Hook to analyze mutual fund portfolio using the MF Portfolio Analytics API
@@ -14,26 +14,23 @@ import { transformMutualFundsToPortfolioItems } from "../utils/mutual-funds-to-p
 export function useMutualFundsAnalytics() {
   const mutation = useGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost();
 
-  const analyzePortfolio = useCallback(
-    (holdings: MutualFundHoldingWithQuantity[]) => {
-      const items = transformMutualFundsToPortfolioItems(holdings);
+  const analyzePortfolio = (holdings: MutualFundHoldingWithQuantity[]) => {
+    const items = transformMutualFundsToPortfolioItems(holdings);
 
-      if (items.length === 0) {
-        return; // No valid holdings to analyze
-      }
+    if (items.length === 0) {
+      toast.error("No valid holdings to analyze. Ensure at least one holding has quantity greater than zero.");
+      return;
+    }
 
-      mutation.mutate({
-        data: {
-          items,
-          input_unit: AnalysisInputUnit.quantity,
-          duration: "1y",
-        },
-      });
-    },
-    [mutation],
-  );
+    mutation.mutate({
+      data: {
+        items,
+        input_unit: AnalysisInputUnit.quantity,
+        duration: "1y",
+      },
+    });
+  };
 
-  // Extract analytics data from successful response
   const response = mutation.data;
   const analytics =
     response?.status === 200

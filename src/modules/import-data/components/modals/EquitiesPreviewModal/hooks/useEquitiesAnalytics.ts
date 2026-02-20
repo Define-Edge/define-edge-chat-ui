@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import {
   useAnalyzePortfolioApiPortfoliosAnalyzePost,
   analyzePortfolioApiPortfoliosAnalyzePostResponse200,
@@ -6,6 +5,7 @@ import {
 import { AnalysisInputUnit } from "@/api/generated/portfolio-apis/models/analysisInputUnit";
 import { EquityHoldingWithQuantity } from "@/modules/import-data/types/equities";
 import { transformEquitiesToPortfolioItems } from "../utils/equities-to-portfolio-items";
+import { toast } from "sonner";
 
 /**
  * Hook to analyze equity portfolio using the Portfolio Analysis API
@@ -14,26 +14,23 @@ import { transformEquitiesToPortfolioItems } from "../utils/equities-to-portfoli
 export function useEquitiesAnalytics() {
   const mutation = useAnalyzePortfolioApiPortfoliosAnalyzePost();
 
-  const analyzePortfolio = useCallback(
-    (holdings: EquityHoldingWithQuantity[]) => {
-      const items = transformEquitiesToPortfolioItems(holdings);
+  const analyzePortfolio = (holdings: EquityHoldingWithQuantity[]) => {
+    const items = transformEquitiesToPortfolioItems(holdings);
 
-      if (items.length === 0) {
-        return; // No valid holdings to analyze
-      }
+    if (items.length === 0) {
+      toast.error("No valid holdings to analyze. Ensure at least one holding has quantity greater than zero.");
+      return;
+    }
 
-      mutation.mutate({
-        data: {
-          items,
-          input_unit: AnalysisInputUnit.quantity,
-          duration: "1y",
-        },
-      });
-    },
-    [mutation],
-  );
+    mutation.mutate({
+      data: {
+        items,
+        input_unit: AnalysisInputUnit.quantity,
+        duration: "1y",
+      },
+    });
+  };
 
-  // Extract analytics data from successful response
   const response = mutation.data;
   const analytics =
     response?.status === 200
