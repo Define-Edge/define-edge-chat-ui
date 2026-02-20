@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         ),
       ]);
     } catch (err) {
-      console.debug("Skipping font readiness wait:", err);
+      console.warn("Font readiness check failed:", err);
     }
 
     // Compute full page height to preserve layout as seen on screen
@@ -124,11 +124,12 @@ export async function POST(request: NextRequest) {
         "Content-Disposition": 'inline; filename="screenshot.pdf"',
       },
     });
-  } catch (error: any) {
-    console.error("=== PDF GENERATION FAILED ===");
-    console.error("Error:", error.message);
+  } catch (error: unknown) {
+    console.error("PDF generation error:", error);
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
     return new NextResponse(
-      `An error occurred while generating the screenshot: ${error.message}`,
+      `An error occurred while generating the screenshot: ${message}`,
       { status: 500 },
     );
   } finally {
