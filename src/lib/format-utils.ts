@@ -68,7 +68,8 @@ export function getPortfolioDisplayTable(
       // Support both Category (new) and Sebi_Category (legacy)
       if (displayItems.some((i) => "Category" in i || "Sebi_Category" in i))
         filtered["Category"] = item.Category ?? item.Sebi_Category ?? "";
-      if ("weight" in item) filtered["Weight"] = `${item.weight.toFixed(2)}%`;
+      if ("weight" in item && typeof item.weight === "number")
+        filtered["Weight"] = `${item.weight.toFixed(2)}%`;
       for (const col of presentMfScoreCols) {
         filtered[col.display] =
           item[col.key] != null ? Number(item[col.key]).toFixed(3) : "N/A";
