@@ -17,11 +17,32 @@ export default async function PfAnalysisReportPage({ searchParams }: Props) {
   const selectedSectionsParam = params.selectedSections as string | undefined;
   const personalComment = params.personalComment as string | undefined;
 
+  if (
+    !threadId ||
+    !analysisId ||
+    typeof threadId !== "string" ||
+    typeof analysisId !== "string"
+  ) {
+    return (
+      <p className="p-4 text-red-600">
+        Missing or invalid required parameters: threadId and analysisId.
+      </p>
+    );
+  }
+
   // Parse selected sections from JSON string
   let selectedSections: string[] | undefined;
   if (selectedSectionsParam) {
     try {
-      selectedSections = JSON.parse(selectedSectionsParam);
+      const parsed: unknown = JSON.parse(selectedSectionsParam);
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((item) => typeof item === "string")
+      ) {
+        selectedSections = parsed;
+      } else {
+        console.error("selectedSections is not a string[]:", parsed);
+      }
     } catch (e) {
       console.error("Failed to parse selectedSections:", e);
     }
@@ -31,7 +52,18 @@ export default async function PfAnalysisReportPage({ searchParams }: Props) {
     process.env.NEXT_PUBLIC_API_URL!,
     process.env.LANGSMITH_API_KEY,
   );
-  const state = await client.threads.getState(threadId as string);
+
+  let state;
+  try {
+    state = await client.threads.getState(threadId);
+  } catch (e) {
+    console.error("Failed to fetch thread state:", e);
+    return (
+      <p className="p-4 text-red-600">
+        Failed to load thread data. Please try again.
+      </p>
+    );
+  }
 
   const ui = (state.values as any)?.ui as UIMessage[] | undefined;
 
@@ -39,18 +71,17 @@ export default async function PfAnalysisReportPage({ searchParams }: Props) {
     (uiItem: UIMessage) => uiItem.props?.id === analysisId,
   );
 
-  if (!uiComponents) {
-    return null;
+  if (!uiComponents || uiComponents.length === 0) {
+    return (
+      <p className="p-4 text-red-600">
+        No analysis found for the given analysisId.
+      </p>
+    );
   }
 
   return (
     <>
       {uiComponents.map((uiComponent: UIMessage) => {
-        const Component =
-          ClientComponentsRegistry[
-            uiComponent.name as keyof typeof ClientComponentsRegistry
-          ];
-
         if (uiComponent.name === "pf_analysis")
           return (
             <PfAnalysisReportMessageComponent
@@ -60,6 +91,14 @@ export default async function PfAnalysisReportPage({ searchParams }: Props) {
               personalComment={personalComment}
             />
           );
+
+        const Component =
+          ClientComponentsRegistry[
+            uiComponent.name as keyof typeof ClientComponentsRegistry
+          ];
+
+        if (!Component) return null;
+
         return (
           <Component
             key={uiComponent.id}
