@@ -26,12 +26,24 @@ export async function POST(request: Request) {
     if (!body.consentId || !body.accountID)
       throw new Error("consentId or accountID not present in body");
 
+    if (!body.vua || typeof body.vua !== "string") {
+      return Response.json(
+        { error: "Invalid or missing vua field" },
+        { status: StatusCodes.BAD_REQUEST },
+      );
+    }
+
     if (body?.eventStatus === "DATA_READY") {
       const mobileNo = body.vua.split("@")[0];
       const consentType = productIdToConsentTypeMap[body.productID];
 
       if (!consentType) {
-        console.warn("Unknown productID:", body.productID);
+        console.error(
+          "Webhook received with unknown productID:",
+          body.productID,
+          "Known productIDs:",
+          Object.keys(productIdToConsentTypeMap),
+        );
       }
 
       console.log("Data ready webhook received:", {
@@ -59,5 +71,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-// /api/webhooks/moneyone/data-ready

@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DownloadIcon, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type PfAnalysisSection = {
   key: string;
@@ -90,6 +91,9 @@ export function PfAnalysisDownloadDialog({
     },
     onError: (error: Error) => {
       console.error("PDF generation error:", error);
+      toast.error("Failed to generate PDF report", {
+        description: error.message || "An unexpected error occurred. Please try again.",
+      });
     },
   });
 

@@ -4,7 +4,7 @@ import { CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FiDataAnimationProps {
-  status: "fetching" | "success";
+  status: "fetching" | "success" | "error";
 }
 
 const FiDataAnimation: React.FC<FiDataAnimationProps> = ({ status }) => {
@@ -13,6 +13,15 @@ const FiDataAnimation: React.FC<FiDataAnimationProps> = ({ status }) => {
       <div className="flex flex-col items-center justify-center gap-4 min-h-[100px] text-green-600">
         <CheckCircle className="w-12 h-12" />
         <p className="text-xl font-semibold">Success!</p>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 min-h-[100px] text-red-600">
+        <p className="text-xl font-semibold">Failed to fetch data</p>
+        <p className="text-sm text-muted-foreground">Please try again later.</p>
       </div>
     );
   }

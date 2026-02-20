@@ -25,13 +25,13 @@ export const createNewConsentFormSchema = z.object({
     .min(10)
     .max(10)
     .trim()
-    .transform((val) => val.replace(" ", "")),
+    .transform((val) => val.replaceAll(" ", "")),
   pan: z
     .string()
     .min(10)
     .max(10)
     .trim()
-    .transform((val) => val.replace(" ", "")),
+    .transform((val) => val.replaceAll(" ", "")),
 });
 
 export type CreateNewConsentFormValues = z.infer<

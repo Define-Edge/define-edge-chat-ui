@@ -74,7 +74,8 @@ export function getConsent(consentID: string): ConsentData | null {
 
   try {
     return JSON.parse(consentData) as ConsentData;
-  } catch {
+  } catch (e) {
+    console.warn("Failed to parse consent data from localStorage for key:", consentKey, e);
     return null;
   }
 }
@@ -176,7 +177,8 @@ export function getAllUserConsents(): ConsentData[] {
     }
 
     return consents;
-  } catch {
+  } catch (e) {
+    console.warn("Failed to parse user consents index from localStorage:", e);
     return [];
   }
 }
@@ -215,8 +217,8 @@ export function completePendingConsent(
             localStorage.removeItem(key);
             break;
           }
-        } catch {
-          // Invalid JSON, skip
+        } catch (e) {
+          console.warn("Failed to parse pending consent data, skipping:", key, e);
           continue;
         }
       }

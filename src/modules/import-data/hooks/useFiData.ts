@@ -86,8 +86,11 @@ export function useFiDataConsentFlow() {
   });
 
   // Derive fetch status from query state
-  const fetchStatus: "fetching" | "success" =
-    query.isLoading || !query.data ? "fetching" : "success";
+  const fetchStatus: "fetching" | "success" | "error" = query.isError
+    ? "error"
+    : query.isLoading || !query.data
+      ? "fetching"
+      : "success";
 
   return {
     ...query,
