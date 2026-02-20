@@ -11,7 +11,16 @@ export async function fileToContentBlock(
     "image/gif",
     "image/webp",
   ];
-  const supportedFileTypes = [...supportedImageTypes, "application/pdf"];
+  const supportedSpreadsheetTypes = [
+    "text/csv",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ];
+  const supportedFileTypes = [
+    ...supportedImageTypes,
+    "application/pdf",
+    ...supportedSpreadsheetTypes,
+  ];
 
   if (!supportedFileTypes.includes(file.type)) {
     toast.error(
@@ -32,11 +41,11 @@ export async function fileToContentBlock(
     };
   }
 
-  // PDF
+  // PDF, CSV, or Excel
   return {
     type: "file",
     source_type: "base64",
-    mime_type: "application/pdf",
+    mime_type: file.type,
     data,
     metadata: { filename: file.name },
   };
@@ -70,7 +79,11 @@ export function isBase64ContentBlock(
     "mime_type" in block &&
     typeof (block as { mime_type?: unknown }).mime_type === "string" &&
     ((block as { mime_type: string }).mime_type.startsWith("image/") ||
-      (block as { mime_type: string }).mime_type === "application/pdf")
+      (block as { mime_type: string }).mime_type === "application/pdf" ||
+      (block as { mime_type: string }).mime_type === "text/csv" ||
+      (block as { mime_type: string }).mime_type === "application/vnd.ms-excel" ||
+      (block as { mime_type: string }).mime_type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
   ) {
     return true;
   }
