@@ -22,8 +22,8 @@ export type NewsSourcesContent = {
 export type Section = {
   title: string;
   content: string;
-  in_depth_analysis?: string;
-  sources?: string[] | string | NewsSourcesContent | Record<string, any>;
+  in_depth_analysis?: string | null;
+  sources?: string[] | unknown[] | string | null | NewsSourcesContent | Record<string, unknown>;
 };
 
 export type StockAnalysisReportData = {

@@ -34,8 +34,11 @@ export class SectionFormatter {
         if (this.isNewsSourcesContent(sources)) {
             return "";
         }
+        if (!Array.isArray(sources)) {
+            return "";
+        }
         const domainPattern = /https?:\/\/(?:www\.)?([^/]+)/;
-        const _sources = sources
+        const _sources = (sources as string[])
             .map((source: string) => {
                 const match = source.match(domainPattern);
                 const domain = match ? match[1] : source;
@@ -59,8 +62,12 @@ export class SectionFormatter {
             return "";
         }
 
+        if (!Array.isArray(sources)) {
+            return "";
+        }
+
         const domainPattern = /https?:\/\/(?:www\.)?([^/]+)/;
-        const _sources = sources
+        const _sources = (sources as string[])
             .map((source: string) => {
                 const match = source.match(domainPattern);
                 const domain = match ? match[1] : source;

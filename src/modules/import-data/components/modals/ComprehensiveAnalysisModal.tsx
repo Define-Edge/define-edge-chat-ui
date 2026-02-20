@@ -27,14 +27,15 @@ export function ComprehensiveAnalysisModal() {
 
   const comprehensiveAnalysisMutation = useComprehensiveAnalysisMutation();
 
-  // Get all consents and filter valid ones
+  // Get all consents and filter valid ones (recompute when dialog opens)
   const allConsents = useMemo(() => {
     const consents = getAllUserConsents();
     const now = new Date();
 
     // Filter non-expired consents
     return consents.filter((c) => new Date(c.consentExpiry) > now);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Group consents by type
   const consentsByType = useMemo(() => {
@@ -43,6 +44,7 @@ export function ComprehensiveAnalysisModal() {
       [ConsentType.MUTUAL_FUNDS]: null,
       [ConsentType.ETF]: null,
       [ConsentType.BANK_ACCOUNTS]: null,
+      [ConsentType.SIP]: null,
     };
 
     allConsents.forEach((consent) => {

@@ -21,7 +21,6 @@ import { BranchSwitcher, CommandBar } from "./shared";
 import { ToolCalls } from "./tool-calls";
 import { TypingBarsLoader } from "./typing-bars-loader";
 
-
 function CustomComponent({
   message,
   thread,
@@ -52,7 +51,6 @@ function CustomComponent({
 
   if (!latestComponents?.length) return null;
 
-
   return (
     <Fragment key={message.id}>
       {latestComponents.map((customComponent) => (
@@ -79,8 +77,8 @@ function parseAnthropicStreamedToolCalls(
     if (toolCall?.input) {
       try {
         json = parsePartialJson(toolCall.input) ?? {};
-      } catch {
-        // Pass
+      } catch (e) {
+        console.warn("Failed to parse partial JSON:", toolCall.id, e);
       }
     }
     return {
@@ -114,9 +112,9 @@ function Interrupt({
           <ScannerApprovalInterruptView interrupt={interruptValue} />
         )}
       {interruptValue &&
-        !isAgentInboxInterruptSchema(interruptValue) &&
-        !isScannerApprovalInterrupt(interruptValue) &&
-        (isLastMessage || hasNoAIOrToolMessages) ? (
+      !isAgentInboxInterruptSchema(interruptValue) &&
+      !isScannerApprovalInterrupt(interruptValue) &&
+      (isLastMessage || hasNoAIOrToolMessages) ? (
         <GenericInterruptView interrupt={interruptValue} />
       ) : null}
     </>
@@ -134,7 +132,7 @@ export function AssistantMessage({
 }) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
-  const [hideToolCalls] = useHideToolCalls()
+  const [hideToolCalls] = useHideToolCalls();
 
   const thread = useStreamContext();
 
@@ -191,8 +189,8 @@ export function AssistantMessage({
   if (hasToolCalls && !hideToolCalls) {
     return (
       <CitationProvider>
-        <div className="chat-message-table group mr-auto flex items-start w-full">
-          <div className="flex flex-col w-full">
+        <div className="chat-message-table group mr-auto flex w-full items-start">
+          <div className="flex w-full flex-col">
             {contentString.length > 0 && (
               <div className="py-1">
                 <MarkdownText>{contentString}</MarkdownText>
@@ -201,13 +199,22 @@ export function AssistantMessage({
             )}
 
             {(hasToolCalls && toolCallsHaveContents && (
-              <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+              <ToolCalls
+                toolCalls={message.tool_calls}
+                handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+              />
             )) ||
               (hasAnthropicToolCalls && (
-                <ToolCalls toolCalls={anthropicStreamedToolCalls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+                <ToolCalls
+                  toolCalls={anthropicStreamedToolCalls}
+                  handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+                />
               )) ||
               (hasToolCalls && (
-                <ToolCalls toolCalls={message.tool_calls} handleRegenerate={() => handleRegenerate(parentCheckpoint)} />
+                <ToolCalls
+                  toolCalls={message.tool_calls}
+                  handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+                />
               ))}
 
             <Interrupt
@@ -229,9 +236,8 @@ export function AssistantMessage({
 
   return (
     <CitationProvider>
-      <div className="chat-message-table group mr-auto flex items-start w-full">
-        <div className="flex flex-col w-full">
-
+      <div className="chat-message-table group mr-auto flex w-full items-start">
+        <div className="flex w-full flex-col">
           {contentString.length > 0 && (
             <div className="py-1">
               <MarkdownText>{contentString}</MarkdownText>
@@ -250,7 +256,7 @@ export function AssistantMessage({
             isLastMessage={isLastMessage}
             hasNoAIOrToolMessages={hasNoAIOrToolMessages}
           />
-          {!hasToolCalls && !!contentString &&
+          {!hasToolCalls && !!contentString && (
             <div
               className={cn(
                 "mr-auto flex items-center gap-2 transition-opacity",
@@ -270,8 +276,7 @@ export function AssistantMessage({
                 handleRegenerate={() => handleRegenerate(parentCheckpoint)}
               />
             </div>
-          }
-
+          )}
         </div>
       </div>
     </CitationProvider>
@@ -280,7 +285,7 @@ export function AssistantMessage({
 
 export function AssistantMessageLoading() {
   return (
-    <div className="mr-auto w-full flex items-start">
+    <div className="mr-auto flex w-full items-start">
       <TypingBarsLoader />
     </div>
   );

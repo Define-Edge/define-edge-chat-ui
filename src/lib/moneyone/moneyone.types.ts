@@ -1,5 +1,9 @@
-import { z } from "zod";
+import type { BaseHolding } from "@/modules/import-data/types/common";
+import type { EquityHolding } from "@/modules/import-data/types/equities";
+import type { ETFHolding } from "@/modules/import-data/types/etf";
+import type { MutualFundHolding } from "@/modules/import-data/types/mutual-funds";
 import { Dispatch, SetStateAction } from "react";
+import { z } from "zod";
 import { ConsentType } from "./moneyone.enums";
 
 export interface Consent {
@@ -25,13 +29,13 @@ export const createNewConsentFormSchema = z.object({
     .min(10)
     .max(10)
     .trim()
-    .transform((val) => val.replace(" ", "")),
+    .transform((val) => val.replaceAll(" ", "")),
   pan: z
     .string()
     .min(10)
     .max(10)
     .trim()
-    .transform((val) => val.replace(" ", "")),
+    .transform((val) => val.replaceAll(" ", "")),
 });
 
 export type CreateNewConsentFormValues = z.infer<
@@ -84,47 +88,8 @@ export type DataReadyWebHookReqBody = {
   linkRefNumbers: LinkRefNumber[];
 };
 
-// Base holding type with common fields
-export type BaseHolding = {
-  ucc: string;
-  isin: string;
-  lienUnits: string;
-  registrar: string;
-  FatcaStatus: string;
-  lockinUnits: string;
-};
-
-// Equity-specific holding fields
-export type EquityHolding = BaseHolding & {
-  units: string;
-  issuerName: string;
-  isinDescription: string;
-  lastTradedPrice: string;
-};
-
-// Mutual Fund-specific holding fields
-export type MutualFundHolding = BaseHolding & {
-  amc: string;
-  nav: string;
-  folioNo: string;
-  navDate: string;
-  amfiCode: string;
-  schemeCode: string;
-  schemeTypes: string;
-  closingUnits: string;
-  schemeOption: string;
-  schemeCategory: string;
-  isinDescription: string;
-};
-
-// ETF-specific holding fields
-export type ETFHolding = BaseHolding & {
-  nav: string;
-  units: string;
-  folioNo: string;
-  lastNavDate: string;
-  isinDescription: string;
-};
+// Holding types — canonical definitions in @/modules/import-data/types/
+export type { BaseHolding, EquityHolding, ETFHolding, MutualFundHolding };
 
 // Generic Holding type based on ConsentType
 export type Holding<T extends ConsentType = ConsentType> =
@@ -156,6 +121,22 @@ type AccountType = {
   fiType: string;
   bank: string;
   Summary?: FiDataAccountSummary;
+  Profile?: {
+    Holders: {
+      type: string;
+      Holder: Array<{
+        dob: string;
+        pan: string;
+        name: string;
+        email: string;
+        mobile: string;
+        address: string;
+        nominee: string;
+        landline: string;
+        kycCompliance: string;
+      }>;
+    };
+  };
 };
 
 export type FiDataResponse = AccountType[];

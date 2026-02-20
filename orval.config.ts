@@ -58,4 +58,23 @@ export default defineConfig({
       },
     },
   },
+  'report-apis': {
+    input: {
+      target: './openapi-report.json',
+    },
+    output: {
+      mode: 'tags-split',
+      target: './src/api/generated/report-apis',
+      schemas: './src/api/generated/report-apis/models',
+      client: 'react-query',
+      httpClient: 'fetch',
+      mock: false,
+      clean: true,
+      prettier: true,
+      baseUrl: '/api/utilities',
+      override: {
+        useDates: false,
+      },
+    },
+  },
 });

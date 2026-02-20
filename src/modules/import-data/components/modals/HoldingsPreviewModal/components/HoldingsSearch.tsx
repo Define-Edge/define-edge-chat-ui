@@ -28,7 +28,7 @@ export function HoldingsSearch({
   consentType,
   onSelectResult,
 }: HoldingsSearchProps) {
-  const { searchQuery, setSearchQuery, searchResults, isSearching } =
+  const { searchQuery, setSearchQuery, searchResults, isSearching, error } =
     useHoldingsSearch(consentType);
 
   const assetType = getAssetTypeName(consentType).toLowerCase();
@@ -104,8 +104,15 @@ export function HoldingsSearch({
         </div>
       )}
 
+      {/* Error Message */}
+      {error && searchQuery.trim() && (
+        <div className="text-center py-4 text-red-500 text-sm border border-red-200 rounded-lg bg-red-50">
+          Search failed. Please try again.
+        </div>
+      )}
+
       {/* No Results Message */}
-      {searchResults && searchResults.length === 0 && (
+      {!error && searchResults && searchResults.length === 0 && (
         <div className="text-center py-4 text-gray-500 text-sm border rounded-lg">
           No results found for &quot;{searchQuery}&quot;
         </div>

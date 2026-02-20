@@ -34,26 +34,6 @@ pnpm format       # Format code with Prettier
 pnpm format:check # Check formatting without changes
 ```
 
-## Environment Configuration
-
-The app supports two deployment modes:
-
-### Local Development
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:2024
-NEXT_PUBLIC_ASSISTANT_ID=agent
-```
-
-### Production (API Passthrough)
-```bash
-NEXT_PUBLIC_ASSISTANT_ID="agent"
-LANGGRAPH_API_URL="https://my-agent.default.us.langgraph.app"
-NEXT_PUBLIC_API_URL="https://my-website.com/api"
-LANGSMITH_API_KEY="lsv2_..."  # Server-side only, do NOT prefix with NEXT_PUBLIC_
-```
-
-**Important**: Environment variables prefixed with `NEXT_PUBLIC_` are exposed to the client. Keep sensitive keys (like `LANGSMITH_API_KEY`) server-side only.
-
 ## Architecture Overview
 
 ### Provider Hierarchy
@@ -84,64 +64,6 @@ ThreadProvider (manages thread list and fetching)
 - Enables rendering artifacts in a side panel using React Portals
 - Components use `useArtifact()` hook to access `[ArtifactComponent, { open, setOpen, context }]`
 - Artifacts render via `ArtifactSlot` with `ArtifactContent` and `ArtifactTitle` portal targets
-
-**Using Artifacts in Thread** (`src/components/thread/index.tsx`)
-
-The Thread component demonstrates the full artifact workflow:
-
-1. **Setup artifact hooks**:
-   ```tsx
-   const [artifactContext, setArtifactContext] = useArtifactContext();
-   const [artifactOpen, closeArtifact] = useArtifactOpen();
-   ```
-
-2. **Reset artifact state when changing threads**:
-   ```tsx
-   const setThreadId = (id: string | null) => {
-     _setThreadId(id);
-     closeArtifact();
-     setArtifactContext({});  // Clear artifact context
-   };
-   ```
-
-3. **Pass artifact context to stream submissions**:
-   ```tsx
-   const context = Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
-
-   stream.submit(
-     { messages: [...toolMessages, newHumanMessage], context },
-     {
-       streamMode: ["values"],
-       optimisticValues: (prev) => ({
-         ...prev,
-         context,
-         messages: [...]
-       })
-     }
-   );
-   ```
-
-4. **Render artifact panel with portal targets**:
-   ```tsx
-   {artifactOpen && (
-     <div className="relative flex flex-col border-l">
-       <div className="absolute inset-0 flex min-w-[30vw] flex-col">
-         <div className="grid grid-cols-[1fr_auto] border-b p-4">
-           <ArtifactTitle className="truncate overflow-hidden" />
-           <button onClick={closeArtifact}>
-             <XIcon className="size-5" />
-           </button>
-         </div>
-         <ArtifactContent className="relative flex-grow" />
-       </div>
-     </div>
-   )}
-   ```
-
-5. **Responsive layout with artifact**:
-   - Main grid adjusts columns: `grid-cols-[1fr_0fr]` → `grid-cols-[3fr_2fr]` when artifact is open
-   - Artifact panel has minimum width of `30vw`
-   - Uses Framer Motion for smooth transitions
 
 ### API Passthrough Setup
 `src/app/api/[..._path]/route.ts` uses `langgraph-nextjs-api-passthrough` to proxy requests to LangGraph server:
@@ -175,42 +97,17 @@ TypeScript configured with `@/*` alias mapping to `./src/*` (see `tsconfig.json`
 
 ### Styling
 - Global styles in `src/app/globals.css`
-- Tailwind config in `tailwind.config.js` with custom plugins (scrollbar, animate)
 - Prettier configured with Tailwind plugin for class sorting
 - Component styling uses `cn()` utility from `src/lib/utils.ts` (clsx + tailwind-merge)
-
-## Key Patterns
-
-### URL State Management
-- Use `useQueryState` from `nuqs` for URL-based state (e.g., threadId, apiUrl, assistantId)
-- Wrapped in `NuqsAdapter` at root layout level
-
-### File Uploads
-- Custom `useFileUpload` hook in `src/hooks/use-file-upload.tsx`
-- Integrates with thread/stream context for multimodal support
-
-### Responsive Design
-- `useMediaQuery` and `useIsMobile` hooks in `src/hooks/` for breakpoint detection
-- Mobile-first approach with Tailwind responsive utilities
 
 ### Agent Inbox/Interrupts
 - Components in `src/components/thread/agent-inbox/` handle LangGraph interrupt patterns
 - See `src/lib/agent-inbox-interrupt.ts` for interrupt handling utilities
 
-## Development Notes
-
-- **React 19 Compatibility**: Override for `react-is` in package.json ensures compatibility
-- **Edge Runtime**: API routes use Edge runtime by default (see `src/app/api/[..._path]/route.ts`)
-- **Strict TypeScript**: Compiler set to strict mode with ES2017 target
-- **ESLint Config**: TypeScript ESLint with React Hooks and React Refresh plugins
-- **No Unused Vars**: Configured to allow `_` prefix for intentionally unused variables
-
 ## Module Structure
-
 The application follows a feature-based module architecture for better organization and scalability:
 
 ### Module Organization Principles
-
 Modules are organized by feature in `src/modules/` with the following structure:
 ```
 src/modules/
@@ -226,32 +123,12 @@ src/modules/
     index.ts         # Public API exports
 ```
 
-### Import Data Module
-
-Located at `src/modules/import-data/`, this module handles importing financial data from various sources including:
-- **MoneyOne Account Aggregator**: Equity and Mutual Fund holdings (RBI-approved framework)
-- **Manual Entry Forms**: Fixed Deposits, Insurance, Real Estate, Commodities, Other Investments
-
-**Components Structure:**
-- `ImportDataPage.tsx` - Main entry component (~200 lines, orchestrates all parts)
-- `account-types/MoneyOneHoldingsCard.tsx` - Reusable card for MoneyOne-connected holdings
-- `account-types/AccountTypeCard.tsx` - Generic card for manual/pending integrations
-- `modals/HoldingsPreviewModal/` - Modular holdings preview and editing system
-- `forms/` - Form components for manual investment entry (150-500 lines each)
-- `shared/` - Shared components like `ImportMethod.tsx`, `CollapsibleInstructions.tsx`
-
 **Hooks:**
 - `useConsentQuery.ts` - Real-time localStorage tracking for consent status
 - `useFiData.ts` - FI data fetching and consent flow management
 - `useImportHoldingsMutation.ts` - Import holdings to chat as markdown table
 - `useMoneyOneStatus.ts` - MoneyOne connection status tracking
 - `useRefreshFiData` - Manual FI data refresh functionality
-
-**Integration:**
-- Import view toggled via `importViewOpen` URL query state (using nuqs)
-- Accessible from Thread History sidebar via "Import" button
-- Closes active thread when switched to import view
-- State automatically cleaned up when switching back to chat
 
 ### Component Decomposition Guidelines
 
@@ -272,16 +149,10 @@ When creating or modifying components:
 6. Import and integrate in main application components
 7. Update this documentation with module details
 
-## Customization
-
-The application has been customized from the original LangChain Agent Chat UI:
-- App name changed to "FinSharpe GPT" in `src/configs/app.config.ts`
-- Custom client components can be added to the registry in `src/components/thread/messages/client-components/`
-- Modular architecture for features like import data management
-
 ## Production Deployment
-
 For production, choose one of two authentication methods:
-
 1. **API Passthrough (Quickstart)**: Already configured via `src/app/api/[..._path]/route.ts`
 2. **Custom Auth**: Modify `useTypedStream` in `src/providers/Stream.tsx` to pass custom auth headers via `defaultHeaders` parameter
+
+# Git Guidelines
+1. Never mention yourself in commit messages

@@ -6,17 +6,26 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from "./analysisInputUnit";
+export * from "./analyzePortfolioArgs";
+export * from "./analyzePortfolioArgsDuration";
+export * from "./analyzePortfolioArgsEndDate";
+export * from "./analyzePortfolioArgsStartDate";
 export * from "./createMFPortfolioRequest";
 export * from "./createMFPortfolioResponse";
 export * from "./distributionItem";
 export * from "./fundCategory";
 export * from "./fundCategoryName";
 export * from "./hTTPValidationError";
+export * from "./identifierType";
 export * from "./mFCostAnalysis";
 export * from "./mFMissingHolding";
 export * from "./mFPortfolioAnalytics";
 export * from "./mFPortfolioAnalyticsHoldingsItem";
 export * from "./mFPortfolioAnalyticsStatsItem";
+export * from "./pFItem";
+export * from "./pFItemQuantity";
+export * from "./pFItemWeight";
 export * from "./planType";
 export * from "./returnsChartData";
 export * from "./returnsChartDataColors";

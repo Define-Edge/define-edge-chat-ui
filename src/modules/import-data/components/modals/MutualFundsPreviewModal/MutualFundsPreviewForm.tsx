@@ -4,12 +4,16 @@
  */
 
 "use client";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { Loader2 } from "lucide-react";
+import { MFPortfolioAnalyticsTabs } from "@/modules/core/portfolio/mf-portfolio/components/MFPortfolioAnalyticsTabs";
+import { BarChart3, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { MutualFundHoldingWithQuantity, MutualFundsFiDataResponse } from "@/modules/import-data/types/mutual-funds";
 import { transformFormDataToMutualFunds } from "./utils/mutual-funds-transformer";
+import { useMutualFundsAnalytics } from "./hooks/useMutualFundsAnalytics";
 // Reuse shared components from HoldingsPreviewModal
 import { HoldingsSearch } from "../HoldingsPreviewModal/components/HoldingsSearch";
 import { HoldingsSummaryCard } from "../HoldingsPreviewModal/components/HoldingsSummaryCard";
@@ -49,10 +53,36 @@ export function MutualFundsPreviewForm({
     fields,
     handleAddSearchResult,
     handleRemoveHolding,
+    getValues,
   } = useHoldingsForm(defaultValues as any, ConsentType.MUTUAL_FUNDS);
 
+  // Analytics hook
+  const { analytics, isAnalyzing, analyzePortfolio, reset: resetAnalytics } =
+    useMutualFundsAnalytics();
+
+  // Track previous fields length to detect changes
+  const prevFieldsLengthRef = useRef(fields.length);
+
+  // Clear analytics when holdings change (add/remove)
+  useEffect(() => {
+    if (prevFieldsLengthRef.current !== fields.length && analytics) {
+      resetAnalytics();
+    }
+    prevFieldsLengthRef.current = fields.length;
+  }, [fields.length, analytics, resetAnalytics]);
+
+  const handleAnalyzeClick = () => {
+    const currentHoldings = getValues(
+      "holdings",
+    ) as MutualFundHoldingWithQuantity[];
+    analyzePortfolio(currentHoldings);
+  };
+
   const handleFormSubmit = (data: HoldingFormData) => {
-    if (!fiData) return;
+    if (!fiData) {
+      toast.error("Holdings data is not available. Please try again.");
+      return;
+    }
 
     // Transform form data back to mutual funds (filters quantity=0)
     const convertedMutualFunds = transformFormDataToMutualFunds(
@@ -65,6 +95,7 @@ export function MutualFundsPreviewForm({
     );
 
     if (!firstAccountWithInvestment?.Summary?.Investment) {
+      toast.error("No valid investment account found in holdings data.");
       return;
     }
 
@@ -121,6 +152,38 @@ export function MutualFundsPreviewForm({
               consentType={ConsentType.MUTUAL_FUNDS}
               onRemove={handleRemoveHolding}
             />
+
+            {/* Analyze Button */}
+            <div className="flex justify-center pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAnalyzeClick}
+                disabled={fields.length === 0 || isAnalyzing}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analyze Portfolio
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Analytics Results */}
+            {analytics && (
+              <div className="border rounded-lg bg-background">
+                <MFPortfolioAnalyticsTabs
+                  analytics={analytics}
+                  showMissingHoldingsWarning={true}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

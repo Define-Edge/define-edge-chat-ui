@@ -51,6 +51,7 @@ export const QUANTITY_FIELD_MAP = {
   [ConsentType.MUTUAL_FUNDS]: "closingUnits",
   [ConsentType.ETF]: "units",
   [ConsentType.BANK_ACCOUNTS]: "quantity", // Bank accounts always have quantity = 1
+  [ConsentType.SIP]: "quantity", // Placeholder — SIP data is handled via SipPreviewModal, not the holdings form
 } as const;
 
 /**
@@ -61,6 +62,7 @@ export const ASSET_TYPE_MAP = {
   [ConsentType.MUTUAL_FUNDS]: "Mutual Fund",
   [ConsentType.ETF]: "ETF",
   [ConsentType.BANK_ACCOUNTS]: "Bank Account",
+  [ConsentType.SIP]: "SIP",
 } as const;
 
 /**

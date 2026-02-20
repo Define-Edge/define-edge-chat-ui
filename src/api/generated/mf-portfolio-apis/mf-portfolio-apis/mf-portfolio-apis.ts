@@ -22,9 +22,11 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AnalyzePortfolioArgs,
   CreateMFPortfolioRequest,
   CreateMFPortfolioResponse,
   HTTPValidationError,
+  MFPortfolioAnalytics,
   SebiCategoriesResponse,
 } from ".././models";
 
@@ -461,3 +463,186 @@ export function useGetSebiCategoriesApiMfPortfoliosSebiCategoriesGet<
 
   return query;
 }
+
+/**
+ * Get analytics for a mutual fund portfolio.
+
+This endpoint calculates comprehensive analytics for a given MF portfolio
+including returns, performance scores, risk scores, and cost analysis.
+
+Args:
+    request: Portfolio analysis request with MF holdings (ISINs and weights)
+
+Returns:
+    MFPortfolioAnalytics with complete portfolio analysis
+
+Raises:
+    HTTPException: 400 if validation fails, 500 for other errors
+
+Example:
+    POST /api/mf-portfolios/analytics
+    {
+        "items": [
+            {"symbol": "INF204K01234", "weight": 30.0, "identifier_type": "isin"},
+            {"symbol": "INF205K05678", "weight": 25.0, "identifier_type": "isin"},
+            {"symbol": "INF206K09012", "weight": 45.0, "identifier_type": "isin"}
+        ],
+        "input_unit": "weight"
+    }
+
+    Response:
+    {
+        "holdings": [...],
+        "total_schemes": 3,
+        "category_wise_allocations": [...],
+        "returns_chart_data": {...},
+        "performance_score_chart_data": [...],
+        "risk_score_chart_data": [...],
+        "cost_analysis": {...},
+        "missing_holdings": [],
+        "stats": [...]
+    }
+ * @summary Get Mf Portfolio Analytics
+ */
+export type getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse200 = {
+  data: MFPortfolioAnalytics;
+  status: 200;
+};
+
+export type getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponseSuccess =
+  getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse200 & {
+    headers: Headers;
+  };
+export type getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponseError =
+  getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse422 & {
+    headers: Headers;
+  };
+
+export type getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse =
+  | getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponseSuccess
+  | getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponseError;
+
+export const getGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostUrl = () => {
+  return `/api/utilities/mf-portfolios/analytics`;
+};
+
+export const getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost = async (
+  analyzePortfolioArgs: AnalyzePortfolioArgs,
+  options?: RequestInit,
+): Promise<getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse> => {
+  const res = await fetch(
+    getGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(analyzePortfolioArgs),
+    },
+  );
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse["data"] =
+    body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostResponse;
+};
+
+export const getGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostMutationOptions =
+  <TError = HTTPValidationError, TContext = unknown>(options?: {
+    mutation?: UseMutationOptions<
+      Awaited<
+        ReturnType<typeof getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost>
+      >,
+      TError,
+      { data: AnalyzePortfolioArgs },
+      TContext
+    >;
+    fetch?: RequestInit;
+  }): UseMutationOptions<
+    Awaited<
+      ReturnType<typeof getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost>
+    >,
+    TError,
+    { data: AnalyzePortfolioArgs },
+    TContext
+  > => {
+    const mutationKey = ["getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost"];
+    const { mutation: mutationOptions, fetch: fetchOptions } = options
+      ? options.mutation &&
+        "mutationKey" in options.mutation &&
+        options.mutation.mutationKey
+        ? options
+        : { ...options, mutation: { ...options.mutation, mutationKey } }
+      : { mutation: { mutationKey }, fetch: undefined };
+
+    const mutationFn: MutationFunction<
+      Awaited<
+        ReturnType<typeof getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost>
+      >,
+      { data: AnalyzePortfolioArgs }
+    > = (props) => {
+      const { data } = props ?? {};
+
+      return getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost(
+        data,
+        fetchOptions,
+      );
+    };
+
+    return { mutationFn, ...mutationOptions };
+  };
+
+export type GetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostMutationResult =
+  NonNullable<
+    Awaited<
+      ReturnType<typeof getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost>
+    >
+  >;
+export type GetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostMutationBody =
+  AnalyzePortfolioArgs;
+export type GetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostMutationError =
+  HTTPValidationError;
+
+/**
+ * @summary Get Mf Portfolio Analytics
+ */
+export const useGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<
+        ReturnType<typeof getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost>
+      >,
+      TError,
+      { data: AnalyzePortfolioArgs },
+      TContext
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<
+    ReturnType<typeof getMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPost>
+  >,
+  TError,
+  { data: AnalyzePortfolioArgs },
+  TContext
+> => {
+  const mutationOptions =
+    getGetMfPortfolioAnalyticsApiMfPortfoliosAnalyticsPostMutationOptions(
+      options,
+    );
+
+  return useMutation(mutationOptions, queryClient);
+};

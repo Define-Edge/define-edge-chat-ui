@@ -2,10 +2,20 @@ import { DataReadyWebHookReqBody } from "@/lib/moneyone/moneyone.types";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 
-const productIdToConsentTypeMap: { [productId: string]: ConsentType } = {
-  [process.env.MONEY_ONE_EQUITIES_CONSENT_FORM as string]: ConsentType.EQUITIES,
-  [process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM as string]: ConsentType.MUTUAL_FUNDS,
-};
+const productIdToConsentTypeMap: { [productId: string]: ConsentType } = {};
+
+if (process.env.MONEY_ONE_EQUITIES_CONSENT_FORM) {
+  productIdToConsentTypeMap[process.env.MONEY_ONE_EQUITIES_CONSENT_FORM] =
+    ConsentType.EQUITIES;
+}
+if (process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM) {
+  productIdToConsentTypeMap[process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM] =
+    ConsentType.MUTUAL_FUNDS;
+}
+if (process.env.MONEY_ONE_SIP_CONSENT_FORM) {
+  productIdToConsentTypeMap[process.env.MONEY_ONE_SIP_CONSENT_FORM] =
+    ConsentType.SIP;
+}
 
 export async function POST(request: Request) {
   try {
@@ -16,9 +26,25 @@ export async function POST(request: Request) {
     if (!body.consentId || !body.accountID)
       throw new Error("consentId or accountID not present in body");
 
+    if (!body.vua || typeof body.vua !== "string") {
+      return Response.json(
+        { error: "Invalid or missing vua field" },
+        { status: StatusCodes.BAD_REQUEST },
+      );
+    }
+
     if (body?.eventStatus === "DATA_READY") {
       const mobileNo = body.vua.split("@")[0];
       const consentType = productIdToConsentTypeMap[body.productID];
+
+      if (!consentType) {
+        console.error(
+          "Webhook received with unknown productID:",
+          body.productID,
+          "Known productIDs:",
+          Object.keys(productIdToConsentTypeMap),
+        );
+      }
 
       console.log("Data ready webhook received:", {
         consentID: body.consentId,
@@ -33,15 +59,15 @@ export async function POST(request: Request) {
     }
 
     return Response.json({ status: "success" }, { status: StatusCodes.OK });
-  } catch (err: any) {
-    console.log("🚀 ~ POST ~ err:", err);
+  } catch (err: unknown) {
+    console.error("MoneyOne data-ready webhook error:", err);
+    const message =
+      err instanceof Error ? err.message : ReasonPhrases.INTERNAL_SERVER_ERROR;
     return Response.json(
-      { error: err?.message || ReasonPhrases.INTERNAL_SERVER_ERROR },
+      { error: message },
       {
         status: StatusCodes.INTERNAL_SERVER_ERROR,
       },
     );
   }
 }
-
-// /api/webhooks/moneyone/data-ready

@@ -12,22 +12,23 @@ import {
   FiDataResponse,
   FiRequestResponse,
 } from "./moneyone.types";
-import { getErrMsgKey } from "./moneyone.utils";
+import { extractErrorMessage, getErrMsgKey } from "./moneyone.utils";
 
 const consentFormMap = {
   [ConsentType.EQUITIES]: process.env.MONEY_ONE_EQUITIES_CONSENT_FORM,
   [ConsentType.MUTUAL_FUNDS]: process.env.MONEY_ONE_MUTUAL_FUNDS_CONSENT_FORM,
   [ConsentType.ETF]: process.env.MONEY_ONE_ETF_CONSENT_FORM,
   [ConsentType.BANK_ACCOUNTS]: process.env.MONEY_ONE_BANK_ACCOUNTS_CONSENT_FORM,
+  [ConsentType.SIP]: process.env.MONEY_ONE_SIP_CONSENT_FORM,
 } as const;
 
 const consentFipIdsMap = {
-  [ConsentType.EQUITIES]: (process.env.MONEY_ONE_EQUITIES_FIPS as string).split(
-    ",",
-  ),
-  [ConsentType.MUTUAL_FUNDS]: (
-    process.env.MONEY_ONE_MUTUAL_FUNDS_FIPS as string
-  ).split(","),
+  [ConsentType.EQUITIES]: process.env.MONEY_ONE_EQUITIES_FIPS
+    ? process.env.MONEY_ONE_EQUITIES_FIPS.split(",")
+    : null,
+  [ConsentType.MUTUAL_FUNDS]: process.env.MONEY_ONE_MUTUAL_FUNDS_FIPS
+    ? process.env.MONEY_ONE_MUTUAL_FUNDS_FIPS.split(",")
+    : null,
   // ETF FIPS is optional - may not be required by MoneyOne
   [ConsentType.ETF]: process.env.MONEY_ONE_ETF_FIPS
     ? process.env.MONEY_ONE_ETF_FIPS.split(",")
@@ -35,6 +36,10 @@ const consentFipIdsMap = {
   // Bank Accounts FIPS is optional - may not be required by MoneyOne
   [ConsentType.BANK_ACCOUNTS]: process.env.MONEY_ONE_BANK_ACCOUNTS_FIPS
     ? process.env.MONEY_ONE_BANK_ACCOUNTS_FIPS.split(",")
+    : null,
+  // SIP FIPS is optional - may not be required by MoneyOne
+  [ConsentType.SIP]: process.env.MONEY_ONE_SIP_FIPS
+    ? process.env.MONEY_ONE_SIP_FIPS.split(",")
     : null,
 } as const;
 
@@ -80,11 +85,10 @@ export const createConsentRequest = async (
   } catch (error) {
     console.error("---Error occurred while creating consent", error);
 
-    // Extract error message from MoneyOne API response or Error object
     const message =
       error instanceof Error
         ? error.message
-        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(error) || ReasonPhrases.INTERNAL_SERVER_ERROR;
 
     return { error: message };
   }
@@ -149,11 +153,10 @@ export const createConsentRequestV3 = async (
   } catch (error) {
     console.error("---Error occurred while creating v3 consent", error);
 
-    // Extract error message from MoneyOne API response or Error object
     const message =
       error instanceof Error
         ? error.message
-        : getErrMsgKey(error, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(error) || ReasonPhrases.INTERNAL_SERVER_ERROR;
 
     return { error: message };
   }
@@ -177,26 +180,42 @@ export const getEncryptedUrl = async (
     });
 
     const url = `${process.env.MONEY_ONE_BASE_URL}/webRedirection/getEncryptedUrl`;
-    const response = await fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...moneyOneAuthHeaders,
       },
       body,
-    }).then((res) => res.json());
+    });
 
-    if (response?.status !== "success") throw response;
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({}));
+      throw new Error(
+        getErrMsgKey(errorBody, "errorMsg") ||
+        `API call failed with status ${res.status}`,
+      );
+    }
+
+    const response = await res.json();
+
+    if (response?.status !== "success") {
+      throw new Error(
+        getErrMsgKey(response, "errorMsg") || "Encrypted URL request failed",
+      );
+    }
     if (process.env.NODE_ENV === "development")
       console.log("🚀 ~ /webRedirection/getEncryptedUrl ~ response:", response);
 
     redirect(response.data.webRedirectionUrl);
   } catch (error) {
     if (isRedirectError(error)) throw error;
-    if (error instanceof Error) {
-      return { error: error.message };
-    }
-    return { error: ReasonPhrases.INTERNAL_SERVER_ERROR };
+    console.error("---Error occurred while getting encrypted URL", error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : extractErrorMessage(error) || ReasonPhrases.INTERNAL_SERVER_ERROR;
+    return { error: message };
   }
 };
 
@@ -206,36 +225,50 @@ export const getConsentList = async (
   consentType: ConsentType,
   accountID: string, // Browser-unique user ID from localStorage
 ): Promise<Consent | null> => {
-  const body = JSON.stringify({
-    partyIdentifierType: "MOBILE",
-    partyIdentifierValue: mobileNo,
-    productID: consentFormMap[consentType],
-    accountID: accountID,
-  });
+  try {
+    const body = JSON.stringify({
+      partyIdentifierType: "MOBILE",
+      partyIdentifierValue: mobileNo,
+      productID: consentFormMap[consentType],
+      accountID: accountID,
+    });
 
-  const url = `${process.env.MONEY_ONE_BASE_URL}/v2/getconsentslist`;
+    const url = `${process.env.MONEY_ONE_BASE_URL}/v2/getconsentslist`;
 
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...moneyOneAuthHeaders,
-    },
-    method: "POST",
-    body,
-  }).then((res) => res.json());
+    const res = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        ...moneyOneAuthHeaders,
+      },
+      method: "POST",
+      body,
+    });
 
-  if (response.status === "success" && Array.isArray(response.data)) {
-    const consentsList = response.data;
-    const consent: Consent = consentsList.find(
-      (c: Consent) => c.consentHandle === consentHandle,
-    );
-    if (!consent) throw new Error("Consent not found");
-    if (process.env.NODE_ENV === "development")
-      console.log("Consent found in list: ", consent);
+    if (!res.ok) {
+      console.error("getConsentList: API returned non-OK status", res.status);
+      throw new Error(`Consent list API failed with status ${res.status}`);
+    }
 
-    return consent;
+    const response = await res.json();
+
+    if (response.status === "success" && Array.isArray(response.data)) {
+      const consentsList = response.data;
+      const consent: Consent = consentsList.find(
+        (c: Consent) => c.consentHandle === consentHandle,
+      );
+      if (!consent) throw new Error("Consent not found");
+      if (process.env.NODE_ENV === "development")
+        console.log("Consent found in list: ", consent);
+
+      return consent;
+    }
+
+    console.error("getConsentList: Unexpected API response", response);
+    return null;
+  } catch (error) {
+    console.error("---Error occurred while fetching consent list", error);
+    throw error;
   }
-  return null;
 };
 
 export type DecryptUrlResult =
@@ -267,7 +300,7 @@ export const decryptUrl = async (
 
     const url = `${process.env.MONEY_ONE_BASE_URL}/webRedirection/decryptUrl`;
 
-    const response = await fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -276,7 +309,13 @@ export const decryptUrl = async (
       body: JSON.stringify({
         webRedirectionURL: validatedParams.data,
       }),
-    }).then((res) => res.json());
+    });
+
+    if (!res.ok) {
+      throw new Error(`Decrypt URL API failed with status ${res.status}`);
+    }
+
+    const response = await res.json();
 
     if (process.env.NODE_ENV === "development")
       console.log("🚀 ~ decryptUrl ~ response:", response);
@@ -321,19 +360,25 @@ export const getAllFiData = async (consentID: string, waitTime?: number) => {
       await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
 
-    const response = await fetch(url, {
+    const res = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
         ...moneyOneAuthHeaders,
       },
       method: "POST",
       body,
-    }).then((res) => res.json());
+    });
+
+    if (!res.ok) {
+      throw new Error(`FI data API failed with status ${res.status}`);
+    }
+
+    const response = await res.json();
 
     if (response?.errorCode === "NoDataFound") throw response;
 
     if (response?.status === "success") {
-      if (!response.data.some((item: any) => item.Summary))
+      if (!response.data.some((item: any) => item.Summary || item.Profile))
         throw new Error("NoDataFound");
       if (process.env.NODE_ENV === "development")
         console.log("---Fetched fi data", response);
@@ -342,10 +387,11 @@ export const getAllFiData = async (consentID: string, waitTime?: number) => {
 
     throw response;
   } catch (e) {
+    console.error("---Error occurred while fetching FI data for consent:", consentID, e);
     const message =
       e instanceof Error
         ? e.message
-        : getErrMsgKey(e, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(e) || ReasonPhrases.INTERNAL_SERVER_ERROR;
     return { error: message };
   }
 };
@@ -393,7 +439,7 @@ export const requestFiData = async (
     const message =
       e instanceof Error
         ? e.message
-        : getErrMsgKey(e, "errorMsg") || ReasonPhrases.INTERNAL_SERVER_ERROR;
+        : extractErrorMessage(e) || ReasonPhrases.INTERNAL_SERVER_ERROR;
     return { error: message };
   }
 };

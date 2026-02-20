@@ -3,7 +3,6 @@
  */
 
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { ColumnConfig } from "./common";
 
 /**
  * Holder information
@@ -115,17 +114,6 @@ export interface BankAccountsFormData {
  * src/modules/import-data/components/modals/BankAccountsPreviewModal/utils/bank-accounts-transformer.ts
  * It excludes sensitive information (bank name, account number, IFSC) for chat analysis
  */
-
-/**
- * Column configurations for bank accounts table
- */
-export const BANK_ACCOUNT_COLUMNS: readonly ColumnConfig[] = [
-  { key: "displayBank", label: "Bank Name", align: "left" },
-  { key: "displayAccountType", label: "Account Type", align: "left" },
-  { key: "displayAccountNumber", label: "Account Number", align: "left" },
-  { key: "displayBalance", label: "Balance (INR)", align: "right" },
-  { key: "action", label: "Action", align: "center" },
-] as const;
 
 /**
  * Consent type constant

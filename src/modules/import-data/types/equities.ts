@@ -3,7 +3,7 @@
  */
 
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { BaseHolding, BaseAccountType, ColumnConfig } from "./common";
+import { BaseHolding, BaseAccountType } from "./common";
 
 /**
  * Equity-specific holding type
@@ -47,16 +47,6 @@ export interface EquityMarkdownFormat {
   "ISIN": string;
   "Units": string;
 }
-
-/**
- * Column configurations for equity holdings table
- */
-export const EQUITY_COLUMNS: readonly ColumnConfig[] = [
-  { key: "issuerName", label: "Company Name", align: "left" },
-  { key: "isin", label: "ISIN", align: "left" },
-  { key: "quantity", label: "Units", align: "right" },
-  { key: "action", label: "Action", align: "center" },
-] as const;
 
 /**
  * Quantity field name for equities

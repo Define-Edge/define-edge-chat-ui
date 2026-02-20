@@ -4,7 +4,7 @@ export type Section = {
   title: string;
   content: string;
   in_depth_analysis?: string;
-  sources?: string[] | string | NewsSourcesContent | Record<string, any>;
+  sources?: string[] | string | NewsSourcesContent | Record<string, unknown>;
 };
 
 export type MfAnalysisReportData = {

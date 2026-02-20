@@ -4,12 +4,17 @@
  */
 
 "use client";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { Loader2 } from "lucide-react";
+import { MFPortfolioAnalyticsTabs } from "@/modules/core/portfolio/mf-portfolio/components/MFPortfolioAnalyticsTabs";
+import { BarChart3, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { ETFHoldingWithQuantity, ETFFiDataResponse } from "@/modules/import-data/types/etf";
+import { MutualFundHoldingWithQuantity } from "@/modules/import-data/types/mutual-funds";
 import { transformFormDataToETFs } from "./utils/etf-transformer";
+import { useMutualFundsAnalytics } from "../MutualFundsPreviewModal/hooks/useMutualFundsAnalytics";
 // Reuse shared components from HoldingsPreviewModal
 import { HoldingsSearch } from "../HoldingsPreviewModal/components/HoldingsSearch";
 import { HoldingsSummaryCard } from "../HoldingsPreviewModal/components/HoldingsSummaryCard";
@@ -52,10 +57,37 @@ export function EtfPreviewForm({
     fields,
     handleAddSearchResult,
     handleRemoveHolding,
+    getValues,
   } = useHoldingsForm(defaultValues as any, ConsentType.ETF);
 
+  // Analytics hook (reuse MF portfolio analytics - API works with isin + quantity)
+  const { analytics, isAnalyzing, analyzePortfolio, reset: resetAnalytics } =
+    useMutualFundsAnalytics();
+
+  // Track previous fields length to detect changes
+  const prevFieldsLengthRef = useRef(fields.length);
+
+  // Clear analytics when holdings change (add/remove)
+  useEffect(() => {
+    if (prevFieldsLengthRef.current !== fields.length && analytics) {
+      resetAnalytics();
+    }
+    prevFieldsLengthRef.current = fields.length;
+  }, [fields.length, analytics, resetAnalytics]);
+
+  const handleAnalyzeClick = () => {
+    // Cast ETF holdings to MutualFundHoldingWithQuantity - both have isin + quantity
+    const currentHoldings = getValues(
+      "holdings",
+    ) as unknown as MutualFundHoldingWithQuantity[];
+    analyzePortfolio(currentHoldings);
+  };
+
   const handleFormSubmit = (data: HoldingFormData) => {
-    if (!fiData) return;
+    if (!fiData) {
+      toast.error("Holdings data is not available. Please try again.");
+      return;
+    }
 
     // Transform form data back to ETFs (filters quantity=0)
     const convertedETFs = transformFormDataToETFs(
@@ -68,6 +100,7 @@ export function EtfPreviewForm({
     );
 
     if (!firstAccountWithInvestment?.Summary?.Investment) {
+      toast.error("No valid investment account found in holdings data.");
       return;
     }
 
@@ -125,6 +158,38 @@ export function EtfPreviewForm({
               consentType={ConsentType.ETF}
               onRemove={handleRemoveHolding}
             />
+
+            {/* Analyze Button */}
+            <div className="flex justify-center pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAnalyzeClick}
+                disabled={fields.length === 0 || isAnalyzing}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analyze Portfolio
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Analytics Results */}
+            {analytics && (
+              <div className="border rounded-lg bg-background">
+                <MFPortfolioAnalyticsTabs
+                  analytics={analytics}
+                  showMissingHoldingsWarning={true}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

@@ -13,7 +13,7 @@ export interface AnalysisModalProps {
   isOpen: boolean;
   onClose: () => void;
   analysisType: string;
-  analysisData: any;
+  analysisData: Record<string, unknown>;
 }
 
 export interface CollapsibleInstructionsProps {
@@ -27,16 +27,23 @@ export interface CollapsibleInstructionsProps {
   defaultExpanded?: boolean;
 }
 
-export interface FormProps {
-  onSubmit: (data: any) => void;
+export interface FormProps<T = Record<string, unknown>> {
+  onSubmit: (data: T) => void;
   onCancel: () => void;
-  initialData?: any;
+  initialData?: T;
 }
+
+export type ManualInvestmentData =
+  | FixedDeposit
+  | RealEstate
+  | Commodity
+  | Insurance
+  | OtherInvestment;
 
 export interface EditingItem {
   type: string;
   index: number;
-  data: any;
+  data: ManualInvestmentData;
 }
 
 // Account-specific types for manual investments

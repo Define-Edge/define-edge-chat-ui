@@ -4,17 +4,27 @@
  */
 
 "use client";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { ConsentType } from "@/lib/moneyone/moneyone.enums";
-import { Loader2 } from "lucide-react";
-import { EquityHoldingWithQuantity, EquitiesFiDataResponse } from "@/modules/import-data/types/equities";
+import { PortfolioAnalyticsTabs } from "@/modules/core/portfolio/components/PortfolioAnalyticsTabs";
+import { BarChart3, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  EquityHoldingWithQuantity,
+  EquitiesFiDataResponse,
+} from "@/modules/import-data/types/equities";
 import { transformFormDataToEquities } from "./utils/equities-transformer";
+import { useEquitiesAnalytics } from "./hooks/useEquitiesAnalytics";
 // Reuse shared components from HoldingsPreviewModal
 import { HoldingsSearch } from "../HoldingsPreviewModal/components/HoldingsSearch";
 import { HoldingsSummaryCard } from "../HoldingsPreviewModal/components/HoldingsSummaryCard";
 import { HoldingsTable } from "../HoldingsPreviewModal/components/HoldingsTable";
-import { useHoldingsForm, HoldingFormData } from "../HoldingsPreviewModal/hooks/useHoldingsForm";
+import {
+  useHoldingsForm,
+  HoldingFormData,
+} from "../HoldingsPreviewModal/hooks/useHoldingsForm";
 
 type EquitiesPreviewFormProps = {
   /** Initial form values (equity holdings with quantity) */
@@ -49,10 +59,36 @@ export function EquitiesPreviewForm({
     fields,
     handleAddSearchResult,
     handleRemoveHolding,
+    getValues,
   } = useHoldingsForm(defaultValues as any, ConsentType.EQUITIES);
 
+  // Analytics hook
+  const { analytics, isAnalyzing, analyzePortfolio, reset: resetAnalytics } =
+    useEquitiesAnalytics();
+
+  // Track previous fields length to detect changes
+  const prevFieldsLengthRef = useRef(fields.length);
+
+  // Clear analytics when holdings change (add/remove)
+  useEffect(() => {
+    if (prevFieldsLengthRef.current !== fields.length && analytics) {
+      resetAnalytics();
+    }
+    prevFieldsLengthRef.current = fields.length;
+  }, [fields.length, analytics, resetAnalytics]);
+
+  const handleAnalyzeClick = () => {
+    const currentHoldings = getValues(
+      "holdings",
+    ) as EquityHoldingWithQuantity[];
+    analyzePortfolio(currentHoldings);
+  };
+
   const handleFormSubmit = (data: HoldingFormData) => {
-    if (!fiData) return;
+    if (!fiData) {
+      toast.error("Holdings data is not available. Please try again.");
+      return;
+    }
 
     // Transform form data back to equities (filters quantity=0)
     const convertedEquities = transformFormDataToEquities(
@@ -65,6 +101,7 @@ export function EquitiesPreviewForm({
     );
 
     if (!firstAccountWithInvestment?.Summary?.Investment) {
+      toast.error("No valid investment account found in holdings data.");
       return;
     }
 
@@ -121,6 +158,38 @@ export function EquitiesPreviewForm({
               consentType={ConsentType.EQUITIES}
               onRemove={handleRemoveHolding}
             />
+
+            {/* Analyze Button */}
+            <div className="flex justify-center pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAnalyzeClick}
+                disabled={fields.length === 0 || isAnalyzing}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analyze Portfolio
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Analytics Results */}
+            {analytics && (
+              <div className="border rounded-lg bg-background">
+                <PortfolioAnalyticsTabs
+                  analytics={analytics}
+                  showMissingHoldingsWarning={true}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

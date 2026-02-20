@@ -13,8 +13,6 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -33,3 +31,9 @@ next-env.d.ts
 openapi-*.json
 
 Finance AI Assistant UI/
+
+# Generated data
+props.json
+
+# VS Code (keep extensions.json tracked)
+.vscode/settings.json

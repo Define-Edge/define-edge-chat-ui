@@ -10,3 +10,4 @@ export * from "./equities";
 export * from "./mutual-funds";
 export * from "./etf";
 export * from "./bank-accounts";
+export * from "./sip";

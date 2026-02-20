@@ -1,3 +1,5 @@
+"use client";
+
 import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts";
 
 type Props = {
@@ -85,11 +87,6 @@ export default function ScoresPie({
   colors = COLORS,
   shouldRenderActiveShapeLabel = true,
 }: Props) {
-  // const [activeIndex, setActiveIndex] = useState(0)
-  // const onPieEnter = (_, index) => {
-  //   setActiveIndex(index)
-  // }
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart margin={{ bottom: 15, top: 15 }}>
@@ -98,8 +95,6 @@ export default function ScoresPie({
           cx="50%"
           cy="50%"
           activeIndex={0}
-          // activeIndex={activeIndex}
-          // onMouseEnter={onPieEnter}
           activeShape={(props: any) => (
             <ActiveShape
               {...props}

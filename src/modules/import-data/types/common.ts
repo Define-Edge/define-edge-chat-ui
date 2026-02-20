@@ -2,7 +2,6 @@
  * Common types shared across all consent types
  */
 
-import { ConsentType } from "@/lib/moneyone/moneyone.enums";
 import { ConsentData } from "@/lib/moneyone/moneyone.storage";
 
 /**
@@ -57,21 +56,3 @@ export interface ColumnConfig {
   align: "left" | "right" | "center";
 }
 
-/**
- * Common constants used across consent types
- */
-export const SEARCH_CONFIG = {
-  debounceMs: 500,
-  resultLimit: 6,
-  staleTimeMs: 5 * 60 * 1000, // 5 minutes
-} as const;
-
-/**
- * Asset type display names
- */
-export const ASSET_TYPE_MAP: Record<ConsentType, string> = {
-  [ConsentType.EQUITIES]: "Equity",
-  [ConsentType.MUTUAL_FUNDS]: "Mutual Fund",
-  [ConsentType.ETF]: "ETF",
-  [ConsentType.BANK_ACCOUNTS]: "Bank Account",
-} as const;
