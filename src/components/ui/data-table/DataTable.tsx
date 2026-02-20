@@ -12,7 +12,7 @@ interface Column<T> {
   meta?: {
     column?: {
       className?: string;
-      align?: React.TdHTMLAttributes<HTMLTableColElement>["align"];
+      align?: React.TdHTMLAttributes<HTMLTableCellElement>["align"];
     };
   };
 }

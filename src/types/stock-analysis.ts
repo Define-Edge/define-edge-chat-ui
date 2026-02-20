@@ -23,7 +23,7 @@ export type Section = {
   title: string;
   content: string;
   in_depth_analysis?: string | null;
-  sources?: string[] | string | null | NewsSourcesContent | Record<string, any>;
+  sources?: string[] | unknown[] | string | null | NewsSourcesContent | Record<string, unknown>;
 };
 
 export type StockAnalysisReportData = {

@@ -45,7 +45,4 @@ export type MonthlyReturnsHeatmapData = {
   months: string[];
 } | null;
 
-export type DistributionItem = {
-  name: string;
-  value: number;
-};
+export type { DistributionItem } from "@/api/generated/report-apis/models";
