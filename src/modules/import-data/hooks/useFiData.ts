@@ -7,7 +7,7 @@ import {
 } from "@/lib/moneyone/moneyone.storage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Shared constants for FI data queries
 export const FI_DATA_QUERY_KEY = "fi-data";
@@ -27,30 +27,44 @@ export const FI_DATA_QUERY_KEY = "fi-data";
 export function useFiDataConsentFlow() {
   const searchParams = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false);
+  const consentCompletedRef = useRef<string | null>(null);
 
   const consentID = searchParams.get("consentID");
   const consentType = searchParams.get("consentType");
 
-  const query = useQuery({
-    queryKey: consentID ? [FI_DATA_QUERY_KEY, consentID] : ["fi-data-disabled"],
-    queryFn: async () => {
-      // Open modal when fetch starts
-      setModalOpen(true);
+  const isEnabled =
+    !!consentID &&
+    !!consentType &&
+    Object.values(ConsentType).includes(consentType as ConsentType);
 
-      if (!consentID || !consentType) {
-        throw new Error("Invalid consent ID or consent type");
-      }
-
-      // Complete pending consent by saving with real consentID
+  // Complete pending consent once before the query runs (not inside queryFn)
+  useEffect(() => {
+    if (
+      isEnabled &&
+      consentID &&
+      consentType &&
+      consentCompletedRef.current !== consentID
+    ) {
+      consentCompletedRef.current = consentID;
       const mobileNo = searchParams.get("mobileNo");
       const consentCreationData = searchParams.get("consentCreationData");
-
       completePendingConsent(
         consentID,
         consentType as ConsentType,
         mobileNo,
         consentCreationData,
       );
+    }
+  }, [isEnabled, consentID, consentType, searchParams]);
+
+  const query = useQuery({
+    queryKey: consentID ? [FI_DATA_QUERY_KEY, consentID] : ["fi-data-disabled"],
+    queryFn: async () => {
+      setModalOpen(true);
+
+      if (!consentID || !consentType) {
+        throw new Error("Invalid consent ID or consent type");
+      }
 
       const data = await getAllFiData(consentID, 3000);
 
@@ -69,20 +83,14 @@ export function useFiDataConsentFlow() {
       url.searchParams.delete("consentCreationData");
       history.pushState(null, "", url.toString());
 
-      // Close modal after a delay
-      setTimeout(() => {
-        setModalOpen(false);
-      }, 1500);
+      setTimeout(() => setModalOpen(false), 1500);
 
       return data;
     },
-    enabled:
-      !!consentID &&
-      !!consentType &&
-      Object.values(ConsentType).includes(consentType as ConsentType),
+    enabled: isEnabled,
     retry: true,
     retryDelay: 3000,
-    // gcTime, staleTime, and refetchOnWindowFocus inherited from QueryProvider defaults for ['fi-data'] queries
+    // gcTime (7 days), staleTime (Infinity), and refetchOnWindowFocus inherited from QueryProvider setQueryDefaults
   });
 
   // Derive fetch status from query state
