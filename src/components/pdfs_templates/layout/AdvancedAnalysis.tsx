@@ -9,7 +9,8 @@ type Props = {
 export default function AdvancedAnalysis({ pgNo }: Props) {
   return (
     <div
-      className={`flex w-[794px] flex-col h-[${a4PageSizes.height}] relative bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white`}
+      className="flex w-[794px] flex-col relative bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white"
+      style={{ height: a4PageSizes.height }}
     >
       <header className="px-14 pt-14">
         <h3 className="text-4xl">FinSharpe</h3>

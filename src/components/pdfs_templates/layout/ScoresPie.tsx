@@ -9,7 +9,6 @@ type Props = {
 const COLORS = ["rgba(66,212,163,1)", "rgba(6,59,170,1)"];
 
 const renderActiveShape = (props: any) => {
-  // const RADIAN = Math.PI / 180;
   const {
     cx,
     cy,
@@ -19,7 +18,6 @@ const renderActiveShape = (props: any) => {
     innerRadius,
     fill,
     value,
-    // label,
   } = props;
 
   return (
@@ -57,7 +55,7 @@ const renderActiveShape = (props: any) => {
 
 export default function ScoresPie({ data, width = 325, label }: Props) {
   return (
-    <div className={`w-[${width}px]`}>
+    <div style={{ width: `${width}px` }}>
       <p className="text-center font-semibold">{label}</p>
       <PieChart
         width={width}

@@ -17,7 +17,6 @@ const CustomizedLabel = (props: any) => {
     cy,
     midAngle,
     outerRadius,
-    // innerRadius,
     fill,
     value,
     [props.labelKey]: label,
@@ -32,22 +31,8 @@ const CustomizedLabel = (props: any) => {
   const ey = my;
   const textAnchor = cos >= 0 ? "start" : "end";
 
-  // const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  // const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  // const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
   return (
     <g>
-      {/* <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={"middle"}
-        dominantBaseline="middle"
-        fontSize="10px"
-      >
-        {value.toFixed(0)}%
-      </text> */}
       <path
         d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
         stroke={fill}
@@ -70,7 +55,7 @@ const CustomizedLabel = (props: any) => {
 
 export default function StockWiseAllocationPie({ data,labelKey, label }: Props) {
   return (
-    <div className={`w-[${a4PageSizes.innerWidth}]`}>
+    <div style={{ width: a4PageSizes.innerWidth }}>
       <h4 className="flex justify-center text-lg font-semibold text-primary-main-dark">
         {label}
       </h4>
@@ -81,7 +66,6 @@ export default function StockWiseAllocationPie({ data,labelKey, label }: Props) 
           cy="50%"
           label={(props) => <CustomizedLabel {...props} labelKey={labelKey} />}
           outerRadius={90}
-          // innerRadius={50}
           dataKey="weight"
           isAnimationActive={false}
         >

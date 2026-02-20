@@ -16,12 +16,14 @@ export default function groupSmallFragments(
 ) {
   if (!data?.length) return [];
 
-  let newData = data.map((el) => ({
-    [id]: el[id],
-    [value]: el[value],
-  }));
+  let newData = data
+    .map((el) => ({
+      [id]: el[id],
+      [value]: Number(el[value]) || 0,
+    }))
+    .filter((el) => !isNaN(el[value] as number));
 
-  newData = newData.sort((a, b) => b[value] - a[value]);
+  newData = newData.sort((a, b) => (b[value] as number) - (a[value] as number));
 
   const other = { [id]: "Others", [value]: 0 };
 
@@ -40,7 +42,6 @@ export default function groupSmallFragments(
     newData = newData.filter((d) => {
       if (d[value] < threshold) {
         other[value] += d[value];
-        // other.Ticker += `${d.Ticker}, `;
         return false;
       }
       return true;
@@ -48,7 +49,7 @@ export default function groupSmallFragments(
   }
 
   // If there are still too many fragments, group the smallest ones
-  if (newData.length > threshold) {
+  if (newData.length > maxFragments) {
     const smallestFragments = newData.splice(maxFragments);
     const sumOfValues = smallestFragments.reduce(
       (acc, curr) => acc + curr[value],
@@ -65,10 +66,11 @@ export default function groupSmallFragments(
   return newData;
 }
 
-export function shuffleArray(array: any[]) {
-  for (let i = array.length - 1; i > 0; i--) {
+export function shuffleArray<T>(array: T[]): T[] {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-  return array;
+  return copy;
 }

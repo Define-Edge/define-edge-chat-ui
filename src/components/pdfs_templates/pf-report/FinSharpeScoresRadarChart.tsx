@@ -22,7 +22,7 @@ function getScoreColor(value: number, isRisk: boolean): string {
 
 export default function FinSharpeScoresRadarChart({ data }: Props) {
   return (
-    <div className={`w-[${a4PageSizes.innerWidth}] h-96`}>
+    <div className="h-96" style={{ width: a4PageSizes.innerWidth }}>
       <ResponsiveContainer
         width="100%"
         height="100%"

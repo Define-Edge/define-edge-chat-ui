@@ -25,7 +25,7 @@ type Props = {
 
 export default function DrawdownChart({ data, returnsData, className, disableAnimation }: Props) {
   const isMobile = useIsMobile();
-  const { underwater_plot, worst_periods, colors, description } = data;
+  const { underwater_plot, worst_periods = [], colors, description } = data;
 
   // 1. Top Chart Data (Returns)
   const returnsKeys = Object.keys(returnsData?.[0] || {}).filter(
@@ -199,7 +199,7 @@ export default function DrawdownChart({ data, returnsData, className, disableAni
                     key === "PORTFOLIO"
                       ? "#ef4444" // red-500
                       : key === "NIFTY500"
-                        ? "#gray-500" // gray
+                        ? "#6b7280" // gray-500
                         : colors?.[key] || "#ef4444";
 
                   return (

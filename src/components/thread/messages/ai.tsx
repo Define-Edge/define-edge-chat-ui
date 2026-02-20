@@ -51,10 +51,6 @@ function CustomComponent({
 
   if (!latestComponents?.length) return null;
 
-  console.log("Rendering custom components for message", message.id, {
-    latestComponents,
-  });
-
   return (
     <Fragment key={message.id}>
       {latestComponents.map((customComponent) => (
@@ -81,8 +77,8 @@ function parseAnthropicStreamedToolCalls(
     if (toolCall?.input) {
       try {
         json = parsePartialJson(toolCall.input) ?? {};
-      } catch {
-        // Pass
+      } catch (e) {
+        console.warn("Failed to parse partial JSON:", toolCall.id, e);
       }
     }
     return {
