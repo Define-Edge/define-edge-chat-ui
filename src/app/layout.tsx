@@ -6,7 +6,7 @@ import React from "react";
 import "./globals.css";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   preload: true,
   display: "swap",
 });
