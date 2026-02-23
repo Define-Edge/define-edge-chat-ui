@@ -478,14 +478,14 @@ function PortfolioOverviewSection({
     columns.push({
       Header: "Scheme Name",
       accessor: (row) => row.Scheme_Name ?? row.symbol ?? row.ISIN ?? "",
-      meta: { column: { align: "left" } },
+      meta: { column: { align: "center" } },
     });
     // Support both Category (new) and Sebi_Category (legacy)
     if (items.some((item) => "Category" in item || "Sebi_Category" in item)) {
       columns.push({
         Header: "Category",
         accessor: (row) => row.Category ?? row.Sebi_Category ?? "",
-        meta: { column: { align: "left" } },
+        meta: { column: { align: "center" } },
       });
     }
 
@@ -496,7 +496,7 @@ function PortfolioOverviewSection({
         typeof row.weight === "number"
           ? `${row.weight.toFixed(2)}%`
           : row.weight,
-      meta: { column: { align: "right" } },
+      meta: { column: { align: "center" } },
     });
 
     // MF metric columns
@@ -517,7 +517,7 @@ function PortfolioOverviewSection({
           Header: header,
           accessor: (row) =>
             row[key] != null ? Number(row[key]).toFixed(3) : "N/A",
-          meta: { column: { align: "right" } },
+          meta: { column: { align: "center" } },
         });
       }
     }
@@ -534,7 +534,7 @@ function PortfolioOverviewSection({
       columns.push({
         Header: tickerKey === "symbol" ? "Symbol" : "Ticker",
         accessor: (row) => row[tickerKey] ?? "",
-        meta: { column: { align: "left" } },
+        meta: { column: { align: "center" } },
       });
     }
 
@@ -545,7 +545,7 @@ function PortfolioOverviewSection({
         typeof row.weight === "number"
           ? `${row.weight.toFixed(2)}%`
           : row.weight,
-      meta: { column: { align: "right" } },
+      meta: { column: { align: "center" } },
     });
 
     // Quantity column (if present)
@@ -553,7 +553,7 @@ function PortfolioOverviewSection({
       columns.push({
         Header: "Qty",
         accessor: (row) => row.quantity,
-        meta: { column: { align: "right" } },
+        meta: { column: { align: "center" } },
       });
     }
 
@@ -562,7 +562,7 @@ function PortfolioOverviewSection({
       columns.push({
         Header: "Action",
         accessor: (row) => row.Action ?? "",
-        meta: { column: { align: "left" } },
+        meta: { column: { align: "center" } },
       });
     }
 
@@ -581,7 +581,7 @@ function PortfolioOverviewSection({
           Header: header,
           accessor: (row) =>
             row[key] != null ? Number(row[key]).toFixed(1) : "N/A",
-          meta: { column: { align: "right" } },
+          meta: { column: { align: "center" } },
         });
       }
     }
