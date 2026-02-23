@@ -137,6 +137,7 @@ export default function PfAnalysisReportMessageComponent({
 
   return (
     <TotalPageCtxProvider value={totalPages}>
+      <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
       <PfWelcome analysis={analysis} />
       <IntroPageContainer pgNo={pgNum++}>
         <div className="flex gap-6">
@@ -397,6 +398,7 @@ export default function PfAnalysisReportMessageComponent({
               </div>
             ))}
         </span>
+      </div>
       </div>
     </TotalPageCtxProvider>
   );
