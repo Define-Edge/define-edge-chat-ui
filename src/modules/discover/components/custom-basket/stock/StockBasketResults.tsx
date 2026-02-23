@@ -8,8 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStockBasketBuilderContext } from "../../../hooks/useStockBasketBuilderContext";
-import { StockBasketOverview } from "./results/StockBasketOverview";
-import { StockBasketMetrics } from "./results/StockBasketMetrics";
+import { StockBasketHero } from "./results/StockBasketHero";
 import { StockConfigSummary } from "./results/StockConfigSummary";
 import { PortfolioAnalyticsTabs } from "@/modules/core/portfolio/components";
 import { generateBasketName } from "../../../utils/generateBasketName";
@@ -145,15 +144,12 @@ export function StockBasketResults() {
         </div>
       </div>
 
-      {/* Basket Overview */}
-      <StockBasketOverview
+      {/* Basket Hero — identity + all key metrics */}
+      <StockBasketHero
         basketName={generateBasketName(generatedBasket.investment_style)}
         description={description}
         analytics={generatedBasket.analytics}
       />
-
-      {/* Key Metrics */}
-      <StockBasketMetrics analytics={generatedBasket.analytics} />
 
       {/* Configuration Summary */}
       <StockConfigSummary basketConfig={basketConfig} />
