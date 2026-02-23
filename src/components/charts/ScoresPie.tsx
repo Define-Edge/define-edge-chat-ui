@@ -89,7 +89,7 @@ export default function ScoresPie({
 }: Props) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <PieChart margin={{ bottom: 15, top: 15 }}>
+      <PieChart margin={{ bottom: 20, top: 20 , left: 20, right: 20 }}>
         <Pie
           data={data}
           cx="50%"

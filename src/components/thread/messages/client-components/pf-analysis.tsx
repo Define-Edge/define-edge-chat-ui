@@ -480,7 +480,7 @@ function FinSharpeAnalysisSection({
                   </h4>
                 </div>
                 <div className="p-4">
-                  <div className="relative h-[28vh] w-full sm:h-[50vh]">
+                  <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
                     {isRisk ? (
                       <RiskScorePie
                         data={section.chart_data as any}

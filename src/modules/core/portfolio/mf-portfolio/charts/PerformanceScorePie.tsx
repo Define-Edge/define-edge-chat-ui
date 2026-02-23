@@ -25,7 +25,7 @@ export default function PerformanceScorePie({
   const color = useScoreColor(data);
 
   return (
-    <div className="relative h-[28vh] w-full sm:h-[50vh]">
+    <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
       <ChartInfoCtxProvider
         Info={<MFChartsInfo.PerformanceScore />}
         heading="How to interpret the Performance Score"

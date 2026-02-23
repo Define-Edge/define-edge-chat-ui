@@ -13,7 +13,7 @@ type Props = {
   infoIconProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
-export const graphsHeight = "50vh" as const;
+export const graphsHeight = "50vh" as const; // capped at 350px via max-h
 export const graphsHeightMobile = "28vh" as const;
 
 export default function OverallScorePie({
@@ -24,7 +24,7 @@ export default function OverallScorePie({
   const color = useScoreColor(data);
 
   return (
-    <div className="relative h-[28vh] w-full sm:h-[50vh]">
+    <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
       <ChartInfoCtxProvider
         Info={<ChartsInfo.OverallScore />}
         heading="How to interpret the Overall Score"
