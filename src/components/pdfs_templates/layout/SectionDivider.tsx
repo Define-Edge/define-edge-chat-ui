@@ -1,16 +1,19 @@
 import { a4PageSizes } from "@/configs/pdf-constants";
 import Footer from "./Footer";
 import TopRightArrowIcon from "@/components/icons/TopRightArrowIcon";
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 type Props = {
-  title: string;
+  title: ReactNode;
   pgNo: number;
+  headerClassName?: string;
 };
 
-export default function SectionDivider({ title, pgNo }: Props) {
+export default function SectionDivider({ title, pgNo, headerClassName }: Props) {
   return (
     <div
-      className="flex w-[794px] flex-col relative bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white"
+      className="relative flex w-[794px] flex-col bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white"
       style={{ height: a4PageSizes.height }}
     >
       <header className="px-14 pt-14">
@@ -27,7 +30,7 @@ export default function SectionDivider({ title, pgNo }: Props) {
           <div className="flex justify-end">
             <TopRightArrowIcon />
           </div>
-          <h1 className="text-center text-[5rem] leading-tight">{title}</h1>
+          <h1 className={cn("text-[6rem] leading-tight", headerClassName)}>{title}</h1>
         </section>
       </main>
       <Footer
