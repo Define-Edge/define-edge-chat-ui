@@ -9,9 +9,9 @@ export default function page() {
   return (
     <div className="mx-auto max-w-4xl min-w-0 space-y-6 p-6 pb-24">
       {/* Header */}
-      <div className="space-y-2 text-center">
-        <h2 className="text-foreground text-2xl font-semibold">Memory</h2>
-        <p className="text-muted-foreground text-sm">
+      <div className="text-center">
+        <h2 className="mb-2 text-xl font-semibold text-gray-900">Memory</h2>
+        <p className="text-sm text-gray-600">
           Resume your previous conversations
         </p>
       </div>
