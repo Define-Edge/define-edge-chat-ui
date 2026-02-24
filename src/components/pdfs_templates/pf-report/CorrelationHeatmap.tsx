@@ -1,7 +1,11 @@
 "use client";
 
+import {
+  getCellBg as _getCellBg,
+  getCellText as _getCellText,
+} from "@/lib/heatmap-colors";
+import { cn } from "@/lib/utils";
 import type { CorrelationHeatmapRow } from "@/types/pf-analysis";
-import { getCellBg as _getCellBg, getCellText as _getCellText } from "@/lib/heatmap-colors";
 
 const MAX_STOCKS = 10;
 const SCALE = 1;
@@ -11,9 +15,10 @@ const getCellText = (v: number | null) => _getCellText(v, SCALE);
 
 type Props = {
   data: CorrelationHeatmapRow[];
+  className?: string;
 };
 
-export default function CorrelationHeatmap({ data }: Props) {
+export default function CorrelationHeatmap({ data, className }: Props) {
   if (!data || data.length === 0) return null;
 
   const isTruncated = data.length > MAX_STOCKS;
@@ -21,7 +26,7 @@ export default function CorrelationHeatmap({ data }: Props) {
   const symbols = rows.map((r) => r.symbol);
 
   return (
-    <div className="p-4">
+    <div className={cn("p-4", className)}>
       <h4 className="mb-4 text-center font-medium text-gray-900">
         Correlation Heatmap
       </h4>

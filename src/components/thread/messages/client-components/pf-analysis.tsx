@@ -24,7 +24,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { MarkdownText } from "../../markdown-text";
 import CorrelationHeatmap from "@/components/pdfs_templates/pf-report/CorrelationHeatmap";
 import FinSharpeScoresRadarChart from "@/components/pdfs_templates/pf-report/FinSharpeScoresRadarChart";
-import MonthlyReturnsHeatmap from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
+import { MonthlyReturnsHeatmapTables } from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
 import DrawdownChart from "./DrawdownChart";
 import LineChart from "./LineChart";
 import { PfAnalysisDownloadDialog } from "./pf-analysis-download-dialog";
@@ -236,32 +236,85 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       {/* 6. Correlation Analysis */}
       {correlationSection?.analysis && (
         <div id="pf-correlation">
-          <SectionCard
-            section={correlationSection.analysis}
-            accent="cyan"
-          />
-          {correlationSection.heatmap &&
-            correlationSection.heatmap.length > 0 && (
-              <ChartContainer className="mt-3">
-                <CorrelationHeatmap data={correlationSection.heatmap} />
-              </ChartContainer>
-            )}
+          <div className="overflow-hidden rounded-xl border border-l-4 border-slate-200 border-l-cyan-500 bg-white shadow-sm">
+            {/* Heading */}
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <h4 className="text-sm font-semibold text-slate-800">
+                {correlationSection.analysis.title}
+              </h4>
+            </div>
+
+            {/* Chart */}
+            {correlationSection.heatmap &&
+              correlationSection.heatmap.length > 0 && (
+                <div className="chat-container overflow-x-auto p-2">
+                  <div className="max-w-[calc(100dvw-4rem)] md:max-w-3xl">
+                    <CorrelationHeatmap
+                      className="p-0"
+                      data={correlationSection.heatmap}
+                    />
+                  </div>
+                </div>
+              )}
+
+            {/* Content / Summary */}
+            <div className="p-5">
+              <MarkdownText>{correlationSection.analysis.content}</MarkdownText>
+
+              {/* In-depth Analysis */}
+              {correlationSection.analysis.in_depth_analysis && (
+                <div className="mt-3">
+                  <MarkdownText>
+                    {`<details><summary>In-depth Analysis</summary>\n\n${correlationSection.analysis.in_depth_analysis}\n</details>`}
+                  </MarkdownText>
+                </div>
+              )}
+
+              {/* Sources */}
+              {correlationSection.analysis.sources && (
+                <div className="mt-3">
+                  {typeof correlationSection.analysis.sources === "object" &&
+                  !Array.isArray(correlationSection.analysis.sources) ? (
+                    <JsonSourcesDisplay
+                      sources={correlationSection.analysis.sources}
+                    />
+                  ) : (
+                    <MarkdownText>
+                      {formatSources(correlationSection.analysis.sources)}
+                    </MarkdownText>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
       {/* 7. Monthly Returns */}
       {(monthlyReturnsSection?.summary || monthlyReturnsSection?.heatmap) && (
         <div id="pf-monthly">
-          {monthlyReturnsSection.heatmap ? (
-            <MonthlyReturnsHeatmap
-              heatmap={monthlyReturnsSection.heatmap}
-              summary={monthlyReturnsSection.summary}
-            />
-          ) : (
-            <AccentCard accent="violet">
-              <MarkdownText>{`## Monthly Returns\n${monthlyReturnsSection.summary}`}</MarkdownText>
-            </AccentCard>
-          )}
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <h4 className="text-sm font-semibold text-slate-800">
+                Monthly Returns
+              </h4>
+            </div>
+            <div className="p-4">
+              {monthlyReturnsSection.summary && (
+                <p className="mb-4 text-xs leading-relaxed text-slate-500">
+                  {monthlyReturnsSection.summary}
+                </p>
+              )}
+              {monthlyReturnsSection.heatmap ? (
+                <div className="chat-container overflow-x-auto">
+                  <MonthlyReturnsHeatmapTables
+                    heatmap={monthlyReturnsSection.heatmap}
+                    className="min-w-[640px] space-y-8"
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
         </div>
       )}
 
@@ -342,22 +395,6 @@ function AccentCard({
   );
 }
 
-function ChartContainer({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`rounded-xl border border-slate-100 bg-slate-50/60 p-4 ${className}`}
-    >
-      {children}
-    </div>
-  );
-}
-
 /* ─── Section components ─────────────────────────────────────────── */
 
 function PortfolioOverviewSection({
@@ -427,89 +464,123 @@ function FinSharpeAnalysisSection({
 }) {
   if (!data) return null;
 
+  const analysis = data.analysis;
   const gaugeSections = (data.sections || []).filter(
     (s) => s.chart_type === "gauge" && s.chart_data?.length,
   );
-
   const radarSections = (data.sections || []).filter(
     (s) => s.chart_type === "radar" && s.scores_comparison?.length,
   );
 
   return (
     <div className="space-y-4">
-      <SectionCard
-        section={data.analysis}
-        accent="violet"
-      />
-
-      {/* Radar chart: Portfolio vs Industry scores */}
-      {radarSections.map((section) => (
-        <div
-          key={section.title}
-          className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-        >
+      <div className="overflow-hidden rounded-xl border border-l-4 border-slate-200 border-l-violet-500 bg-white shadow-sm">
+        {/* Heading */}
+        {analysis && (
           <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
             <h4 className="text-sm font-semibold text-slate-800">
-              {section.title}
+              {analysis.title}
             </h4>
           </div>
-          <div className="max-w-full overflow-x-auto p-4">
-            <FinSharpeScoresRadarChart data={section.scores_comparison} />
+        )}
+
+        {/* Charts — Gauge scores */}
+        {gaugeSections.length > 0 && (
+          <div className="grid gap-4 p-4 sm:grid-cols-2">
+            {gaugeSections.map((section) => {
+              const isRisk = section.title.toLowerCase().includes("risk");
+              return (
+                <div
+                  key={section.title}
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                >
+                  <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+                    <h4 className="text-sm font-semibold text-slate-800">
+                      {section.title}
+                    </h4>
+                  </div>
+                  <div className="p-4">
+                    <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
+                      {isRisk ? (
+                        <RiskScorePie
+                          data={section.chart_data as any}
+                          shouldRenderActiveShapeLabel={true}
+                        />
+                      ) : (
+                        <OverallScorePie
+                          data={section.chart_data as any}
+                          shouldRenderActiveShapeLabel={true}
+                        />
+                      )}
+                    </div>
+                    {section.summary && (
+                      <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                        {section.summary}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Charts — Radar */}
+        {radarSections.map((section) => (
+          <div
+            key={section.title}
+            className="p-4"
+          >
+            <h5 className="mb-2 text-xs font-semibold text-slate-600">
+              {section.title}
+            </h5>
+            <FinSharpeScoresRadarChart
+              data={section.scores_comparison}
+              className="h-64 w-full sm:h-96"
+            />
             {section.summary && (
               <p className="mt-2 text-xs leading-relaxed text-slate-500">
                 {section.summary}
               </p>
             )}
           </div>
-        </div>
-      ))}
+        ))}
 
-      {/* Gauge charts: Overall Score & Risk Score */}
-      {gaugeSections.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {gaugeSections.map((section) => {
-            const isRisk = section.title.toLowerCase().includes("risk");
-            return (
-              <div
-                key={section.title}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-              >
-                <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
-                  <h4 className="text-sm font-semibold text-slate-800">
-                    {section.title}
-                  </h4>
-                </div>
-                <div className="p-4">
-                  <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
-                    {isRisk ? (
-                      <RiskScorePie
-                        data={section.chart_data as any}
-                        shouldRenderActiveShapeLabel={true}
-                      />
-                    ) : (
-                      <OverallScorePie
-                        data={section.chart_data as any}
-                        shouldRenderActiveShapeLabel={true}
-                      />
-                    )}
-                  </div>
-                  {section.summary && (
-                    <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                      {section.summary}
-                    </p>
-                  )}
-                </div>
+        {/* Content / Summary */}
+        {analysis && (
+          <div className="p-5">
+            <MarkdownText>{analysis.content}</MarkdownText>
+
+            {analysis.in_depth_analysis && (
+              <div className="mt-3">
+                <MarkdownText>
+                  {`<details><summary>In-depth Analysis</summary>\n\n${analysis.in_depth_analysis}\n</details>`}
+                </MarkdownText>
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
 
-      <ScreenerCoverageBadge
-        coverage={screenerCoverage}
-        showMissing={true}
-        className="mt-2"
-      />
+            {/* Sources */}
+            {analysis.sources && (
+              <div className="mt-3">
+                {typeof analysis.sources === "object" &&
+                !Array.isArray(analysis.sources) ? (
+                  <JsonSourcesDisplay sources={analysis.sources} />
+                ) : (
+                  <MarkdownText>
+                    {formatSources(analysis.sources)}
+                  </MarkdownText>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        <ScreenerCoverageBadge
+          coverage={screenerCoverage}
+          showMissing={true}
+          className="px-5 pb-4"
+        />
+      </div>
     </div>
   );
 }

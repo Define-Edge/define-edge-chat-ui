@@ -1,5 +1,6 @@
 import type { FinSharpeScoreItem } from "@/api/generated/report-apis/models";
 import { a4PageSizes } from "@/configs/pdf-constants";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -11,6 +12,8 @@ import {
 
 type Props = {
   data?: FinSharpeScoreItem[];
+  /** Override the outer container classes. Defaults to PDF-sized (h-96 + fixed width). */
+  className?: string;
 };
 
 function getScoreColor(value: number, isRisk: boolean): string {
@@ -20,9 +23,14 @@ function getScoreColor(value: number, isRisk: boolean): string {
   return "#dc2626"; // red — weak
 }
 
-export default function FinSharpeScoresRadarChart({ data }: Props) {
+export default function FinSharpeScoresRadarChart({ data, className }: Props) {
+  const isMobile = useIsMobile();
+
   return (
-    <div className="h-96" style={{ width: a4PageSizes.innerWidth }}>
+    <div
+      className={className ?? "h-96"}
+      style={className ? undefined : { width: a4PageSizes.innerWidth }}
+    >
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -31,6 +39,7 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
           data={data}
           cx="50%"
           cy="50%"
+          outerRadius={isMobile ? "70%" : "80%"}
         >
           <PolarGrid />
           <PolarAngleAxis
@@ -53,6 +62,9 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
               const anchor =
                 Math.abs(dx) < 5 ? "middle" : dx > 0 ? "start" : "end";
 
+              // Strip redundant "FinSharpe" prefix
+              const label = metric.replace(/^FinSharpe\s*/i, "");
+
               return (
                 <g>
                   <text
@@ -60,9 +72,9 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
                     y={ly}
                     textAnchor={anchor}
                     dominantBaseline="central"
-                    className="fill-gray-800 text-xs font-medium"
+                    className="fill-gray-800 text-[10px] font-medium sm:text-xs"
                   >
-                    {payload.value}
+                    {label}
                   </text>
                   <text
                     x={lx}
@@ -70,7 +82,7 @@ export default function FinSharpeScoresRadarChart({ data }: Props) {
                     textAnchor={anchor}
                     dominantBaseline="central"
                     fill={color}
-                    className="text-xs font-semibold"
+                    className="text-[10px] font-semibold sm:text-xs"
                   >
                     {value}
                   </text>
