@@ -24,11 +24,6 @@ const MONTHS = [
   "Dec",
 ] as const;
 
-type Props = {
-  heatmap?: MonthlyReturnsHeatmapData;
-  summary?: string;
-};
-
 /** Compute YTD as compounded return of non-null months */
 function computeYTD(row: HeatmapRow): number | null {
   let product = 1;
@@ -171,15 +166,55 @@ function HeatmapTable({
   );
 }
 
-export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
-  if (!heatmap && !summary) return null;
+/** Standalone heatmap tables — no ChartContainer wrapper */
+export function MonthlyReturnsHeatmapTables({
+  heatmap,
+  className,
+}: {
+  heatmap: MonthlyReturnsHeatmapData;
+  className?: string;
+}) {
+  if (!heatmap) return null;
 
-  const portfolio = heatmap?.portfolio;
-  const benchmark = heatmap?.benchmark;
-  const active = heatmap?.active;
+  const portfolio = heatmap.portfolio;
+  const benchmark = heatmap.benchmark;
+  const active = heatmap.active;
+  const hasPortfolio = portfolio && portfolio.length > 0;
   const hasBenchmark = benchmark && benchmark.length > 0;
   const hasActive = active && active.length > 0;
-  const hasPortfolio = portfolio && portfolio.length > 0;
+
+  if (!hasPortfolio) return null;
+
+  return (
+    <div className={className ?? "space-y-8 p-4"}>
+      <HeatmapTable
+        label="Portfolio Returns (%)"
+        rows={portfolio}
+      />
+      {hasBenchmark && (
+        <HeatmapTable
+          label="Benchmark Returns (%) — Nifty 500"
+          rows={benchmark}
+        />
+      )}
+      {hasActive && (
+        <HeatmapTable
+          label="Active Returns (%) — Portfolio vs Benchmark"
+          rows={active}
+        />
+      )}
+    </div>
+  );
+}
+
+type Props = {
+  heatmap?: MonthlyReturnsHeatmapData;
+  summary?: string;
+};
+
+/** Full MonthlyReturnsHeatmap with ChartContainer — used in PDF report */
+export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
+  if (!heatmap && !summary) return null;
 
   return (
     <div className="space-y-4">
@@ -195,28 +230,7 @@ export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
         }
         context="Tracking monthly returns helps identify seasonal patterns and consistency in portfolio performance relative to the benchmark."
       >
-        {hasPortfolio && (
-          <div className="space-y-8 p-4">
-            <HeatmapTable
-              label="Portfolio Returns (%)"
-              rows={portfolio}
-            />
-
-            {hasBenchmark && (
-              <HeatmapTable
-                label="Benchmark Returns (%) — Nifty 500"
-                rows={benchmark}
-              />
-            )}
-
-            {hasActive && (
-              <HeatmapTable
-                label="Active Returns (%) — Portfolio vs Benchmark"
-                rows={active}
-              />
-            )}
-          </div>
-        )}
+        <MonthlyReturnsHeatmapTables heatmap={heatmap ?? null} />
       </ChartContainer>
     </div>
   );

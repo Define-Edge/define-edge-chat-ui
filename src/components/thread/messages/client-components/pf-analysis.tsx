@@ -24,7 +24,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { MarkdownText } from "../../markdown-text";
 import CorrelationHeatmap from "@/components/pdfs_templates/pf-report/CorrelationHeatmap";
 import FinSharpeScoresRadarChart from "@/components/pdfs_templates/pf-report/FinSharpeScoresRadarChart";
-import MonthlyReturnsHeatmap from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
+import { MonthlyReturnsHeatmapTables } from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
 import DrawdownChart from "./DrawdownChart";
 import LineChart from "./LineChart";
 import { PfAnalysisDownloadDialog } from "./pf-analysis-download-dialog";
@@ -245,8 +245,8 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
             </div>
 
             {/* Chart */}
-          {correlationSection.heatmap &&
-            correlationSection.heatmap.length > 0 && (
+            {correlationSection.heatmap &&
+              correlationSection.heatmap.length > 0 && (
                 <div className="chat-container overflow-x-auto p-2">
                   <div className="max-w-[calc(100dvw-4rem)] md:max-w-3xl">
                     <CorrelationHeatmap
@@ -268,7 +268,7 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
                     {`<details><summary>In-depth Analysis</summary>\n\n${correlationSection.analysis.in_depth_analysis}\n</details>`}
                   </MarkdownText>
                 </div>
-            )}
+              )}
 
               {/* Sources */}
               {correlationSection.analysis.sources && (
@@ -293,16 +293,28 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       {/* 7. Monthly Returns */}
       {(monthlyReturnsSection?.summary || monthlyReturnsSection?.heatmap) && (
         <div id="pf-monthly">
-          {monthlyReturnsSection.heatmap ? (
-            <MonthlyReturnsHeatmap
-              heatmap={monthlyReturnsSection.heatmap}
-              summary={monthlyReturnsSection.summary}
-            />
-          ) : (
-            <AccentCard accent="violet">
-              <MarkdownText>{`## Monthly Returns\n${monthlyReturnsSection.summary}`}</MarkdownText>
-            </AccentCard>
-          )}
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <h4 className="text-sm font-semibold text-slate-800">
+                Monthly Returns
+              </h4>
+            </div>
+            <div className="p-4">
+              {monthlyReturnsSection.summary && (
+                <p className="mb-4 text-xs leading-relaxed text-slate-500">
+                  {monthlyReturnsSection.summary}
+                </p>
+              )}
+              {monthlyReturnsSection.heatmap ? (
+                <div className="chat-container overflow-x-auto">
+                  <MonthlyReturnsHeatmapTables
+                    heatmap={monthlyReturnsSection.heatmap}
+                    className="min-w-[640px] space-y-8"
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
         </div>
       )}
 
@@ -473,45 +485,45 @@ function FinSharpeAnalysisSection({
         )}
 
         {/* Charts — Gauge scores */}
-      {gaugeSections.length > 0 && (
+        {gaugeSections.length > 0 && (
           <div className="grid gap-4 p-4 sm:grid-cols-2">
-          {gaugeSections.map((section) => {
-            const isRisk = section.title.toLowerCase().includes("risk");
-            return (
-              <div
-                key={section.title}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-              >
-                <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
-                  <h4 className="text-sm font-semibold text-slate-800">
-                    {section.title}
-                  </h4>
-                </div>
-                <div className="p-4">
-                  <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
-                    {isRisk ? (
-                      <RiskScorePie
-                        data={section.chart_data as any}
-                        shouldRenderActiveShapeLabel={true}
-                      />
-                    ) : (
-                      <OverallScorePie
-                        data={section.chart_data as any}
-                        shouldRenderActiveShapeLabel={true}
-                      />
+            {gaugeSections.map((section) => {
+              const isRisk = section.title.toLowerCase().includes("risk");
+              return (
+                <div
+                  key={section.title}
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                >
+                  <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+                    <h4 className="text-sm font-semibold text-slate-800">
+                      {section.title}
+                    </h4>
+                  </div>
+                  <div className="p-4">
+                    <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
+                      {isRisk ? (
+                        <RiskScorePie
+                          data={section.chart_data as any}
+                          shouldRenderActiveShapeLabel={true}
+                        />
+                      ) : (
+                        <OverallScorePie
+                          data={section.chart_data as any}
+                          shouldRenderActiveShapeLabel={true}
+                        />
+                      )}
+                    </div>
+                    {section.summary && (
+                      <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                        {section.summary}
+                      </p>
                     )}
                   </div>
-                  {section.summary && (
-                    <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                      {section.summary}
-                    </p>
-                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
 
         {/* Charts — Radar */}
         {radarSections.map((section) => (
@@ -563,11 +575,11 @@ function FinSharpeAnalysisSection({
           </div>
         )}
 
-      <ScreenerCoverageBadge
-        coverage={screenerCoverage}
-        showMissing={true}
+        <ScreenerCoverageBadge
+          coverage={screenerCoverage}
+          showMissing={true}
           className="px-5 pb-4"
-      />
+        />
       </div>
     </div>
   );
