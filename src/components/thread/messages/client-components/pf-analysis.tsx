@@ -383,22 +383,6 @@ function AccentCard({
   );
 }
 
-function ChartContainer({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`rounded-xl border border-slate-100 bg-slate-50/60 p-4 ${className}`}
-    >
-      {children}
-    </div>
-  );
-}
-
 /* ─── Section components ─────────────────────────────────────────── */
 
 function PortfolioOverviewSection({
@@ -468,46 +452,29 @@ function FinSharpeAnalysisSection({
 }) {
   if (!data) return null;
 
+  const analysis = data.analysis;
   const gaugeSections = (data.sections || []).filter(
     (s) => s.chart_type === "gauge" && s.chart_data?.length,
   );
-
   const radarSections = (data.sections || []).filter(
     (s) => s.chart_type === "radar" && s.scores_comparison?.length,
   );
 
   return (
     <div className="space-y-4">
-      <SectionCard
-        section={data.analysis}
-        accent="violet"
-      />
-
-      {/* Radar chart: Portfolio vs Industry scores */}
-      {radarSections.map((section) => (
-        <div
-          key={section.title}
-          className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-        >
+      <div className="overflow-hidden rounded-xl border border-l-4 border-slate-200 border-l-violet-500 bg-white shadow-sm">
+        {/* Heading */}
+        {analysis && (
           <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
             <h4 className="text-sm font-semibold text-slate-800">
-              {section.title}
+              {analysis.title}
             </h4>
           </div>
-          <div className="max-w-full overflow-x-auto p-4">
-            <FinSharpeScoresRadarChart data={section.scores_comparison} />
-            {section.summary && (
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                {section.summary}
-              </p>
-            )}
-          </div>
-        </div>
-      ))}
+        )}
 
-      {/* Gauge charts: Overall Score & Risk Score */}
+        {/* Charts — Gauge scores */}
       {gaugeSections.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 p-4 sm:grid-cols-2">
           {gaugeSections.map((section) => {
             const isRisk = section.title.toLowerCase().includes("risk");
             return (
@@ -546,11 +513,62 @@ function FinSharpeAnalysisSection({
         </div>
       )}
 
+        {/* Charts — Radar */}
+        {radarSections.map((section) => (
+          <div
+            key={section.title}
+            className="p-4"
+          >
+            <h5 className="mb-2 text-xs font-semibold text-slate-600">
+              {section.title}
+            </h5>
+            <FinSharpeScoresRadarChart
+              data={section.scores_comparison}
+              className="h-64 w-full sm:h-96"
+            />
+            {section.summary && (
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                {section.summary}
+              </p>
+            )}
+          </div>
+        ))}
+
+        {/* Content / Summary */}
+        {analysis && (
+          <div className="p-5">
+            <MarkdownText>{analysis.content}</MarkdownText>
+
+            {analysis.in_depth_analysis && (
+              <div className="mt-3">
+                <MarkdownText>
+                  {`<details><summary>In-depth Analysis</summary>\n\n${analysis.in_depth_analysis}\n</details>`}
+                </MarkdownText>
+              </div>
+            )}
+
+            {/* Sources */}
+            {analysis.sources && (
+              <div className="mt-3">
+                {typeof analysis.sources === "object" &&
+                !Array.isArray(analysis.sources) ? (
+                  <JsonSourcesDisplay sources={analysis.sources} />
+                ) : (
+                  <MarkdownText>
+                    {formatSources(analysis.sources)}
+                  </MarkdownText>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
       <ScreenerCoverageBadge
         coverage={screenerCoverage}
         showMissing={true}
-        className="mt-2"
+          className="px-5 pb-4"
       />
+      </div>
     </div>
   );
 }
