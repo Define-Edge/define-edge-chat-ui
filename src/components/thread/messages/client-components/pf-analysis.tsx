@@ -236,16 +236,57 @@ export default function PfAnalysisComponent(analysis: PfAnalysis) {
       {/* 6. Correlation Analysis */}
       {correlationSection?.analysis && (
         <div id="pf-correlation">
-          <SectionCard
-            section={correlationSection.analysis}
-            accent="cyan"
-          />
+          <div className="overflow-hidden rounded-xl border border-l-4 border-slate-200 border-l-cyan-500 bg-white shadow-sm">
+            {/* Heading */}
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <h4 className="text-sm font-semibold text-slate-800">
+                {correlationSection.analysis.title}
+              </h4>
+            </div>
+
+            {/* Chart */}
           {correlationSection.heatmap &&
             correlationSection.heatmap.length > 0 && (
-              <ChartContainer className="mt-3">
-                <CorrelationHeatmap data={correlationSection.heatmap} />
-              </ChartContainer>
+                <div className="chat-container overflow-x-auto p-2">
+                  <div className="max-w-[calc(100dvw-4rem)] md:max-w-3xl">
+                    <CorrelationHeatmap
+                      className="p-0"
+                      data={correlationSection.heatmap}
+                    />
+                  </div>
+                </div>
+              )}
+
+            {/* Content / Summary */}
+            <div className="p-5">
+              <MarkdownText>{correlationSection.analysis.content}</MarkdownText>
+
+              {/* In-depth Analysis */}
+              {correlationSection.analysis.in_depth_analysis && (
+                <div className="mt-3">
+                  <MarkdownText>
+                    {`<details><summary>In-depth Analysis</summary>\n\n${correlationSection.analysis.in_depth_analysis}\n</details>`}
+                  </MarkdownText>
+                </div>
             )}
+
+              {/* Sources */}
+              {correlationSection.analysis.sources && (
+                <div className="mt-3">
+                  {typeof correlationSection.analysis.sources === "object" &&
+                  !Array.isArray(correlationSection.analysis.sources) ? (
+                    <JsonSourcesDisplay
+                      sources={correlationSection.analysis.sources}
+                    />
+                  ) : (
+                    <MarkdownText>
+                      {formatSources(correlationSection.analysis.sources)}
+                    </MarkdownText>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
