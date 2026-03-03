@@ -34,6 +34,7 @@ export const KeycloakProvider = ({
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
   );
+  const initCalledRef = useRef(false);
 
   const refreshToken = useCallback(async () => {
     if (!keycloak?.authenticated) return;
@@ -49,7 +50,8 @@ export const KeycloakProvider = ({
   }, []);
 
   useEffect(() => {
-    if (!keycloak) return;
+    if (!keycloak || initCalledRef.current) return;
+    initCalledRef.current = true;
 
     keycloak
       .init({
