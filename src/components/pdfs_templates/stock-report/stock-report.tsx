@@ -1,8 +1,22 @@
+import type {
+  FundamentalChartData,
+  PeerChartData,
+  ScoreSection,
+} from "@/api/generated/report-apis/models";
+import FinSharpeScoresRadarChart from "@/components/pdfs_templates/pf-report/FinSharpeScoresRadarChart";
+import { MonthlyReturnsHeatmapTables } from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
 import { MarkdownText } from "@/components/thread/markdown-text";
-import ClientComponentsRegistry from "@/components/thread/messages/client-components/registry";
+import DrawdownChart from "@/components/thread/messages/client-components/DrawdownChart";
+import FundamentalChart from "@/components/thread/messages/client-components/FundamentalChart";
+import { FormatNewsSentiment } from "@/components/thread/messages/client-components/format-news-sentiment";
+import LineChart from "@/components/thread/messages/client-components/LineChart";
+import PeerComparisonChart from "@/components/thread/messages/client-components/PeerComparisonChart";
+import RiskMetricsTable from "@/components/thread/messages/client-components/RiskMetricsTable";
 import SimulationChart from "@/components/thread/messages/client-components/SimulationChart";
 import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
 import { SectionFormatter } from "@/lib/section-formatter";
+import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
+import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
 import {
   NewsSource,
   NewsSourcesContent,
@@ -38,120 +52,189 @@ export default function StockAnalysisReportMessageComponent({
   // Define all sections with their rendering components
   const sections = [
     {
-      key: "business_overview",
+      key: "company_overview",
       render: (seqNumber: number) => (
-        <FormatSection
-          section={data.business_overview}
-          seqNumber={seqNumber}
-        />
-      ),
-    },
-    {
-      key: "management_strategy",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.management_strategy}
-          seqNumber={seqNumber}
-        />
-      ),
-    },
-    {
-      key: "sector_outlook",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.sector_outlook}
-          seqNumber={seqNumber}
-        />
+        <>
+          <FormatSection
+            section={data.company_overview.business_overview}
+            seqNumber={seqNumber}
+          />
+          {data.company_overview.management_strategy && (
+            <FormatSection
+              section={data.company_overview.management_strategy as Section}
+            />
+          )}
+          <FormatSection section={data.company_overview.sector_outlook} />
+        </>
       ),
     },
     {
       key: "technical_analysis",
       render: (seqNumber: number) => (
-        <FormatTechnicalSection
-          section={data.technical_analysis}
-          seqNumber={seqNumber}
-        />
+        <>
+          <FormatSection
+            section={data.technical_analysis.analysis}
+            seqNumber={seqNumber}
+          />
+          {data.technical_analysis.returns_chart && (
+            <LineChart
+              {...(data.technical_analysis.returns_chart as any)}
+              disableAnimation
+            />
+          )}
+          {data.technical_analysis.drawdown_chart && (
+            <DrawdownChart
+              data={data.technical_analysis.drawdown_chart as any}
+              disableAnimation
+            />
+          )}
+          {data.technical_analysis.monthly_returns &&
+            (data.technical_analysis.monthly_returns as any)?.heatmap && (
+              <MonthlyReturnsHeatmapTables
+                heatmap={
+                  (data.technical_analysis.monthly_returns as any).heatmap
+                }
+              />
+            )}
+          {data.technical_analysis.rolling_sortino_chart && (
+            <LineChart
+              {...(data.technical_analysis.rolling_sortino_chart as any)}
+              disableAnimation
+            />
+          )}
+          {data.technical_analysis.risk_metrics && (
+            <RiskMetricsTable
+              data={data.technical_analysis.risk_metrics as any}
+            />
+          )}
+        </>
       ),
     },
     {
       key: "fundamental_analysis",
       render: (seqNumber: number) => (
-        <FormatSection
-          section={data.fundamental_analysis}
-          seqNumber={seqNumber}
-        />
+        <>
+          <FormatSection
+            section={data.fundamental_analysis.analysis}
+            seqNumber={seqNumber}
+          />
+          {data.fundamental_analysis.revenue_profit_chart && (
+            <FundamentalChart
+              data={
+                data.fundamental_analysis
+                  .revenue_profit_chart as FundamentalChartData
+              }
+              disableAnimation
+            />
+          )}
+          {data.fundamental_analysis.margin_chart && (
+            <FundamentalChart
+              data={
+                data.fundamental_analysis.margin_chart as FundamentalChartData
+              }
+              disableAnimation
+            />
+          )}
+        </>
       ),
     },
     {
       key: "peer_comparison",
       render: (seqNumber: number) => (
-        <FormatSection
-          section={data.peer_comparison}
-          seqNumber={seqNumber}
-        />
+        <>
+          <FormatSection
+            section={data.peer_comparison.analysis}
+            seqNumber={seqNumber}
+          />
+          {data.peer_comparison.valuation_chart && (
+            <PeerComparisonChart
+              data={data.peer_comparison.valuation_chart as PeerChartData}
+              disableAnimation
+            />
+          )}
+          {data.peer_comparison.profitability_chart && (
+            <PeerComparisonChart
+              data={data.peer_comparison.profitability_chart as PeerChartData}
+              disableAnimation
+            />
+          )}
+        </>
       ),
     },
     {
-      key: "conference_call_analysis",
+      key: "market_sentiment",
       render: (seqNumber: number) => (
-        <FormatSection
-          section={data.conference_call_analysis}
-          seqNumber={seqNumber}
-        />
+        <>
+          <FormatNewsSentiment
+            section={data.market_sentiment.news_sentiment}
+            variant="pdf"
+            seqNumber={seqNumber}
+          />
+          {data.market_sentiment.conference_call && (
+            <FormatSection
+              section={data.market_sentiment.conference_call as Section}
+            />
+          )}
+          {data.market_sentiment.corporate_actions && (
+            <FormatSection
+              section={data.market_sentiment.corporate_actions as Section}
+            />
+          )}
+          <FormatSection
+            section={data.market_sentiment.shareholding_pattern}
+          />
+        </>
       ),
     },
     {
-      key: "shareholding_pattern",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.shareholding_pattern}
-          seqNumber={seqNumber}
-        />
-      ),
+      key: "finsharpe_analysis",
+      render: (seqNumber: number) => {
+        if (!data.finsharpe_analysis) return null;
+        const fa = data.finsharpe_analysis as any;
+        return (
+          <>
+            <FormatSection section={fa.analysis} seqNumber={seqNumber} />
+            {fa.sections?.map((s: ScoreSection, idx: number) => {
+              if (s.chart_type === "radar") {
+                return (
+                  <FinSharpeScoresRadarChart
+                    key={idx}
+                    data={s.scores_comparison}
+                  />
+                );
+              }
+              if (s.chart_type === "gauge") {
+                const isRisk = s.title?.toLowerCase().includes("risk");
+                const PieComp = isRisk ? RiskScorePie : OverallScorePie;
+                return (
+                  <div key={idx} className="space-y-2">
+                    <h5 className="text-sm font-semibold">{s.title}</h5>
+                    {s.summary && (
+                      <p className="text-xs text-gray-500">{s.summary}</p>
+                    )}
+                    <PieComp data={s.chart_data} />
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </>
+        );
+      },
     },
     {
-      key: "corporate_actions",
+      key: "outlook",
       render: (seqNumber: number) => (
-        <FormatSection
-          section={data.corporate_actions}
-          seqNumber={seqNumber}
-        />
-      ),
-    },
-    {
-      key: "news_sentiment",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.news_sentiment}
-          seqNumber={seqNumber}
-        />
-      ),
-    },
-    {
-      key: "red_flags",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.red_flags}
-          seqNumber={seqNumber}
-        />
-      ),
-    },
-    {
-      key: "summary",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.summary}
-          seqNumber={seqNumber}
-        />
-      ),
-    },
-    {
-      key: "finsharpe_scores",
-      render: (seqNumber: number) => (
-        <FormatSection
-          section={data.finsharpe_scores}
-          seqNumber={seqNumber}
-        />
+        <>
+          <FormatSection
+            section={data.outlook.summary}
+            seqNumber={seqNumber}
+          />
+          <FormatSection section={data.outlook.red_flags} />
+          {data.outlook.simulation_chart && (
+            <SimulationChart {...(data.outlook.simulation_chart as any)} />
+          )}
+        </>
       ),
     },
   ];
@@ -161,6 +244,48 @@ export default function StockAnalysisReportMessageComponent({
     .filter(({ key }) => shouldRenderSection(key))
     .map(({ render }, index) => <div key={index}>{render(index + 1)}</div>);
 
+  // Build flat list of sections that have sources for the Data Sources section
+  const sourceSections = [
+    {
+      section: data.company_overview.business_overview,
+      key: "company_overview",
+    },
+    {
+      section: data.company_overview.management_strategy as Section | null,
+      key: "company_overview",
+    },
+    { section: data.company_overview.sector_outlook, key: "company_overview" },
+    { section: data.technical_analysis.analysis, key: "technical_analysis" },
+    {
+      section: data.fundamental_analysis.analysis,
+      key: "fundamental_analysis",
+    },
+    { section: data.peer_comparison.analysis, key: "peer_comparison" },
+    {
+      section: data.market_sentiment.news_sentiment,
+      key: "market_sentiment",
+      isNews: true,
+    },
+    {
+      section: data.market_sentiment.conference_call as Section | null,
+      key: "market_sentiment",
+    },
+    {
+      section: data.market_sentiment.corporate_actions as Section | null,
+      key: "market_sentiment",
+    },
+    {
+      section: data.market_sentiment.shareholding_pattern,
+      key: "market_sentiment",
+    },
+    {
+      section: data.finsharpe_analysis
+        ? (data.finsharpe_analysis as any).analysis
+        : null,
+      key: "finsharpe_analysis",
+    },
+  ].filter(({ key, section }) => section && shouldRenderSection(key));
+
   return (
     <>
       <Welcome analysis={analysis} />
@@ -169,10 +294,6 @@ export default function StockAnalysisReportMessageComponent({
         style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
       >
         {renderedSections}
-        {shouldRenderSection("simulation_chart") &&
-          Boolean(data.simulation_chart) && (
-            <SimulationChart {...data.simulation_chart} />
-          )}
 
         {/* Personal Comment Section */}
         {personalComment && (
@@ -198,38 +319,20 @@ export default function StockAnalysisReportMessageComponent({
         <div className="mt-8" />
         <h3 className="text-3xl font-semibold tracking-tight">Data Sources</h3>
         <span className="report-compact-table">
-          {[
-            { section: data.business_overview, key: "business_overview" },
-            { section: data.management_strategy, key: "management_strategy" },
-            { section: data.sector_outlook, key: "sector_outlook" },
-            { section: data.technical_analysis, key: "technical_analysis" },
-            { section: data.fundamental_analysis, key: "fundamental_analysis" },
-            { section: data.peer_comparison, key: "peer_comparison" },
-            {
-              section: data.conference_call_analysis,
-              key: "conference_call_analysis",
-            },
-            { section: data.shareholding_pattern, key: "shareholding_pattern" },
-            { section: data.corporate_actions, key: "corporate_actions" },
-            { section: data.news_sentiment, key: "news_sentiment" },
-            { section: data.finsharpe_scores, key: "finsharpe_scores" },
-          ]
-            .filter(({ key, section }) => section && shouldRenderSection(key))
-            .map(({ section, key }, idx, arr) => {
-              const isNewsSentiment = key === "news_sentiment";
-              return (
-                <div key={key}>
-                  {isNewsSentiment ? (
-                    <FormatNewsSentimentSourcesAndInDepthAnalysis
-                      section={section}
-                    />
-                  ) : (
-                    <FormatSectionSourcesAndInDepthAnalysis section={section} />
-                  )}
-                  {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
-                </div>
-              );
-            })}
+          {sourceSections.map(({ section, key, isNews }, idx, arr) => (
+            <div key={`${key}-${idx}`}>
+              {isNews ? (
+                <FormatNewsSentimentSourcesAndInDepthAnalysis
+                  section={section as Section}
+                />
+              ) : (
+                <FormatSectionSourcesAndInDepthAnalysis
+                  section={section as Section}
+                />
+              )}
+              {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
+            </div>
+          ))}
         </span>
       </div>
     </>
@@ -256,10 +359,7 @@ function FormatSectionSourcesAndInDepthAnalysis({
   }
 
   return (
-    <div
-      id={`refs-${anchorId}`}
-      className="space-y-2 text-sm"
-    >
+    <div id={`refs-${anchorId}`} className="space-y-2 text-sm">
       <h6>
         <a
           className="text-primary font-medium underline underline-offset-4"
@@ -378,10 +478,7 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
   };
 
   return (
-    <div
-      id={`refs-${anchorId}`}
-      className="space-y-2 text-sm"
-    >
+    <div id={`refs-${anchorId}`} className="space-y-2 text-sm">
       <h6>
         <a
           className="text-primary font-medium underline underline-offset-4"
@@ -394,64 +491,6 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
         <MarkdownText>{`<details open><summary>In-depth Analysis</summary>\n\n${in_depth_analysis}\n</details>\n`}</MarkdownText>
       )}
       {renderNewsSources()}
-    </div>
-  );
-}
-
-function FormatTechnicalSection({
-  section,
-  returns_line_chart,
-  seqNumber,
-}: {
-  section: Section;
-  returns_line_chart?: Record<string, any>;
-  seqNumber?: number;
-}) {
-  if (!section) {
-    return null;
-  }
-
-  const formatter = new SectionFormatter(section, seqNumber);
-  const title = formatter.getTitleMarkdown();
-  const content = `${formatter.getContentMarkdown()}\n---\n`;
-  const anchorId = formatter.getAnchorId();
-
-  // Check if sources is NewsSourcesContent format
-  const isNewsSourcesContent = (
-    sources: any,
-  ): sources is NewsSourcesContent => {
-    return (
-      sources &&
-      typeof sources === "object" &&
-      "content" in sources &&
-      Array.isArray(sources.content)
-    );
-  };
-
-  const hasNewsSources =
-    section.sources && isNewsSourcesContent(section.sources);
-  const hasRefs = Boolean(
-    section.in_depth_analysis || formatter.getSource() || hasNewsSources,
-  );
-
-  return (
-    <div className="space-y-4">
-      <div id={anchorId} />
-      <MarkdownText>{title}</MarkdownText>
-      {hasRefs && (
-        <div className="text-xs">
-          <a
-            className="text-primary font-medium underline underline-offset-4"
-            href={`#refs-${anchorId}`}
-          >
-            Sources & In-depth Analysis
-          </a>
-        </div>
-      )}
-      {returns_line_chart && (
-        <ClientComponentsRegistry.line_chart {...returns_line_chart} />
-      )}
-      <MarkdownText>{content}</MarkdownText>
     </div>
   );
 }
