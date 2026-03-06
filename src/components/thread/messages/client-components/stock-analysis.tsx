@@ -68,6 +68,7 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
         {data.technical_analysis.returns_chart && (
           <LineChart
             {...(data.technical_analysis.returns_chart as Record<string, any>)}
+            className="!min-w-0"
           />
         )}
         {data.technical_analysis.drawdown_chart && (
@@ -100,6 +101,7 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
         {data.technical_analysis.rolling_sortino_chart && (
           <LineChart
             {...(data.technical_analysis.rolling_sortino_chart as Record<string, any>)}
+            className="!min-w-0"
           />
         )}
         {data.technical_analysis.risk_metrics && (
