@@ -77,17 +77,17 @@ export default function StockAnalysisReportMessageComponent({
             seqNumber={seqNumber}
           />
           {data.technical_analysis.returns_chart && (
-            <LineChart
-              {...(data.technical_analysis.returns_chart as any)}
-              disableAnimation
-            />
+            <div className="max-w-3xl">
+              <LineChart
+                {...(data.technical_analysis.returns_chart as any)}
+                disableAnimation
+              />
+            </div>
           )}
           {data.technical_analysis.drawdown_chart && (
             <DrawdownChart
               data={data.technical_analysis.drawdown_chart as any}
-              returnsData={
-                (data.technical_analysis.returns_chart as any)?.data
-              }
+              returnsData={(data.technical_analysis.returns_chart as any)?.data}
               disableAnimation
             />
           )}
@@ -100,15 +100,19 @@ export default function StockAnalysisReportMessageComponent({
               />
             )}
           {data.technical_analysis.rolling_sortino_chart && (
-            <LineChart
-              {...(data.technical_analysis.rolling_sortino_chart as any)}
-              disableAnimation
-            />
+            <div className="max-w-3xl">
+              <LineChart
+                {...(data.technical_analysis.rolling_sortino_chart as any)}
+                disableAnimation
+              />
+            </div>
           )}
           {data.technical_analysis.risk_metrics && (
-            <RiskMetricsTable
-              data={data.technical_analysis.risk_metrics as any}
-            />
+            <div className="report-native-table max-w-3xl">
+              <RiskMetricsTable
+                data={data.technical_analysis.risk_metrics as any}
+              />
+            </div>
           )}
         </>
       ),
@@ -183,9 +187,7 @@ export default function StockAnalysisReportMessageComponent({
               section={data.market_sentiment.corporate_actions as Section}
             />
           )}
-          <FormatSection
-            section={data.market_sentiment.shareholding_pattern}
-          />
+          <FormatSection section={data.market_sentiment.shareholding_pattern} />
         </>
       ),
     },
@@ -196,7 +198,10 @@ export default function StockAnalysisReportMessageComponent({
         const fa = data.finsharpe_analysis as any;
         return (
           <>
-            <FormatSection section={fa.analysis} seqNumber={seqNumber} />
+            <FormatSection
+              section={fa.analysis}
+              seqNumber={seqNumber}
+            />
             {(() => {
               const radarSections = (fa.sections || []).filter(
                 (s: ScoreSection) => s.chart_type === "radar",
@@ -216,17 +221,14 @@ export default function StockAnalysisReportMessageComponent({
                   {gaugeSections.length > 0 && (
                     <div className="grid grid-cols-2 gap-4">
                       {gaugeSections.map((s: ScoreSection, idx: number) => {
-                        const isRisk = s.title
-                          ?.toLowerCase()
-                          .includes("risk");
-                        const PieComp = isRisk
-                          ? RiskScorePie
-                          : OverallScorePie;
+                        const isRisk = s.title?.toLowerCase().includes("risk");
+                        const PieComp = isRisk ? RiskScorePie : OverallScorePie;
                         return (
-                          <div key={`gauge-${idx}`} className="space-y-2">
-                            <h5 className="text-sm font-semibold">
-                              {s.title}
-                            </h5>
+                          <div
+                            key={`gauge-${idx}`}
+                            className="space-y-2"
+                          >
+                            <h5 className="text-sm font-semibold">{s.title}</h5>
                             {s.summary && (
                               <p className="text-xs text-gray-500">
                                 {s.summary}
@@ -382,7 +384,10 @@ function FormatSectionSourcesAndInDepthAnalysis({
   }
 
   return (
-    <div id={`refs-${anchorId}`} className="space-y-2 text-sm">
+    <div
+      id={`refs-${anchorId}`}
+      className="space-y-2 text-sm"
+    >
       <h6>
         <a
           className="text-primary font-medium underline underline-offset-4"
@@ -501,7 +506,10 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
   };
 
   return (
-    <div id={`refs-${anchorId}`} className="space-y-2 text-sm">
+    <div
+      id={`refs-${anchorId}`}
+      className="space-y-2 text-sm"
+    >
       <h6>
         <a
           className="text-primary font-medium underline underline-offset-4"

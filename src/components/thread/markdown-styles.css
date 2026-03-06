@@ -71,18 +71,18 @@
   transform: rotate(90deg);
 }
 
-/* Stock report compact table styles */
-.report-compact-table table {
+/* Stock report compact table styles — skip .report-native-table descendants */
+.report-compact-table table:not(.report-native-table table) {
   font-size: 8px !important;
   margin: 0.5rem 0 !important;
 }
 
-.report-compact-table th {
+.report-compact-table th:not(.report-native-table th) {
   padding: 2px 4px !important;
   font-size: 8px !important;
 }
 
-.report-compact-table td {
+.report-compact-table td:not(.report-native-table td) {
   padding: 2px 4px !important;
   font-size: 8px !important;
 }
