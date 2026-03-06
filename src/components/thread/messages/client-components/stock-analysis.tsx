@@ -1,15 +1,42 @@
 "use client";
+
+import type {
+  FundamentalChartData,
+  PeerChartData,
+  ScoreSection,
+  StockAnalysis,
+} from "@/api/generated/report-apis/models";
+import FinSharpeScoresRadarChart from "@/components/pdfs_templates/pf-report/FinSharpeScoresRadarChart";
+import { MonthlyReturnsHeatmapTables } from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
 import { Button } from "@/components/ui/button";
 import { SectionFormatter } from "@/lib/section-formatter";
-import { Section, StockAnalysis } from "@/types/stock-analysis";
+import type { MonthlyReturnsHeatmapData } from "@/types/pf-analysis";
+import type { Section } from "@/types/stock-analysis";
+import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
+import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
 import { ArrowUp } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useRef } from "react";
 import { MarkdownText } from "../../markdown-text";
+import DrawdownChart from "./DrawdownChart";
+import FundamentalChart from "./FundamentalChart";
 import { FormatNewsSentiment } from "./format-news-sentiment";
-import ClientComponentsRegistry from "./registry";
+import LineChart from "./LineChart";
+import PeerComparisonChart from "./PeerComparisonChart";
+import RiskMetricsTable from "./RiskMetricsTable";
 import SimulationChart from "./SimulationChart";
 import { StockAnalysisDownloadDialog } from "./stock-analysis-download-dialog";
+
+// Full class names so Tailwind JIT can detect them
+const ACCENT_BORDER: Record<string, string> = {
+  indigo: "border-l-indigo-500",
+  rose: "border-l-rose-500",
+  amber: "border-l-amber-500",
+  cyan: "border-l-cyan-500",
+  emerald: "border-l-emerald-500",
+  violet: "border-l-violet-500",
+  slate: "border-l-slate-400",
+};
 
 export default function StockAnalysisComponent(analysis: StockAnalysis) {
   const [threadId] = useQueryState("threadId");
@@ -17,22 +44,183 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
   const topRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={topRef}>
-      <FormatSection section={data.business_overview} seqNumber={1} />
-      <FormatSection section={data.management_strategy} seqNumber={2} />
-      <FormatSection section={data.sector_outlook} seqNumber={3} />
-      <FormatTechnicalAnalysis section={data.technical_analysis} seqNumber={4} />
-      <FormatSection section={data.fundamental_analysis} seqNumber={5} />
-      {/* <FormatSection section={data.stats_analysis} /> */}
-      <FormatSection section={data.peer_comparison} seqNumber={6} />
-      <FormatSection section={data.conference_call_analysis} seqNumber={7} />
-      <FormatSection section={data.shareholding_pattern} seqNumber={8} />
-      <FormatSection section={data.corporate_actions} seqNumber={9} />
-      <FormatNewsSentiment section={data.news_sentiment} seqNumber={10} />
-      <FormatSection section={data.red_flags} seqNumber={11} />
-      <FormatSection section={data.summary} seqNumber={12} />
-      <FormatSection section={data.finsharpe_scores} seqNumber={13} />
-      {data.simulation_chart && <SimulationChart {...data.simulation_chart} />}
+    <div ref={topRef} className="space-y-6">
+      {/* 1. Company Overview */}
+      <SectionCard accent="indigo">
+        <FormatSection
+          section={data.company_overview.business_overview}
+          seqNumber={1}
+        />
+        {data.company_overview.management_strategy && (
+          <FormatSection
+            section={data.company_overview.management_strategy as Section}
+          />
+        )}
+        <FormatSection section={data.company_overview.sector_outlook} />
+      </SectionCard>
+
+      {/* 2. Technical Analysis */}
+      <SectionCard accent="rose">
+        <FormatSection
+          section={data.technical_analysis.analysis}
+          seqNumber={2}
+        />
+        {data.technical_analysis.returns_chart && (
+          <LineChart
+            {...(data.technical_analysis.returns_chart as Record<string, any>)}
+          />
+        )}
+        {data.technical_analysis.drawdown_chart && (
+          <DrawdownChart
+            data={data.technical_analysis.drawdown_chart as any}
+          />
+        )}
+        {data.technical_analysis.monthly_returns && (
+          <div className="space-y-2">
+            {(data.technical_analysis.monthly_returns as any)?.heatmap && (
+              <div className="overflow-x-auto">
+                <MonthlyReturnsHeatmapTables
+                  heatmap={
+                    (data.technical_analysis.monthly_returns as any)
+                      .heatmap as MonthlyReturnsHeatmapData
+                  }
+                />
+              </div>
+            )}
+            {(data.technical_analysis.monthly_returns as any)?.summary && (
+              <MarkdownText>
+                {(data.technical_analysis.monthly_returns as any).summary}
+              </MarkdownText>
+            )}
+          </div>
+        )}
+        {data.technical_analysis.rolling_sortino_chart && (
+          <LineChart
+            {...(data.technical_analysis.rolling_sortino_chart as Record<string, any>)}
+          />
+        )}
+        {data.technical_analysis.risk_metrics && (
+          <RiskMetricsTable
+            data={
+              data.technical_analysis.risk_metrics as Record<string, unknown>[]
+            }
+          />
+        )}
+      </SectionCard>
+
+      {/* 3. Fundamental Analysis */}
+      <SectionCard accent="amber">
+        <FormatSection
+          section={data.fundamental_analysis.analysis}
+          seqNumber={3}
+        />
+        {data.fundamental_analysis.revenue_profit_chart && (
+          <FundamentalChart
+            data={
+              data.fundamental_analysis
+                .revenue_profit_chart as FundamentalChartData
+            }
+          />
+        )}
+        {data.fundamental_analysis.margin_chart && (
+          <FundamentalChart
+            data={
+              data.fundamental_analysis.margin_chart as FundamentalChartData
+            }
+          />
+        )}
+      </SectionCard>
+
+      {/* 4. Peer Comparison */}
+      <SectionCard accent="cyan">
+        <FormatSection
+          section={data.peer_comparison.analysis}
+          seqNumber={4}
+        />
+        {data.peer_comparison.valuation_chart && (
+          <PeerComparisonChart
+            data={data.peer_comparison.valuation_chart as PeerChartData}
+          />
+        )}
+        {data.peer_comparison.profitability_chart && (
+          <PeerComparisonChart
+            data={data.peer_comparison.profitability_chart as PeerChartData}
+          />
+        )}
+      </SectionCard>
+
+      {/* 5. Market Sentiment */}
+      <SectionCard accent="emerald">
+        <FormatNewsSentiment
+          section={data.market_sentiment.news_sentiment}
+          seqNumber={5}
+        />
+        {data.market_sentiment.conference_call && (
+          <FormatSection
+            section={data.market_sentiment.conference_call as Section}
+          />
+        )}
+        {data.market_sentiment.corporate_actions && (
+          <FormatSection
+            section={data.market_sentiment.corporate_actions as Section}
+          />
+        )}
+        <FormatSection section={data.market_sentiment.shareholding_pattern} />
+      </SectionCard>
+
+      {/* 6. FinSharpe Analysis */}
+      {data.finsharpe_analysis && (
+        <SectionCard accent="violet">
+          <FormatSection
+            section={(data.finsharpe_analysis as any).analysis}
+            seqNumber={6}
+          />
+          {(data.finsharpe_analysis as any).sections?.map(
+            (scoreSection: ScoreSection, idx: number) => {
+              if (scoreSection.chart_type === "radar") {
+                return (
+                  <FinSharpeScoresRadarChart
+                    key={idx}
+                    data={scoreSection.scores_comparison}
+                    className="mx-auto h-80 max-w-lg"
+                  />
+                );
+              }
+              if (scoreSection.chart_type === "gauge") {
+                const isRisk = scoreSection.title
+                  ?.toLowerCase()
+                  .includes("risk");
+                const PieComponent = isRisk ? RiskScorePie : OverallScorePie;
+                return (
+                  <div key={idx} className="space-y-2">
+                    <h5 className="text-sm font-semibold text-slate-700">
+                      {scoreSection.title}
+                    </h5>
+                    {scoreSection.summary && (
+                      <p className="text-xs text-slate-500">
+                        {scoreSection.summary}
+                      </p>
+                    )}
+                    <PieComponent data={scoreSection.chart_data} />
+                  </div>
+                );
+              }
+              return null;
+            },
+          )}
+        </SectionCard>
+      )}
+
+      {/* 7. Outlook */}
+      <SectionCard accent="slate">
+        <FormatSection section={data.outlook.summary} seqNumber={7} />
+        <FormatSection section={data.outlook.red_flags} />
+        {data.outlook.simulation_chart && (
+          <SimulationChart {...(data.outlook.simulation_chart as any)} />
+        )}
+      </SectionCard>
+
+      {/* Footer actions */}
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -56,45 +244,35 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
   );
 }
 
-export function FormatSection({ section, seqNumber }: { section: Section; seqNumber?: number }) {
-  if (!section) {
-    return null;
-  }
+/* ─── Helper components ──────────────────────────────────────────── */
 
-  const formatter = new SectionFormatter(section, seqNumber);
-  return <MarkdownText>{formatter.getMarkdown()}</MarkdownText>;
+function SectionCard({
+  accent = "indigo",
+  children,
+  className = "",
+}: {
+  accent?: keyof typeof ACCENT_BORDER;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`space-y-4 rounded-xl border border-l-4 border-slate-200 ${ACCENT_BORDER[accent]} bg-white p-5 shadow-sm ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
 
-export function FormatTechnicalAnalysis({
+function FormatSection({
   section,
-  returns_line_chart,
   seqNumber,
 }: {
   section: Section;
-  returns_line_chart?: Record<string, any>;
   seqNumber?: number;
 }) {
-  if (!section) {
-    return null;
-  }
+  if (!section) return null;
 
   const formatter = new SectionFormatter(section, seqNumber);
-  const title = formatter.getTitleMarkdown();
-  const content = formatter.getContentMarkdown();
-  const in_depth_analysis = formatter.getInDepthAnalysisMarkdown();
-  const sources = formatter.getSourcesMarkdown();
-
-  return (
-    <div>
-      <MarkdownText>{title}</MarkdownText>
-      {returns_line_chart && (
-        <div className="space-y-4 pt-4">
-          <ClientComponentsRegistry.line_chart {...returns_line_chart} />
-        </div>
-      )}
-      <MarkdownText>{content}</MarkdownText>
-      <MarkdownText>{in_depth_analysis}</MarkdownText>
-      <MarkdownText>{sources}</MarkdownText>
-    </div>
-  );
+  return <MarkdownText>{formatter.getMarkdown()}</MarkdownText>;
 }
