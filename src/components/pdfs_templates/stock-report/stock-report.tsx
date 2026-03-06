@@ -77,12 +77,11 @@ export default function StockAnalysisReportMessageComponent({
             seqNumber={seqNumber}
           />
           {data.technical_analysis.returns_chart && (
-            <div className="max-w-3xl">
-              <LineChart
-                {...(data.technical_analysis.returns_chart as any)}
-                disableAnimation
-              />
-            </div>
+            <LineChart
+              {...(data.technical_analysis.returns_chart as any)}
+              className="!min-w-0"
+              disableAnimation
+            />
           )}
           {data.technical_analysis.drawdown_chart && (
             <DrawdownChart
@@ -100,12 +99,11 @@ export default function StockAnalysisReportMessageComponent({
               />
             )}
           {data.technical_analysis.rolling_sortino_chart && (
-            <div className="max-w-3xl">
-              <LineChart
-                {...(data.technical_analysis.rolling_sortino_chart as any)}
-                disableAnimation
-              />
-            </div>
+            <LineChart
+              {...(data.technical_analysis.rolling_sortino_chart as any)}
+              className="!min-w-0"
+              disableAnimation
+            />
           )}
           {data.technical_analysis.risk_metrics && (
             <div className="report-native-table max-w-3xl">
