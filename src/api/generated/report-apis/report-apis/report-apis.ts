@@ -18,7 +18,7 @@ import type {
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { PFAnalysis } from ".././models";
+import type { PFAnalysis, StockAnalysis } from ".././models";
 
 /**
  * Return PFAnalysis schema for type generation.
@@ -245,6 +245,205 @@ export function useGetPortfolioAnalysisApiReportsPortfolioAnalysisGet<
 } {
   const queryOptions =
     getGetPortfolioAnalysisApiReportsPortfolioAnalysisGetQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Return StockAnalysis schema for type generation.
+ * @summary Get Stock Analysis
+ */
+export type getStockAnalysisApiReportsStockAnalysisGetResponse200 = {
+  data: StockAnalysis;
+  status: 200;
+};
+
+export type getStockAnalysisApiReportsStockAnalysisGetResponseSuccess =
+  getStockAnalysisApiReportsStockAnalysisGetResponse200 & {
+    headers: Headers;
+  };
+export type getStockAnalysisApiReportsStockAnalysisGetResponse =
+  getStockAnalysisApiReportsStockAnalysisGetResponseSuccess;
+
+export const getGetStockAnalysisApiReportsStockAnalysisGetUrl = () => {
+  return `/api/utilities/reports/stock-analysis`;
+};
+
+export const getStockAnalysisApiReportsStockAnalysisGet = async (
+  options?: RequestInit,
+): Promise<getStockAnalysisApiReportsStockAnalysisGetResponse> => {
+  const res = await fetch(getGetStockAnalysisApiReportsStockAnalysisGetUrl(), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getStockAnalysisApiReportsStockAnalysisGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getStockAnalysisApiReportsStockAnalysisGetResponse;
+};
+
+export const getGetStockAnalysisApiReportsStockAnalysisGetQueryKey = () => {
+  return [`/api/utilities/reports/stock-analysis`] as const;
+};
+
+export const getGetStockAnalysisApiReportsStockAnalysisGetQueryOptions = <
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+      TError,
+      TData
+    >
+  >;
+  fetch?: RequestInit;
+}) => {
+  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetStockAnalysisApiReportsStockAnalysisGetQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+  > = ({ signal }) =>
+    getStockAnalysisApiReportsStockAnalysisGet({ signal, ...fetchOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetStockAnalysisApiReportsStockAnalysisGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+>;
+export type GetStockAnalysisApiReportsStockAnalysisGetQueryError = unknown;
+
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+          >,
+          TError,
+          Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+          >,
+          TError,
+          Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Stock Analysis
+ */
+
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions =
+    getGetStockAnalysisApiReportsStockAnalysisGetQueryOptions(options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,
