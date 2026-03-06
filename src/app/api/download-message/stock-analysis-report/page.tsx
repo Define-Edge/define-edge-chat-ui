@@ -55,7 +55,7 @@ export default async function StockAnalysisReportPage({ searchParams }: Props) {
             return (
               <StockAnalysisReportMessageComponent
                 key={uiComponent.id}
-                analysis={uiComponent.props as StockAnalysis}
+                analysis={uiComponent.props as unknown as StockAnalysis}
                 selectedSections={selectedSections}
                 personalComment={personalComment}
               />

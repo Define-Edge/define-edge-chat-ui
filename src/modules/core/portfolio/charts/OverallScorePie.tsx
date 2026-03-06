@@ -1,3 +1,5 @@
+"use client";
+
 import ScoresLegend from "@/components/charts/ScoresLegend";
 import { ChartInfoCtxProvider } from "../context/ChartInfo.context";
 import useScoreColor from "../hooks/useScoreColor";
