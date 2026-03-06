@@ -73,6 +73,9 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
         {data.technical_analysis.drawdown_chart && (
           <DrawdownChart
             data={data.technical_analysis.drawdown_chart as any}
+            returnsData={
+              (data.technical_analysis.returns_chart as any)?.data
+            }
           />
         )}
         {data.technical_analysis.monthly_returns && (
@@ -175,39 +178,64 @@ export default function StockAnalysisComponent(analysis: StockAnalysis) {
             section={(data.finsharpe_analysis as any).analysis}
             seqNumber={6}
           />
-          {(data.finsharpe_analysis as any).sections?.map(
-            (scoreSection: ScoreSection, idx: number) => {
-              if (scoreSection.chart_type === "radar") {
-                return (
+          {(() => {
+            const sections = (data.finsharpe_analysis as any).sections || [];
+            const radarSections = sections.filter(
+              (s: ScoreSection) => s.chart_type === "radar",
+            );
+            const gaugeSections = sections.filter(
+              (s: ScoreSection) =>
+                s.chart_type === "gauge" && s.chart_data?.length,
+            );
+            return (
+              <>
+                {radarSections.map((s: ScoreSection, idx: number) => (
                   <FinSharpeScoresRadarChart
-                    key={idx}
-                    data={scoreSection.scores_comparison}
+                    key={`radar-${idx}`}
+                    data={s.scores_comparison}
                     className="mx-auto h-80 max-w-lg"
                   />
-                );
-              }
-              if (scoreSection.chart_type === "gauge") {
-                const isRisk = scoreSection.title
-                  ?.toLowerCase()
-                  .includes("risk");
-                const PieComponent = isRisk ? RiskScorePie : OverallScorePie;
-                return (
-                  <div key={idx} className="space-y-2">
-                    <h5 className="text-sm font-semibold text-slate-700">
-                      {scoreSection.title}
-                    </h5>
-                    {scoreSection.summary && (
-                      <p className="text-xs text-slate-500">
-                        {scoreSection.summary}
-                      </p>
-                    )}
-                    <PieComponent data={scoreSection.chart_data} />
+                ))}
+                {gaugeSections.length > 0 && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {gaugeSections.map((s: ScoreSection, idx: number) => {
+                      const isRisk = s.title
+                        ?.toLowerCase()
+                        .includes("risk");
+                      const PieComponent = isRisk
+                        ? RiskScorePie
+                        : OverallScorePie;
+                      return (
+                        <div
+                          key={`gauge-${idx}`}
+                          className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                        >
+                          <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+                            <h4 className="text-sm font-semibold text-slate-800">
+                              {s.title}
+                            </h4>
+                          </div>
+                          <div className="p-4">
+                            <div className="relative h-[28vh] w-full sm:h-[50vh] sm:max-h-[350px]">
+                              <PieComponent
+                                data={s.chart_data}
+                                shouldRenderActiveShapeLabel={true}
+                              />
+                            </div>
+                            {s.summary && (
+                              <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                                {s.summary}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              }
-              return null;
-            },
-          )}
+                )}
+              </>
+            );
+          })()}
         </SectionCard>
       )}
 

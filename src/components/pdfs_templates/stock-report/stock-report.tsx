@@ -85,6 +85,9 @@ export default function StockAnalysisReportMessageComponent({
           {data.technical_analysis.drawdown_chart && (
             <DrawdownChart
               data={data.technical_analysis.drawdown_chart as any}
+              returnsData={
+                (data.technical_analysis.returns_chart as any)?.data
+              }
               disableAnimation
             />
           )}
@@ -194,30 +197,50 @@ export default function StockAnalysisReportMessageComponent({
         return (
           <>
             <FormatSection section={fa.analysis} seqNumber={seqNumber} />
-            {fa.sections?.map((s: ScoreSection, idx: number) => {
-              if (s.chart_type === "radar") {
-                return (
-                  <FinSharpeScoresRadarChart
-                    key={idx}
-                    data={s.scores_comparison}
-                  />
-                );
-              }
-              if (s.chart_type === "gauge") {
-                const isRisk = s.title?.toLowerCase().includes("risk");
-                const PieComp = isRisk ? RiskScorePie : OverallScorePie;
-                return (
-                  <div key={idx} className="space-y-2">
-                    <h5 className="text-sm font-semibold">{s.title}</h5>
-                    {s.summary && (
-                      <p className="text-xs text-gray-500">{s.summary}</p>
-                    )}
-                    <PieComp data={s.chart_data} />
-                  </div>
-                );
-              }
-              return null;
-            })}
+            {(() => {
+              const radarSections = (fa.sections || []).filter(
+                (s: ScoreSection) => s.chart_type === "radar",
+              );
+              const gaugeSections = (fa.sections || []).filter(
+                (s: ScoreSection) =>
+                  s.chart_type === "gauge" && s.chart_data?.length,
+              );
+              return (
+                <>
+                  {radarSections.map((s: ScoreSection, idx: number) => (
+                    <FinSharpeScoresRadarChart
+                      key={`radar-${idx}`}
+                      data={s.scores_comparison}
+                    />
+                  ))}
+                  {gaugeSections.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {gaugeSections.map((s: ScoreSection, idx: number) => {
+                        const isRisk = s.title
+                          ?.toLowerCase()
+                          .includes("risk");
+                        const PieComp = isRisk
+                          ? RiskScorePie
+                          : OverallScorePie;
+                        return (
+                          <div key={`gauge-${idx}`} className="space-y-2">
+                            <h5 className="text-sm font-semibold">
+                              {s.title}
+                            </h5>
+                            {s.summary && (
+                              <p className="text-xs text-gray-500">
+                                {s.summary}
+                              </p>
+                            )}
+                            <PieComp data={s.chart_data} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </>
         );
       },
