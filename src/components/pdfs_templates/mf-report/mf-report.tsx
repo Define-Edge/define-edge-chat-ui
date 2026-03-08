@@ -18,7 +18,7 @@ import DrawdownChart from "@/components/thread/messages/client-components/Drawdo
 import LineChart from "@/components/thread/messages/client-components/LineChart";
 import PeerComparisonChart from "@/components/thread/messages/client-components/PeerComparisonChart";
 import type { MonthlyReturnsHeatmapData } from "@/types/pf-analysis";
-import PdfPieChart from "./PdfPieChart";
+import DistributionPieChart from "@/components/thread/messages/client-components/DistributionPieChart";
 
 export default function MfAnalysisReportMessageComponent({
   analysis,
@@ -40,7 +40,7 @@ export default function MfAnalysisReportMessageComponent({
     <>
       <MfWelcome analysis={analysis as any} />
       <div
-        className="mx-12 max-w-3xl space-y-8 pt-12"
+        className="report-compact-table mx-12 max-w-3xl space-y-8 pt-12"
         style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
       >
         {/* 1. Fund Overview */}
@@ -134,9 +134,9 @@ export default function MfAnalysisReportMessageComponent({
                 data={data.portfolio.top_holdings_chart as PeerChartData}
               />
             )}
-            <FormatSection section={data.portfolio.sector_distribution} />
+            {/* <FormatSection section={data.portfolio.sector_distribution} /> */}
             {data.portfolio.sector_chart && (
-              <PdfPieChart
+              <DistributionPieChart
                 title="Sector Distribution"
                 data={
                   data.portfolio.sector_chart as {
@@ -145,15 +145,19 @@ export default function MfAnalysisReportMessageComponent({
                   }[]
                 }
                 useGrouping
+                disableAnimation
+                className="flex flex-row items-center gap-4"
               />
             )}
             {data.portfolio.mcap_chart && (
-              <PdfPieChart
+              <DistributionPieChart
                 title="Market Cap Distribution"
                 data={
                   data.portfolio.mcap_chart as { name: string; value: number }[]
                 }
                 useSizeColors
+                disableAnimation
+                className="flex flex-row items-center gap-4"
               />
             )}
           </>

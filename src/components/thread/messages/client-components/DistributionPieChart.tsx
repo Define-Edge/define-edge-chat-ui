@@ -4,16 +4,20 @@ import { PIE_COLORS, SIZE_COLORS } from "@/configs/chart-colors";
 import groupSmallFragments from "@/lib/groupSmallFragments";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-export default function PdfPieChart({
+export default function DistributionPieChart({
   title,
   data,
   useGrouping = false,
   useSizeColors = false,
+  disableAnimation = false,
+  className,
 }: {
   title: string;
   data: { name: string; value: number }[];
   useGrouping?: boolean;
   useSizeColors?: boolean;
+  disableAnimation?: boolean;
+  className?: string;
 }) {
   const processed = useGrouping
     ? groupSmallFragments(data, {
@@ -41,8 +45,8 @@ export default function PdfPieChart({
         <h4 className="text-sm font-semibold text-slate-800">{title}</h4>
       </div>
       <div className="p-5">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center">
-          <div className="h-48 shrink-0 md:w-48">
+        <div className={className ?? "flex flex-col gap-4 md:flex-row md:items-center"}>
+          <div className="h-48 w-48 shrink-0">
             <ResponsiveContainer
               width="100%"
               height="100%"
@@ -56,7 +60,7 @@ export default function PdfPieChart({
                   outerRadius={80}
                   paddingAngle={2}
                   dataKey="value"
-                  isAnimationActive={false}
+                  isAnimationActive={!disableAnimation}
                 >
                   {processed.map((entry, index) => (
                     <Cell
