@@ -16,6 +16,7 @@ import {
 
 type Props = {
   data: PeerChartData;
+  labelKey?: string;
   className?: string;
   disableAnimation?: boolean;
 };
@@ -59,6 +60,7 @@ function hasValidData(
 
 export default function PeerComparisonChart({
   data: chartData,
+  labelKey = "company",
   className,
   disableAnimation = false,
 }: Props) {
@@ -82,7 +84,7 @@ export default function PeerComparisonChart({
         <BarChart data={data as Record<string, any>[]}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis
-            dataKey="company"
+            dataKey={labelKey}
             tick={{ fontSize: 10 }}
             tickFormatter={(v) => truncateCompany(v)}
             interval={0}
@@ -107,7 +109,7 @@ export default function PeerComparisonChart({
               isAnimationActive={!disableAnimation}
             >
               {data.map((entry, idx) => {
-                const isHighlighted = (entry as Record<string, any>).company
+                const isHighlighted = (entry as Record<string, any>)[labelKey]
                   ?.toUpperCase()
                   .includes(highlighted_company?.toUpperCase());
                 return (

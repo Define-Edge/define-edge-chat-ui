@@ -24,19 +24,13 @@ type MfAnalysisSection = {
 };
 
 const MF_SECTIONS: MfAnalysisSection[] = [
-  { key: "scheme_overview", label: "Scheme Overview" },
-  { key: "performance_analysis", label: "Performance Analysis" },
-  { key: "risk_metrics", label: "Risk Metrics" },
-  { key: "asset_allocation", label: "Asset Allocation" },
-  { key: "portfolio_holdings", label: "Portfolio Holdings" },
-  { key: "sector_distribution", label: "Sector Distribution" },
-  { key: "fund_manager_profile", label: "Fund Manager Profile" },
-  { key: "cost_analysis", label: "Cost Analysis" },
+  { key: "fund_overview", label: "Fund Overview" },
+  { key: "performance", label: "Performance" },
+  { key: "ratios", label: "Ratios" },
+  { key: "portfolio", label: "Portfolio" },
   { key: "peer_comparison", label: "Peer Comparison" },
-  { key: "valuation_metrics", label: "Valuation Metrics" },
-  { key: "conclusion", label: "Conclusion" },
-  { key: "summary", label: "Summary" },
-  { key: "finsharpe_scores", label: "FinSharpe Scores" },
+  { key: "finsharpe_analysis", label: "FinSharpe Analysis" },
+  { key: "outlook", label: "Outlook" },
 ];
 
 interface MfAnalysisDownloadDialogProps {
@@ -52,7 +46,7 @@ export function MfAnalysisDownloadDialog({
 }: MfAnalysisDownloadDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>(
-    MF_SECTIONS.map((s) => s.key)
+    MF_SECTIONS.map((s) => s.key),
   );
   const [personalComment, setPersonalComment] = useState("");
 
@@ -75,7 +69,7 @@ export function MfAnalysisDownloadDialog({
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `Failed to generate PDF: ${response.statusText}${errorText ? ` - ${errorText}` : ""}`
+          `Failed to generate PDF: ${response.statusText}${errorText ? ` - ${errorText}` : ""}`,
         );
       }
 
@@ -95,7 +89,8 @@ export function MfAnalysisDownloadDialog({
     onError: (error: Error) => {
       console.error("PDF generation error:", error);
       toast.error("Failed to generate PDF report", {
-        description: error.message || "An unexpected error occurred. Please try again.",
+        description:
+          error.message || "An unexpected error occurred. Please try again.",
       });
     },
   });
@@ -104,7 +99,7 @@ export function MfAnalysisDownloadDialog({
     setSelectedSections((prev) =>
       prev.includes(sectionKey)
         ? prev.filter((key) => key !== sectionKey)
-        : [...prev, sectionKey]
+        : [...prev, sectionKey],
     );
   };
 
@@ -120,7 +115,10 @@ export function MfAnalysisDownloadDialog({
   const isNoneSelected = selectedSections.length === 0;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">
           <DownloadIcon className="h-4 w-4" />
@@ -161,7 +159,10 @@ export function MfAnalysisDownloadDialog({
             <Label className="text-base font-semibold">Report Sections</Label>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {MF_SECTIONS.map((section) => (
-                <div key={section.key} className="flex items-center space-x-2">
+                <div
+                  key={section.key}
+                  className="flex items-center space-x-2"
+                >
                   <Checkbox
                     id={section.key}
                     checked={selectedSections.includes(section.key)}
@@ -169,7 +170,7 @@ export function MfAnalysisDownloadDialog({
                   />
                   <label
                     htmlFor={section.key}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     {section.label}
                   </label>
@@ -180,7 +181,10 @@ export function MfAnalysisDownloadDialog({
 
           {/* Personal Comment */}
           <div className="space-y-2">
-            <Label htmlFor="personal-comment" className="text-base font-semibold">
+            <Label
+              htmlFor="personal-comment"
+              className="text-base font-semibold"
+            >
               Personal Comment (Optional)
             </Label>
             <Textarea
