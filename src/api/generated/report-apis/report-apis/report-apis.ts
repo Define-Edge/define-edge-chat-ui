@@ -18,7 +18,7 @@ import type {
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { PFAnalysis } from ".././models";
+import type { MFAnalysis, PFAnalysis, StockAnalysis } from ".././models";
 
 /**
  * Return PFAnalysis schema for type generation.
@@ -245,6 +245,389 @@ export function useGetPortfolioAnalysisApiReportsPortfolioAnalysisGet<
 } {
   const queryOptions =
     getGetPortfolioAnalysisApiReportsPortfolioAnalysisGetQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Return StockAnalysis schema for type generation.
+ * @summary Get Stock Analysis
+ */
+export type getStockAnalysisApiReportsStockAnalysisGetResponse200 = {
+  data: StockAnalysis;
+  status: 200;
+};
+
+export type getStockAnalysisApiReportsStockAnalysisGetResponseSuccess =
+  getStockAnalysisApiReportsStockAnalysisGetResponse200 & {
+    headers: Headers;
+  };
+export type getStockAnalysisApiReportsStockAnalysisGetResponse =
+  getStockAnalysisApiReportsStockAnalysisGetResponseSuccess;
+
+export const getGetStockAnalysisApiReportsStockAnalysisGetUrl = () => {
+  return `/api/utilities/reports/stock-analysis`;
+};
+
+export const getStockAnalysisApiReportsStockAnalysisGet = async (
+  options?: RequestInit,
+): Promise<getStockAnalysisApiReportsStockAnalysisGetResponse> => {
+  const res = await fetch(getGetStockAnalysisApiReportsStockAnalysisGetUrl(), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getStockAnalysisApiReportsStockAnalysisGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getStockAnalysisApiReportsStockAnalysisGetResponse;
+};
+
+export const getGetStockAnalysisApiReportsStockAnalysisGetQueryKey = () => {
+  return [`/api/utilities/reports/stock-analysis`] as const;
+};
+
+export const getGetStockAnalysisApiReportsStockAnalysisGetQueryOptions = <
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+      TError,
+      TData
+    >
+  >;
+  fetch?: RequestInit;
+}) => {
+  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetStockAnalysisApiReportsStockAnalysisGetQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+  > = ({ signal }) =>
+    getStockAnalysisApiReportsStockAnalysisGet({ signal, ...fetchOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetStockAnalysisApiReportsStockAnalysisGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+>;
+export type GetStockAnalysisApiReportsStockAnalysisGetQueryError = unknown;
+
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+          >,
+          TError,
+          Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+          >,
+          TError,
+          Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Stock Analysis
+ */
+
+export function useGetStockAnalysisApiReportsStockAnalysisGet<
+  TData = Awaited<
+    ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>
+  >,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getStockAnalysisApiReportsStockAnalysisGet>>,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions =
+    getGetStockAnalysisApiReportsStockAnalysisGetQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Return MFAnalysis schema for type generation.
+ * @summary Get Mf Analysis
+ */
+export type getMfAnalysisApiReportsMfAnalysisGetResponse200 = {
+  data: MFAnalysis;
+  status: 200;
+};
+
+export type getMfAnalysisApiReportsMfAnalysisGetResponseSuccess =
+  getMfAnalysisApiReportsMfAnalysisGetResponse200 & {
+    headers: Headers;
+  };
+export type getMfAnalysisApiReportsMfAnalysisGetResponse =
+  getMfAnalysisApiReportsMfAnalysisGetResponseSuccess;
+
+export const getGetMfAnalysisApiReportsMfAnalysisGetUrl = () => {
+  return `/api/utilities/reports/mf-analysis`;
+};
+
+export const getMfAnalysisApiReportsMfAnalysisGet = async (
+  options?: RequestInit,
+): Promise<getMfAnalysisApiReportsMfAnalysisGetResponse> => {
+  const res = await fetch(getGetMfAnalysisApiReportsMfAnalysisGetUrl(), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getMfAnalysisApiReportsMfAnalysisGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getMfAnalysisApiReportsMfAnalysisGetResponse;
+};
+
+export const getGetMfAnalysisApiReportsMfAnalysisGetQueryKey = () => {
+  return [`/api/utilities/reports/mf-analysis`] as const;
+};
+
+export const getGetMfAnalysisApiReportsMfAnalysisGetQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+      TError,
+      TData
+    >
+  >;
+  fetch?: RequestInit;
+}) => {
+  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMfAnalysisApiReportsMfAnalysisGetQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>
+  > = ({ signal }) =>
+    getMfAnalysisApiReportsMfAnalysisGet({ signal, ...fetchOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetMfAnalysisApiReportsMfAnalysisGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>
+>;
+export type GetMfAnalysisApiReportsMfAnalysisGetQueryError = unknown;
+
+export function useGetMfAnalysisApiReportsMfAnalysisGet<
+  TData = Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+          TError,
+          Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetMfAnalysisApiReportsMfAnalysisGet<
+  TData = Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+          TError,
+          Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>
+        >,
+        "initialData"
+      >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetMfAnalysisApiReportsMfAnalysisGet<
+  TData = Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Mf Analysis
+ */
+
+export function useGetMfAnalysisApiReportsMfAnalysisGet<
+  TData = Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getMfAnalysisApiReportsMfAnalysisGet>>,
+        TError,
+        TData
+      >
+    >;
+    fetch?: RequestInit;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions =
+    getGetMfAnalysisApiReportsMfAnalysisGetQueryOptions(options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

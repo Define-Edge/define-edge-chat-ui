@@ -53,7 +53,7 @@ export default async function MfAnalysisReportPage({ searchParams }: Props) {
           return (
             <MfAnalysisReportMessageComponent
               key={uiComponent.id}
-              analysis={uiComponent.props as MfAnalysis}
+              analysis={uiComponent.props as unknown as MfAnalysis}
               selectedSections={selectedSections}
               personalComment={personalComment}
             />

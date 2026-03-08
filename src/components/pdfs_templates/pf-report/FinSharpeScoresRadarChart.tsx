@@ -1,3 +1,5 @@
+"use client";
+
 import type { FinSharpeScoreItem } from "@/api/generated/report-apis/models";
 import { a4PageSizes } from "@/configs/pdf-constants";
 import { useIsMobile } from "@/hooks/useIsMobile";
