@@ -31,6 +31,7 @@ type Props = {
   analysis?: Record<string, any> | string;
   report?: any;
   labels_colors_map?: Record<string, string>;
+  disableAnimation?: boolean;
 };
 
 const MetricPill = ({
@@ -167,6 +168,7 @@ const SimulationChart = React.memo(
     analysis,
     labels_colors_map,
     report,
+    disableAnimation,
   }: Props) {
     const isMobile = useIsMobile();
     const [hoveredLegendKey, setHoveredLegendKey] = React.useState<
@@ -412,40 +414,32 @@ const SimulationChart = React.memo(
             </div>
           )}
           {/* Chart */}
-          <motion.div
-            className="bg-gray-50"
-            initial={false}
-            animate={{ height: "auto" }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="relative p-3">
-              {/* Custom positioned legend */}
-              <div className="absolute top-5 left-24 z-10">
-                <CustomizedLegend
-                  payload={
-                    Array.isArray(data) && data.length > 0
-                      ? Object.keys(data[0])
-                          .filter(
-                            (k) => k !== "date" && !HIDDEN_LINES.includes(k),
-                          )
-                          .map((key) => ({
-                            value: key,
-                            dataKey: key,
-                            color: labels_colors_map?.[key] || "lightgray",
-                            type: "line",
-                          }))
-                      : []
-                  }
-                  verticalAlign="top"
-                  onItemEnter={(key) => setHoveredLegendKey(key)}
-                  onItemLeave={() => setHoveredLegendKey(null)}
-                />
-              </div>
+          {disableAnimation ? (
+            <div className="bg-gray-50">
+              <div className="relative p-3">
+                {/* Custom positioned legend */}
+                <div className="absolute top-5 left-24 z-10">
+                  <CustomizedLegend
+                    payload={
+                      Array.isArray(data) && data.length > 0
+                        ? Object.keys(data[0])
+                            .filter(
+                              (k) => k !== "date" && !HIDDEN_LINES.includes(k),
+                            )
+                            .map((key) => ({
+                              value: key,
+                              dataKey: key,
+                              color: labels_colors_map?.[key] || "lightgray",
+                              type: "line",
+                            }))
+                        : []
+                    }
+                    verticalAlign="top"
+                    onItemEnter={(key) => setHoveredLegendKey(key)}
+                    onItemLeave={() => setHoveredLegendKey(null)}
+                  />
+                </div>
 
-              <AnimatePresence
-                mode="wait"
-                initial={false}
-              >
                 <ResponsiveContainer
                   width="100%"
                   height={300}
@@ -515,7 +509,6 @@ const SimulationChart = React.memo(
                           let strokeDasharray = "";
                           if (key === "Mean") {
                             strokeWidth = 4;
-
                             strokeDasharray = "5 5";
                           }
 
@@ -536,31 +529,181 @@ const SimulationChart = React.memo(
                               strokeWidth={effectiveStrokeWidth}
                               activeDot={false}
                               strokeDasharray={strokeDasharray}
+                              isAnimationActive={false}
                             />
                           );
                         })}
                   </ReChartsLineChartComp>
                 </ResponsiveContainer>
-              </AnimatePresence>
-            </div>
-            {/* Analysis */}
-            {analysis && typeof analysis === "string" && (
-              <div className="markdown-content">
-                <details
-                  className="!m-0 rounded-lg border border-gray-200 bg-gray-50"
-                  open
-                >
-                  <summary className="flex cursor-pointer items-center font-medium hover:bg-gray-100">
-                    <ChevronRightIcon className="h-4 w-4 transition-transform duration-200" />
-                    Analysis
-                  </summary>
-                  <div className="p-3">
-                    <MarkdownText>{analysis}</MarkdownText>
-                  </div>
-                </details>
               </div>
-            )}
-          </motion.div>
+              {/* Analysis */}
+              {analysis && typeof analysis === "string" && (
+                <div className="markdown-content">
+                  <details
+                    className="!m-0 rounded-lg border border-gray-200 bg-gray-50"
+                    open
+                  >
+                    <summary className="flex cursor-pointer items-center font-medium hover:bg-gray-100">
+                      <ChevronRightIcon className="h-4 w-4 transition-transform duration-200" />
+                      Analysis
+                    </summary>
+                    <div className="p-3">
+                      <MarkdownText>{analysis}</MarkdownText>
+                    </div>
+                  </details>
+                </div>
+              )}
+            </div>
+          ) : (
+            <motion.div
+              className="bg-gray-50"
+              initial={false}
+              animate={{ height: "auto" }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="relative p-3">
+                {/* Custom positioned legend */}
+                <div className="absolute top-5 left-24 z-10">
+                  <CustomizedLegend
+                    payload={
+                      Array.isArray(data) && data.length > 0
+                        ? Object.keys(data[0])
+                            .filter(
+                              (k) => k !== "date" && !HIDDEN_LINES.includes(k),
+                            )
+                            .map((key) => ({
+                              value: key,
+                              dataKey: key,
+                              color: labels_colors_map?.[key] || "lightgray",
+                              type: "line",
+                            }))
+                        : []
+                    }
+                    verticalAlign="top"
+                    onItemEnter={(key) => setHoveredLegendKey(key)}
+                    onItemLeave={() => setHoveredLegendKey(null)}
+                  />
+                </div>
+
+                <AnimatePresence
+                  mode="wait"
+                  initial={false}
+                >
+                  <ResponsiveContainer
+                    width="100%"
+                    height={300}
+                  >
+                    <ReChartsLineChartComp
+                      data={data}
+                      margin={{
+                        top: 5,
+                        right: isMobile ? 10 : 30,
+                        left: isMobile ? -15 : 10,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <YAxis
+                        tickFormatter={(value) => `${value.toFixed(0)}`}
+                        domain={["dataMin", "dataMax"]}
+                        unit="₹"
+                        fontSize={isMobile ? 10 : 12}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        domain={["dataMin", "dataMax"]}
+                        name="Time"
+                        tickFormatter={(unixTime) =>
+                          new Intl.DateTimeFormat("en-US", {
+                            month: "short",
+                            year: "2-digit",
+                          }).format(new Date(unixTime))
+                        }
+                        type="number"
+                        tickMargin={6}
+                        tickSize={12}
+                        fontSize={isMobile ? 10 : 12}
+                      />
+                      <Tooltip
+                        content={(props) => (
+                          <ChartTooltip
+                            {...props}
+                            labels_colors_map={labels_colors_map || {}}
+                          />
+                        )}
+                      />
+                      {Array.isArray(data) &&
+                        data.length > 0 &&
+                        typeof data[0] === "object" &&
+                        Object.keys(data[0])
+                          .filter(
+                            (k) => k !== "date" && !HIDDEN_LINES.includes(k),
+                          )
+                          .map((key) => {
+                            const isDimmed =
+                              hoveredLegendKey !== null &&
+                              key !== hoveredLegendKey;
+                            const strokeOpacity = isDimmed
+                              ? 0.2
+                              : labels_colors_map?.[key]
+                                ? 1
+                                : 0.8;
+                            const color = labels_colors_map?.[key] || "lightgray";
+
+                            let strokeWidth = 2;
+                            if (key.includes("Simulation")) {
+                              strokeWidth = 1;
+                            }
+
+                            let strokeDasharray = "";
+                            if (key === "Mean") {
+                              strokeWidth = 4;
+                              strokeDasharray = "5 5";
+                            }
+
+                            const effectiveStrokeWidth =
+                              hoveredLegendKey !== null &&
+                              key === hoveredLegendKey
+                                ? strokeWidth + 2
+                                : strokeWidth;
+
+                            return (
+                              <Line
+                                key={key}
+                                type="linear"
+                                dot={false}
+                                dataKey={key}
+                                strokeOpacity={strokeOpacity}
+                                stroke={color}
+                                strokeWidth={effectiveStrokeWidth}
+                                activeDot={false}
+                                strokeDasharray={strokeDasharray}
+                              />
+                            );
+                          })}
+                    </ReChartsLineChartComp>
+                  </ResponsiveContainer>
+                </AnimatePresence>
+              </div>
+              {/* Analysis */}
+              {analysis && typeof analysis === "string" && (
+                <div className="markdown-content">
+                  <details
+                    className="!m-0 rounded-lg border border-gray-200 bg-gray-50"
+                    open
+                  >
+                    <summary className="flex cursor-pointer items-center font-medium hover:bg-gray-100">
+                      <ChevronRightIcon className="h-4 w-4 transition-transform duration-200" />
+                      Analysis
+                    </summary>
+                    <div className="p-3">
+                      <MarkdownText>{analysis}</MarkdownText>
+                    </div>
+                  </details>
+                </div>
+              )}
+            </motion.div>
+          )}
           {/* Report Summary (outside chart) */}
           {report && (
             <div className="flex flex-wrap items-center gap-2 border-t border-gray-200 bg-white px-3 py-2">
