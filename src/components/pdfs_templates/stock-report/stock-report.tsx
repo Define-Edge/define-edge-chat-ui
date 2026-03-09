@@ -5,7 +5,6 @@ import type {
   ScoreSection,
 } from "@/api/generated/report-apis/models";
 import BulbIcon from "@/components/icons/BulbIcon";
-import DrawdownIcon from "@/components/icons/DrawdownIcon";
 import { MonthlyReturnsHeatmapTables } from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
 import ScreenerCoverageBadge from "@/components/pdfs_templates/pf-report/ScreenerCoverageBadge";
 import { MarkdownText } from "@/components/thread/markdown-text";
@@ -21,7 +20,6 @@ import {
 } from "@/types/stock-analysis";
 import { ChevronRightIcon } from "lucide-react";
 import dynamic from "next/dynamic";
-import ChartContainer from "../layout/ChartContainer";
 import Disclaimer from "../layout/Disclaimer";
 import FinancialFitness from "../layout/FinancialFitness";
 import InsightContainer from "../layout/InsightContainer";
@@ -95,14 +93,17 @@ export default function StockAnalysisReportMessageComponent({
   // Calculate total pages dynamically (Welcome page excluded — no footer)
   let totalPages = 0;
   totalPages++; // IntroPageContainer
-  if (shouldRenderSection("company_overview")) totalPages++;
-  if (shouldRenderSection("technical_analysis")) totalPages += 2; // Charts + Metrics
-  if (shouldRenderSection("fundamental_analysis")) totalPages++;
-  if (shouldRenderSection("peer_comparison")) totalPages++;
-  if (shouldRenderSection("market_sentiment")) totalPages++;
+  if (shouldRenderSection("company_overview")) totalPages += 2; // Business Overview + Sector Outlook
+  if (shouldRenderSection("company_overview") && data.company_overview.management_strategy)
+    totalPages++; // Management Discussion & Strategy
+  if (shouldRenderSection("technical_analysis")) totalPages += 5; // Analysis, Drawdown, Cumulative Returns, Monthly Returns, Risk Metrics
+  if (shouldRenderSection("fundamental_analysis")) totalPages += 2; // Analysis + Charts
+  if (shouldRenderSection("peer_comparison")) totalPages += 2; // Analysis + Charts
+  if (shouldRenderSection("market_sentiment")) totalPages += 2; // News+Conference, Corporate Actions+Shareholding
   if (shouldRenderSection("finsharpe_analysis") && fa) totalPages++;
   totalPages++; // SectionDivider "OUTLOOK"
-  if (shouldRenderSection("outlook")) totalPages++; // Summary + red flags
+  if (shouldRenderSection("outlook")) totalPages++; // Summary
+  if (shouldRenderSection("outlook")) totalPages++; // Key Risks & Red Flags
   if (shouldRenderSection("outlook") && data.outlook.simulation_chart)
     totalPages++; // Simulation
   totalPages++; // Financial Fitness
@@ -175,53 +176,66 @@ export default function StockAnalysisReportMessageComponent({
           </div>
         </IntroPageContainer>
 
-        {/* Company Overview */}
+        {/* Company Overview - Business Overview */}
         {shouldRenderSection("company_overview") && (
           <PageLayout pgNo={pgNum++}>
             <FormatSection section={data.company_overview.business_overview} />
-            {data.company_overview.management_strategy && (
-              <FormatSection
-                section={data.company_overview.management_strategy as Section}
-              />
-            )}
+          </PageLayout>
+        )}
+
+        {/* Sector Outlook */}
+        {shouldRenderSection("company_overview") && (
+          <PageLayout pgNo={pgNum++}>
             <FormatSection section={data.company_overview.sector_outlook} />
           </PageLayout>
         )}
 
-        {/* Technical Analysis - Charts */}
+        {/* Management Discussion & Strategy */}
+        {shouldRenderSection("company_overview") &&
+          data.company_overview.management_strategy && (
+            <PageLayout pgNo={pgNum++}>
+              <FormatSection
+                section={data.company_overview.management_strategy as Section}
+              />
+            </PageLayout>
+          )}
+
+        {/* Technical Analysis - Analysis */}
         {shouldRenderSection("technical_analysis") && (
           <PageLayout pgNo={pgNum++}>
             <FormatSection section={data.technical_analysis.analysis} />
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Cumulative Returns */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
             {data.technical_analysis.returns_chart && (
-              <ChartContainer
-                Icon={BulbIcon}
-                desc="Historical performance and returns comparison, showing how the stock has performed over time."
-              >
-                <LineChart
-                  {...(data.technical_analysis.returns_chart as any)}
-                  className="!min-w-0"
-                  disableAnimation
-                />
-              </ChartContainer>
-            )}
-            {data.technical_analysis.drawdown_chart && (
-              <ChartContainer
-                Icon={DrawdownIcon}
-                desc="Drawdown analysis showing peak-to-trough declines, measuring the stock's downside risk."
-              >
-                <DrawdownChart
-                  data={data.technical_analysis.drawdown_chart as any}
-                  returnsData={
-                    (data.technical_analysis.returns_chart as any)?.data
-                  }
-                  disableAnimation
-                />
-              </ChartContainer>
+              <LineChart
+                {...(data.technical_analysis.returns_chart as any)}
+                className="!min-w-0"
+                disableAnimation
+              />
             )}
           </PageLayout>
         )}
 
-        {/* Technical Analysis - Metrics */}
+        {/* Technical Analysis - Drawdown */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.technical_analysis.drawdown_chart && (
+              <DrawdownChart
+                data={data.technical_analysis.drawdown_chart as any}
+                returnsData={
+                  (data.technical_analysis.returns_chart as any)?.data
+                }
+                disableAnimation
+              />
+            )}
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Monthly Returns */}
         {shouldRenderSection("technical_analysis") && (
           <PageLayout pgNo={pgNum++}>
             {data.technical_analysis.monthly_returns &&
@@ -232,13 +246,20 @@ export default function StockAnalysisReportMessageComponent({
                   }
                 />
               )}
-            {data.technical_analysis.rolling_sortino_chart && (
+            {/* Rolling Sortino chart disabled for now */}
+            {/* {data.technical_analysis.rolling_sortino_chart && (
               <LineChart
                 {...(data.technical_analysis.rolling_sortino_chart as any)}
                 className="!min-w-0"
                 disableAnimation
               />
-            )}
+            )} */}
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Risk Metrics Stats */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
             {data.technical_analysis.risk_metrics && (
               <div className="report-native-table max-w-3xl">
                 <RiskMetricsTable
@@ -253,6 +274,12 @@ export default function StockAnalysisReportMessageComponent({
         {shouldRenderSection("fundamental_analysis") && (
           <PageLayout pgNo={pgNum++}>
             <FormatSection section={data.fundamental_analysis.analysis} />
+          </PageLayout>
+        )}
+
+        {/* Fundamental Analysis - Revenue & Profit Trend + Margin Trend */}
+        {shouldRenderSection("fundamental_analysis") && (
+          <PageLayout pgNo={pgNum++}>
             {data.fundamental_analysis.revenue_profit_chart && (
               <FundamentalChart
                 data={
@@ -273,10 +300,16 @@ export default function StockAnalysisReportMessageComponent({
           </PageLayout>
         )}
 
-        {/* Peer Comparison */}
+        {/* Peer Comparison - Analysis */}
         {shouldRenderSection("peer_comparison") && (
           <PageLayout pgNo={pgNum++}>
             <FormatSection section={data.peer_comparison.analysis} />
+          </PageLayout>
+        )}
+
+        {/* Peer Comparison - Valuation + Profitability Charts */}
+        {shouldRenderSection("peer_comparison") && (
+          <PageLayout pgNo={pgNum++}>
             {data.peer_comparison.valuation_chart && (
               <PeerComparisonChart
                 data={data.peer_comparison.valuation_chart as PeerChartData}
@@ -294,7 +327,7 @@ export default function StockAnalysisReportMessageComponent({
           </PageLayout>
         )}
 
-        {/* Market Sentiment */}
+        {/* Market Sentiment - News & Conference Call */}
         {shouldRenderSection("market_sentiment") && (
           <PageLayout pgNo={pgNum++}>
             <FormatNewsSentiment
@@ -306,6 +339,12 @@ export default function StockAnalysisReportMessageComponent({
                 section={data.market_sentiment.conference_call as Section}
               />
             )}
+          </PageLayout>
+        )}
+
+        {/* Market Sentiment - Corporate Actions & Shareholding Pattern */}
+        {shouldRenderSection("market_sentiment") && (
+          <PageLayout pgNo={pgNum++}>
             {data.market_sentiment.corporate_actions && (
               <FormatSection
                 section={data.market_sentiment.corporate_actions as Section}
@@ -352,6 +391,12 @@ export default function StockAnalysisReportMessageComponent({
                 </MarkdownText>
               </div>
             </InsightContainer>
+          </PageLayout>
+        )}
+
+        {/* Outlook - Key Risks & Red Flags */}
+        {shouldRenderSection("outlook") && (
+          <PageLayout pgNo={pgNum++}>
             <FormatSection section={data.outlook.red_flags} />
           </PageLayout>
         )}
