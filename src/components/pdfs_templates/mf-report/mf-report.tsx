@@ -98,7 +98,7 @@ export default function MfAnalysisReportMessageComponent({
                 )}
               </div>
             )}
-            {data.performance.rolling_sortino_chart && (
+            {/* {data.performance.rolling_sortino_chart && (
               <LineChart
                 {...(data.performance.rolling_sortino_chart as Record<
                   string,
@@ -107,7 +107,7 @@ export default function MfAnalysisReportMessageComponent({
                 className="!min-w-0"
                 disableAnimation
               />
-            )}
+            )} */}
           </>
         )}
 
@@ -132,6 +132,7 @@ export default function MfAnalysisReportMessageComponent({
             {data.portfolio.top_holdings_chart && (
               <PeerComparisonChart
                 data={data.portfolio.top_holdings_chart as PeerChartData}
+                hideLegend
               />
             )}
             {/* <FormatSection section={data.portfolio.sector_distribution} /> */}

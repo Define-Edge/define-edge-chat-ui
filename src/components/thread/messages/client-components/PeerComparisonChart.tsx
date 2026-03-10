@@ -19,6 +19,7 @@ type Props = {
   labelKey?: string;
   className?: string;
   disableAnimation?: boolean;
+  hideLegend?: boolean;
 };
 
 /** Pretty-print metric keys */
@@ -63,11 +64,13 @@ export default function PeerComparisonChart({
   labelKey = "company",
   className,
   disableAnimation = false,
+  hideLegend = false,
 }: Props) {
   const { data, metrics, colors, highlighted_company, title, description } =
     chartData;
 
   const colorsMap = (colors ?? {}) as Record<string, string>;
+  const showLegend = !hideLegend;
 
   // Skip rendering if no valid data
   if (!hasValidData(data, metrics)) return null;
@@ -99,7 +102,7 @@ export default function PeerComparisonChart({
               formatMetric(name),
             ]}
           />
-          <Legend formatter={formatMetric} />
+          {showLegend && <Legend formatter={formatMetric} />}
           {metrics.map((metric) => (
             <Bar
               key={metric}

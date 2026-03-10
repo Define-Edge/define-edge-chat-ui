@@ -98,12 +98,12 @@ export default function MfAnalysisComponent(analysis: MFAnalysis) {
             )}
           </div>
         )}
-        {data.performance.rolling_sortino_chart && (
+        {/* {data.performance.rolling_sortino_chart && (
           <LineChart
             {...(data.performance.rolling_sortino_chart as Record<string, any>)}
             className="!min-w-0"
           />
-        )}
+        )} */}
       </SectionCard>
 
       {/* 3. Ratios */}
@@ -128,6 +128,7 @@ export default function MfAnalysisComponent(analysis: MFAnalysis) {
         {data.portfolio.top_holdings_chart && (
           <PeerComparisonChart
             data={data.portfolio.top_holdings_chart as PeerChartData}
+            hideLegend
           />
         )}
         {/* <FormatSection section={data.portfolio.sector_distribution} /> */}
