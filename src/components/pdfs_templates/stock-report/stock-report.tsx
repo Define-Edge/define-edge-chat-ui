@@ -1,22 +1,17 @@
+"use client";
 import type {
   FundamentalChartData,
   PeerChartData,
   ScoreSection,
 } from "@/api/generated/report-apis/models";
-import FinSharpeScoresRadarChart from "@/components/pdfs_templates/pf-report/FinSharpeScoresRadarChart";
+import BulbIcon from "@/components/icons/BulbIcon";
 import { MonthlyReturnsHeatmapTables } from "@/components/pdfs_templates/pf-report/MonthlyReturnsHeatmap";
+import ScreenerCoverageBadge from "@/components/pdfs_templates/pf-report/ScreenerCoverageBadge";
 import { MarkdownText } from "@/components/thread/markdown-text";
-import DrawdownChart from "@/components/thread/messages/client-components/DrawdownChart";
-import FundamentalChart from "@/components/thread/messages/client-components/FundamentalChart";
 import { FormatNewsSentiment } from "@/components/thread/messages/client-components/format-news-sentiment";
-import LineChart from "@/components/thread/messages/client-components/LineChart";
-import PeerComparisonChart from "@/components/thread/messages/client-components/PeerComparisonChart";
 import RiskMetricsTable from "@/components/thread/messages/client-components/RiskMetricsTable";
-import SimulationChart from "@/components/thread/messages/client-components/SimulationChart";
 import { splitMarkdownTables } from "@/lib/markdown-table-splitter";
 import { SectionFormatter } from "@/lib/section-formatter";
-import OverallScorePie from "@/modules/core/portfolio/charts/OverallScorePie";
-import RiskScorePie from "@/modules/core/portfolio/charts/RiskScorePie";
 import {
   NewsSource,
   NewsSourcesContent,
@@ -24,7 +19,46 @@ import {
   StockAnalysis,
 } from "@/types/stock-analysis";
 import { ChevronRightIcon } from "lucide-react";
+import dynamic from "next/dynamic";
+import Disclaimer from "../layout/Disclaimer";
+import FinancialFitness from "../layout/FinancialFitness";
+import InsightContainer from "../layout/InsightContainer";
+import IntroPageContainer from "../layout/IntroPageContainer";
+import PageLayout from "../layout/PageLayout";
+import SectionDivider from "../layout/SectionDivider";
+import TotalPageCtxProvider from "./TotalPageCtx";
 import Welcome from "../Welcome";
+
+const ScoreCard = dynamic(() => import("../layout/ScoreCard"), { ssr: false });
+const DrawdownChart = dynamic(
+  () => import("@/components/thread/messages/client-components/DrawdownChart"),
+  { ssr: false },
+);
+const LineChart = dynamic(
+  () => import("@/components/thread/messages/client-components/LineChart"),
+  { ssr: false },
+);
+const SimulationChart = dynamic(
+  () =>
+    import("@/components/thread/messages/client-components/SimulationChart"),
+  { ssr: false },
+);
+const FundamentalChart = dynamic(
+  () =>
+    import("@/components/thread/messages/client-components/FundamentalChart"),
+  { ssr: false },
+);
+const PeerComparisonChart = dynamic(
+  () =>
+    import(
+      "@/components/thread/messages/client-components/PeerComparisonChart"
+    ),
+  { ssr: false },
+);
+const FinSharpeScoresRadarChart = dynamic(
+  () => import("../pf-report/FinSharpeScoresRadarChart"),
+  { ssr: false },
+);
 
 export default function StockAnalysisReportMessageComponent({
   analysis,
@@ -49,223 +83,32 @@ export default function StockAnalysisReportMessageComponent({
     return selectedSections.includes(sectionKey);
   };
 
-  // Define all sections with their rendering components
-  const sections = [
-    {
-      key: "company_overview",
-      render: (seqNumber: number) => (
-        <>
-          <FormatSection
-            section={data.company_overview.business_overview}
-            seqNumber={seqNumber}
-          />
-          {data.company_overview.management_strategy && (
-            <FormatSection
-              section={data.company_overview.management_strategy as Section}
-            />
-          )}
-          <FormatSection section={data.company_overview.sector_outlook} />
-        </>
-      ),
-    },
-    {
-      key: "technical_analysis",
-      render: (seqNumber: number) => (
-        <>
-          <FormatSection
-            section={data.technical_analysis.analysis}
-            seqNumber={seqNumber}
-          />
-          {data.technical_analysis.returns_chart && (
-            <LineChart
-              {...(data.technical_analysis.returns_chart as any)}
-              className="!min-w-0"
-              disableAnimation
-            />
-          )}
-          {data.technical_analysis.drawdown_chart && (
-            <DrawdownChart
-              data={data.technical_analysis.drawdown_chart as any}
-              returnsData={(data.technical_analysis.returns_chart as any)?.data}
-              disableAnimation
-            />
-          )}
-          {data.technical_analysis.monthly_returns &&
-            (data.technical_analysis.monthly_returns as any)?.heatmap && (
-              <MonthlyReturnsHeatmapTables
-                heatmap={
-                  (data.technical_analysis.monthly_returns as any).heatmap
-                }
-              />
-            )}
-          {data.technical_analysis.rolling_sortino_chart && (
-            <LineChart
-              {...(data.technical_analysis.rolling_sortino_chart as any)}
-              className="!min-w-0"
-              disableAnimation
-            />
-          )}
-          {data.technical_analysis.risk_metrics && (
-            <div className="report-native-table max-w-3xl">
-              <RiskMetricsTable
-                data={data.technical_analysis.risk_metrics as any}
-              />
-            </div>
-          )}
-        </>
-      ),
-    },
-    {
-      key: "fundamental_analysis",
-      render: (seqNumber: number) => (
-        <>
-          <FormatSection
-            section={data.fundamental_analysis.analysis}
-            seqNumber={seqNumber}
-          />
-          {data.fundamental_analysis.revenue_profit_chart && (
-            <FundamentalChart
-              data={
-                data.fundamental_analysis
-                  .revenue_profit_chart as FundamentalChartData
-              }
-              disableAnimation
-            />
-          )}
-          {data.fundamental_analysis.margin_chart && (
-            <FundamentalChart
-              data={
-                data.fundamental_analysis.margin_chart as FundamentalChartData
-              }
-              disableAnimation
-            />
-          )}
-        </>
-      ),
-    },
-    {
-      key: "peer_comparison",
-      render: (seqNumber: number) => (
-        <>
-          <FormatSection
-            section={data.peer_comparison.analysis}
-            seqNumber={seqNumber}
-          />
-          {data.peer_comparison.valuation_chart && (
-            <PeerComparisonChart
-              data={data.peer_comparison.valuation_chart as PeerChartData}
-              disableAnimation
-            />
-          )}
-          {data.peer_comparison.profitability_chart && (
-            <PeerComparisonChart
-              data={data.peer_comparison.profitability_chart as PeerChartData}
-              disableAnimation
-            />
-          )}
-        </>
-      ),
-    },
-    {
-      key: "market_sentiment",
-      render: (seqNumber: number) => (
-        <>
-          <FormatNewsSentiment
-            section={data.market_sentiment.news_sentiment}
-            variant="pdf"
-            seqNumber={seqNumber}
-          />
-          {data.market_sentiment.conference_call && (
-            <FormatSection
-              section={data.market_sentiment.conference_call as Section}
-            />
-          )}
-          {data.market_sentiment.corporate_actions && (
-            <FormatSection
-              section={data.market_sentiment.corporate_actions as Section}
-            />
-          )}
-          <FormatSection section={data.market_sentiment.shareholding_pattern} />
-        </>
-      ),
-    },
-    {
-      key: "finsharpe_analysis",
-      render: (seqNumber: number) => {
-        if (!data.finsharpe_analysis) return null;
-        const fa = data.finsharpe_analysis as any;
-        return (
-          <>
-            <FormatSection
-              section={fa.analysis}
-              seqNumber={seqNumber}
-            />
-            {(() => {
-              const radarSections = (fa.sections || []).filter(
-                (s: ScoreSection) => s.chart_type === "radar",
-              );
-              const gaugeSections = (fa.sections || []).filter(
-                (s: ScoreSection) =>
-                  s.chart_type === "gauge" && s.chart_data?.length,
-              );
-              return (
-                <>
-                  {radarSections.map((s: ScoreSection, idx: number) => (
-                    <FinSharpeScoresRadarChart
-                      key={`radar-${idx}`}
-                      data={s.scores_comparison}
-                    />
-                  ))}
-                  {gaugeSections.length > 0 && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {gaugeSections.map((s: ScoreSection, idx: number) => {
-                        const isRisk = s.title?.toLowerCase().includes("risk");
-                        const PieComp = isRisk ? RiskScorePie : OverallScorePie;
-                        return (
-                          <div
-                            key={`gauge-${idx}`}
-                            className="space-y-2"
-                          >
-                            <h5 className="text-sm font-semibold">{s.title}</h5>
-                            {s.summary && (
-                              <p className="text-xs text-gray-500">
-                                {s.summary}
-                              </p>
-                            )}
-                            <PieComp data={s.chart_data} />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </>
-              );
-            })()}
-          </>
-        );
-      },
-    },
-    {
-      key: "outlook",
-      render: (seqNumber: number) => (
-        <>
-          <FormatSection
-            section={data.outlook.summary}
-            seqNumber={seqNumber}
-          />
-          <FormatSection section={data.outlook.red_flags} />
-          {data.outlook.simulation_chart && (
-            <SimulationChart {...(data.outlook.simulation_chart as any)} />
-          )}
-        </>
-      ),
-    },
-  ];
+  const fa = data.finsharpe_analysis as any;
+  const radarSections: ScoreSection[] = fa
+    ? (fa.sections || []).filter(
+        (s: ScoreSection) => s.chart_type === "radar",
+      )
+    : [];
 
-  // Filter sections based on selection and render with dynamic sequence numbers
-  const renderedSections = sections
-    .filter(({ key }) => shouldRenderSection(key))
-    .map(({ render }, index) => <div key={index}>{render(index + 1)}</div>);
+  // Calculate total pages dynamically (Welcome page excluded — no footer)
+  let totalPages = 0;
+  totalPages++; // IntroPageContainer
+  if (shouldRenderSection("company_overview")) totalPages += 2; // Business Overview + Sector Outlook
+  if (shouldRenderSection("company_overview") && data.company_overview.management_strategy)
+    totalPages++; // Management Discussion & Strategy
+  if (shouldRenderSection("technical_analysis")) totalPages += 5; // Analysis, Drawdown, Cumulative Returns, Monthly Returns, Risk Metrics
+  if (shouldRenderSection("fundamental_analysis")) totalPages += 2; // Analysis + Charts
+  if (shouldRenderSection("peer_comparison")) totalPages += 2; // Analysis + Charts
+  if (shouldRenderSection("market_sentiment")) totalPages += 2; // News+Conference, Corporate Actions+Shareholding
+  if (shouldRenderSection("finsharpe_analysis") && fa) totalPages++;
+  totalPages++; // SectionDivider "OUTLOOK"
+  if (shouldRenderSection("outlook")) totalPages++; // Summary
+  if (shouldRenderSection("outlook")) totalPages++; // Key Risks & Red Flags
+  if (shouldRenderSection("outlook") && data.outlook.simulation_chart)
+    totalPages++; // Simulation
+  totalPages++; // Financial Fitness
+  if (personalComment) totalPages++;
+  totalPages++; // Disclaimer
 
   // Build flat list of sections that have sources for the Data Sources section
   const sourceSections = [
@@ -302,63 +145,325 @@ export default function StockAnalysisReportMessageComponent({
       key: "market_sentiment",
     },
     {
-      section: data.finsharpe_analysis
-        ? (data.finsharpe_analysis as any).analysis
-        : null,
+      section: fa ? fa.analysis : null,
       key: "finsharpe_analysis",
     },
   ].filter(({ key, section }) => section && shouldRenderSection(key));
 
-  return (
-    <>
-      <Welcome analysis={analysis} />
-      <div
-        className="report-compact-table mx-12 w-3xl space-y-8 pt-12"
-        style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-      >
-        {renderedSections}
+  let pgNum = 1;
 
-        {/* Personal Comment Section */}
+  return (
+    <TotalPageCtxProvider value={totalPages}>
+      <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+        <Welcome analysis={analysis} />
+
+        {/* Intro Page with Score Cards */}
+        <IntroPageContainer pgNo={pgNum++}>
+          <div className="flex gap-6">
+            {(fa?.sections || [])
+              .filter(
+                (s: ScoreSection) =>
+                  s.chart_type === "gauge" && s.chart_data?.length,
+              )
+              .map((section: ScoreSection) => (
+                <ScoreCard
+                  key={section.title}
+                  label={section.title}
+                  data={section.chart_data || []}
+                  desc={section.summary || ""}
+                />
+              ))}
+          </div>
+        </IntroPageContainer>
+
+        {/* Company Overview - Business Overview */}
+        {shouldRenderSection("company_overview") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={data.company_overview.business_overview} />
+          </PageLayout>
+        )}
+
+        {/* Sector Outlook */}
+        {shouldRenderSection("company_overview") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={data.company_overview.sector_outlook} />
+          </PageLayout>
+        )}
+
+        {/* Management Discussion & Strategy */}
+        {shouldRenderSection("company_overview") &&
+          data.company_overview.management_strategy && (
+            <PageLayout pgNo={pgNum++}>
+              <FormatSection
+                section={data.company_overview.management_strategy as Section}
+              />
+            </PageLayout>
+          )}
+
+        {/* Technical Analysis - Analysis */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={data.technical_analysis.analysis} />
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Cumulative Returns */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.technical_analysis.returns_chart && (
+              <LineChart
+                {...(data.technical_analysis.returns_chart as any)}
+                className="!min-w-0"
+                disableAnimation
+              />
+            )}
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Drawdown */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.technical_analysis.drawdown_chart && (
+              <DrawdownChart
+                data={data.technical_analysis.drawdown_chart as any}
+                returnsData={
+                  (data.technical_analysis.returns_chart as any)?.data
+                }
+                disableAnimation
+              />
+            )}
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Monthly Returns */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.technical_analysis.monthly_returns &&
+              (data.technical_analysis.monthly_returns as any)?.heatmap && (
+                <MonthlyReturnsHeatmapTables
+                  heatmap={
+                    (data.technical_analysis.monthly_returns as any).heatmap
+                  }
+                />
+              )}
+            {/* Rolling Sortino chart disabled for now */}
+            {/* {data.technical_analysis.rolling_sortino_chart && (
+              <LineChart
+                {...(data.technical_analysis.rolling_sortino_chart as any)}
+                className="!min-w-0"
+                disableAnimation
+              />
+            )} */}
+          </PageLayout>
+        )}
+
+        {/* Technical Analysis - Risk Metrics Stats */}
+        {shouldRenderSection("technical_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.technical_analysis.risk_metrics && (
+              <div className="report-native-table max-w-3xl">
+                <RiskMetricsTable
+                  data={data.technical_analysis.risk_metrics as any}
+                />
+              </div>
+            )}
+          </PageLayout>
+        )}
+
+        {/* Fundamental Analysis */}
+        {shouldRenderSection("fundamental_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={data.fundamental_analysis.analysis} />
+          </PageLayout>
+        )}
+
+        {/* Fundamental Analysis - Revenue & Profit Trend + Margin Trend */}
+        {shouldRenderSection("fundamental_analysis") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.fundamental_analysis.revenue_profit_chart && (
+              <FundamentalChart
+                data={
+                  data.fundamental_analysis
+                    .revenue_profit_chart as FundamentalChartData
+                }
+                disableAnimation
+              />
+            )}
+            {data.fundamental_analysis.margin_chart && (
+              <FundamentalChart
+                data={
+                  data.fundamental_analysis.margin_chart as FundamentalChartData
+                }
+                disableAnimation
+              />
+            )}
+          </PageLayout>
+        )}
+
+        {/* Peer Comparison - Analysis */}
+        {shouldRenderSection("peer_comparison") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={data.peer_comparison.analysis} />
+          </PageLayout>
+        )}
+
+        {/* Peer Comparison - Valuation + Profitability Charts */}
+        {shouldRenderSection("peer_comparison") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.peer_comparison.valuation_chart && (
+              <PeerComparisonChart
+                data={data.peer_comparison.valuation_chart as PeerChartData}
+                disableAnimation
+              />
+            )}
+            {data.peer_comparison.profitability_chart && (
+              <PeerComparisonChart
+                data={
+                  data.peer_comparison.profitability_chart as PeerChartData
+                }
+                disableAnimation
+              />
+            )}
+          </PageLayout>
+        )}
+
+        {/* Market Sentiment - News & Conference Call */}
+        {shouldRenderSection("market_sentiment") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatNewsSentiment
+              section={data.market_sentiment.news_sentiment}
+              variant="pdf"
+            />
+            {data.market_sentiment.conference_call && (
+              <FormatSection
+                section={data.market_sentiment.conference_call as Section}
+              />
+            )}
+          </PageLayout>
+        )}
+
+        {/* Market Sentiment - Corporate Actions & Shareholding Pattern */}
+        {shouldRenderSection("market_sentiment") && (
+          <PageLayout pgNo={pgNum++}>
+            {data.market_sentiment.corporate_actions && (
+              <FormatSection
+                section={data.market_sentiment.corporate_actions as Section}
+              />
+            )}
+            <FormatSection
+              section={data.market_sentiment.shareholding_pattern}
+            />
+          </PageLayout>
+        )}
+
+        {/* FinSharpe Analysis */}
+        {shouldRenderSection("finsharpe_analysis") && fa && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={fa.analysis} />
+            {radarSections.map((s: ScoreSection, idx: number) => (
+              <FinSharpeScoresRadarChart
+                key={`radar-${idx}`}
+                data={s.scores_comparison}
+              />
+            ))}
+            <ScreenerCoverageBadge
+              coverage={fa.screener_coverage}
+              showMissing={true}
+            />
+          </PageLayout>
+        )}
+
+        {/* Outlook Section Divider */}
+        <SectionDivider title="OUTLOOK" pgNo={pgNum++} />
+
+        {/* Outlook - Summary */}
+        {shouldRenderSection("outlook") && (
+          <PageLayout pgNo={pgNum++}>
+            <InsightContainer
+              header="AI-Powered Insights"
+              subHeader="Concise Clear Impactful"
+              Icon={BulbIcon}
+              gradientDirection="summary"
+            >
+              <div className="summary-container">
+                <MarkdownText>
+                  {data.outlook.summary?.content || ""}
+                </MarkdownText>
+              </div>
+            </InsightContainer>
+          </PageLayout>
+        )}
+
+        {/* Outlook - Key Risks & Red Flags */}
+        {shouldRenderSection("outlook") && (
+          <PageLayout pgNo={pgNum++}>
+            <FormatSection section={data.outlook.red_flags} />
+          </PageLayout>
+        )}
+
+        {/* Outlook - Simulation */}
+        {shouldRenderSection("outlook") && data.outlook.simulation_chart && (
+          <PageLayout pgNo={pgNum++}>
+            <SimulationChart
+              {...(data.outlook.simulation_chart as any)}
+              disableAnimation
+            />
+          </PageLayout>
+        )}
+
+        {/* Financial Fitness */}
+        <PageLayout pgNo={pgNum++}>
+          <FinancialFitness />
+        </PageLayout>
+
+        {/* Personal Comment */}
         {personalComment && (
-          <>
-            <div className="mt-8" />
-            <hr className="border-t-2 border-gray-800" />
-            <div className="mt-8" />
+          <PageLayout pgNo={pgNum++}>
             <div className="space-y-4">
               <h3 className="text-3xl font-semibold tracking-tight">
                 Personal Comment
               </h3>
-              <div className="rounded-lg border border-gray-300 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-900">
-                <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+              <div className="rounded-lg border border-gray-300 bg-gray-50 p-6">
+                <p className="whitespace-pre-wrap text-gray-700">
                   {personalComment}
                 </p>
               </div>
             </div>
-          </>
+          </PageLayout>
         )}
 
-        <div className="mt-8" />
-        <hr className="border-t-2 border-gray-800" />
-        <div className="mt-8" />
-        <h3 className="text-3xl font-semibold tracking-tight">Data Sources</h3>
-        <span className="report-compact-table">
-          {sourceSections.map(({ section, key, isNews }, idx, arr) => (
-            <div key={`${key}-${idx}`}>
-              {isNews ? (
-                <FormatNewsSentimentSourcesAndInDepthAnalysis
-                  section={section as Section}
-                />
-              ) : (
-                <FormatSectionSourcesAndInDepthAnalysis
-                  section={section as Section}
-                />
-              )}
-              {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
-            </div>
-          ))}
-        </span>
+        {/* Disclaimer */}
+        <PageLayout pgNo={pgNum++}>
+          <Disclaimer />
+        </PageLayout>
+
+        {/* Data Sources (unpaginated) */}
+        <div
+          className="mx-12 max-w-3xl space-y-8 pt-12"
+          style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+        >
+          <h3 className="text-3xl font-semibold tracking-tight">
+            Data Sources
+          </h3>
+          <span className="report-compact-table">
+            {sourceSections.map(({ section, key, isNews }, idx, arr) => (
+              <div key={`${key}-${idx}`}>
+                {isNews ? (
+                  <FormatNewsSentimentSourcesAndInDepthAnalysis
+                    section={section as Section}
+                  />
+                ) : (
+                  <FormatSectionSourcesAndInDepthAnalysis
+                    section={section as Section}
+                  />
+                )}
+                {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
+              </div>
+            ))}
+          </span>
+        </div>
       </div>
-    </>
+    </TotalPageCtxProvider>
   );
 }
 
@@ -527,17 +632,15 @@ function FormatNewsSentimentSourcesAndInDepthAnalysis({
 function FormatSection({
   section,
   displaySources = false,
-  seqNumber,
 }: {
   section: Section;
   displaySources?: boolean;
-  seqNumber?: number;
 }) {
   if (!section) {
     return null;
   }
 
-  const formatter = new SectionFormatter(section, seqNumber);
+  const formatter = new SectionFormatter(section);
   const title = formatter.getTitleMarkdown();
   const content = `${formatter.getContentMarkdown()}\n---\n`;
   const sources = formatter.getSourcesMarkdown();

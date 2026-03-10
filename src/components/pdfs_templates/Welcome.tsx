@@ -25,7 +25,7 @@ function Welcome({ analysis }: { analysis: StockAnalysis }) {
 
   return (
     <div
-      className={`relative flex h-[1115px] w-[756px] flex-col bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white`}
+      className={`relative flex h-[1123px] w-[794px] flex-col bg-[url('https://res.cloudinary.com/shoeb/image/upload/v1721190151/FinSharpe/pdf/bg-img_scemyt.png')] bg-cover bg-no-repeat text-white`}
     >
       <header />
       <main className="flex flex-1 flex-col p-14">

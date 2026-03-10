@@ -19,23 +19,40 @@ export default function DistributionPieChart({
   disableAnimation?: boolean;
   className?: string;
 }) {
-  const processed = useGrouping
-    ? groupSmallFragments(data, {
+  // Merge entries with empty/null names into "Others", then deduplicate by name
+  const normalized = (() => {
+    const map = new Map<string, number>();
+    for (const item of data) {
+      const key = item.name || "Others";
+      map.set(key, (map.get(key) ?? 0) + item.value);
+    }
+    return Array.from(map, ([name, value]) => ({ name, value }));
+  })();
+
+  const grouped = useGrouping
+    ? groupSmallFragments(normalized, {
         id: "name",
         value: "value",
         maxFragments: 15,
-      }).map((item, index) => ({
-        name: item.name,
-        value: item.value,
-        color: PIE_COLORS[index % PIE_COLORS.length],
-      }))
-    : data.map((item, index) => ({
-        name: item.name,
-        value: item.value,
-        color: useSizeColors
-          ? SIZE_COLORS[item.name] || PIE_COLORS[index % PIE_COLORS.length]
-          : PIE_COLORS[index % PIE_COLORS.length],
-      }));
+      })
+    : normalized;
+
+  // Deduplicate by name after groupSmallFragments (which may create its own "Others")
+  const deduped = (() => {
+    const map = new Map<string, number>();
+    for (const item of grouped) {
+      map.set(item.name, (map.get(item.name) ?? 0) + item.value);
+    }
+    return Array.from(map, ([name, value]) => ({ name, value }));
+  })();
+
+  const processed = deduped.map((item, index) => ({
+    name: item.name,
+    value: item.value,
+    color: useSizeColors
+      ? SIZE_COLORS[item.name] || PIE_COLORS[index % PIE_COLORS.length]
+      : PIE_COLORS[index % PIE_COLORS.length],
+  }));
 
   if (processed.length === 0) return null;
 
