@@ -7,6 +7,6 @@
  */
 
 /**
- * End date of the historical window (YYYY-MM-DD format). Defaults to the latest available date if omitted
+ * The quantity of the item. (must be greater than 0)
  */
-export type AnalyzePortfolioArgsEndDate = string | null;
+export type PFItemWithIdentifierQuantity = number | null;

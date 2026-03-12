@@ -7,6 +7,6 @@
  */
 
 /**
- * The weight of the item in percentage. Positive for long positions, negative for short positions in long-short strategies.
+ * End date of the historical window (YYYY-MM-DD format). Defaults to the latest available date if omitted
  */
-export type PFItemWeight = number | null;
+export type AnalyzeEqPortfolioArgsEndDate = string | null;

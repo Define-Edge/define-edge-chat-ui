@@ -9,4 +9,4 @@
 /**
  * Rolling lookback window for deriving metrics (e.g., '15d', '3m', '1y', '3y')
  */
-export type AnalyzePortfolioArgsDuration = string | null;
+export type AnalyzeEqPortfolioArgsDuration = string | null;

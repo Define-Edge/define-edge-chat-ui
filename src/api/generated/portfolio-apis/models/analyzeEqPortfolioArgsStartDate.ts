@@ -9,4 +9,4 @@
 /**
  * Start date of the historical window (YYYY-MM-DD format)
  */
-export type AnalyzePortfolioArgsStartDate = string | null;
+export type AnalyzeEqPortfolioArgsStartDate = string | null;

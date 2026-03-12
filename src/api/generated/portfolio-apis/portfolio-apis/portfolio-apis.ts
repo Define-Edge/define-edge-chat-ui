@@ -14,7 +14,7 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
-  AnalyzePortfolioArgs,
+  AnalyzeEqPortfolioArgs,
   CreateCustomPortfolioRequest,
   CreateCustomPortfolioResponse,
   HTTPValidationError,
@@ -205,7 +205,8 @@ including industry/size distribution, returns chart data, score metrics, and sta
 
 Args:
     request: Portfolio analysis arguments containing:
-        - items: List of PFItem with symbol and weight/quantity
+        - items: List of portfolio items with symbol (or ISIN) and weight/quantity.
+          Each item may include ``identifier_type`` ("symbol" or "isin", defaults to "symbol").
         - input_unit: WEIGHT or QUANTITY
         - Optional date range params (start_date, end_date, duration)
 
@@ -217,6 +218,8 @@ Raises:
 
 Example:
     POST /api/portfolios/analyze
+
+    Using symbols (default):
     {
         "items": [
             {"symbol": "RELIANCE", "weight": 25.0},
@@ -256,14 +259,14 @@ export const getAnalyzePortfolioApiPortfoliosAnalyzePostUrl = () => {
 };
 
 export const analyzePortfolioApiPortfoliosAnalyzePost = async (
-  analyzePortfolioArgs: AnalyzePortfolioArgs,
+  analyzeEqPortfolioArgs: AnalyzeEqPortfolioArgs,
   options?: RequestInit,
 ): Promise<analyzePortfolioApiPortfoliosAnalyzePostResponse> => {
   const res = await fetch(getAnalyzePortfolioApiPortfoliosAnalyzePostUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(analyzePortfolioArgs),
+    body: JSON.stringify(analyzeEqPortfolioArgs),
   });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
@@ -285,14 +288,14 @@ export const getAnalyzePortfolioApiPortfoliosAnalyzePostMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
     TError,
-    { data: AnalyzePortfolioArgs },
+    { data: AnalyzeEqPortfolioArgs },
     TContext
   >;
   fetch?: RequestInit;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
   TError,
-  { data: AnalyzePortfolioArgs },
+  { data: AnalyzeEqPortfolioArgs },
   TContext
 > => {
   const mutationKey = ["analyzePortfolioApiPortfoliosAnalyzePost"];
@@ -306,7 +309,7 @@ export const getAnalyzePortfolioApiPortfoliosAnalyzePostMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
-    { data: AnalyzePortfolioArgs }
+    { data: AnalyzeEqPortfolioArgs }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -321,7 +324,7 @@ export type AnalyzePortfolioApiPortfoliosAnalyzePostMutationResult =
     Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>
   >;
 export type AnalyzePortfolioApiPortfoliosAnalyzePostMutationBody =
-  AnalyzePortfolioArgs;
+  AnalyzeEqPortfolioArgs;
 export type AnalyzePortfolioApiPortfoliosAnalyzePostMutationError =
   HTTPValidationError;
 
@@ -336,7 +339,7 @@ export const useAnalyzePortfolioApiPortfoliosAnalyzePost = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
       TError,
-      { data: AnalyzePortfolioArgs },
+      { data: AnalyzeEqPortfolioArgs },
       TContext
     >;
     fetch?: RequestInit;
@@ -345,7 +348,7 @@ export const useAnalyzePortfolioApiPortfoliosAnalyzePost = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof analyzePortfolioApiPortfoliosAnalyzePost>>,
   TError,
-  { data: AnalyzePortfolioArgs },
+  { data: AnalyzeEqPortfolioArgs },
   TContext
 > => {
   const mutationOptions =
