@@ -246,6 +246,7 @@ export default function PfAnalysisReportMessageComponent({
           <MonthlyReturnsHeatmap
             heatmap={monthlyReturnsHeatmap}
             summary={monthlyReturnsSummary}
+            compact
           />
         </PageLayout>
       )}

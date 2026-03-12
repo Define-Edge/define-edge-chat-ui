@@ -2,6 +2,7 @@
 
 import ChartContainer from "../layout/ChartContainer";
 import BulbIcon from "@/components/icons/BulbIcon";
+import { cn } from "@/lib/utils";
 import type {
   HeatmapRow,
   MonthlyReturnsHeatmapData,
@@ -60,9 +61,11 @@ function formatCell(value: number | null): string {
 function HeatmapTable({
   label,
   rows,
+  compact = false,
 }: {
   label: string;
   rows: HeatmapRow[];
+  compact?: boolean;
 }) {
   if (!rows || rows.length === 0) return null;
 
@@ -75,32 +78,52 @@ function HeatmapTable({
   // Compute YTD for each row
   const ytdValues = rows.map(computeYTD);
 
+  const colWidth = compact ? "44px" : "48px";
+  const headerCls = cn(
+    "flex items-center justify-center rounded font-semibold text-gray-500",
+    compact ? "px-0.5 py-1 text-[8px]" : "px-1 py-1.5 text-[9px]",
+  );
+  const cellCls = cn(
+    "flex items-center justify-center font-medium",
+    compact ? "px-0.5 py-1.5 text-[8px]" : "px-1 py-2 text-[10px]",
+  );
+  const yearCls = cn(
+    "flex items-center justify-center rounded bg-gray-50 font-semibold text-gray-700",
+    compact ? "px-0.5 py-1.5 text-[8px]" : "px-1 py-2 text-[10px]",
+  );
+  const boldCellCls = cn(
+    "flex items-center justify-center font-semibold",
+    compact ? "px-0.5 py-1.5 text-[8px]" : "px-1 py-2 text-[10px]",
+  );
+  const meanCls = cn(
+    "flex items-center justify-center bg-gray-50 font-bold text-gray-700",
+    compact ? "px-0.5 py-1.5 text-[8px]" : "px-1 py-2 text-[10px]",
+  );
+
   return (
     <div>
-      <h4 className="mb-1.5 text-[10px] font-semibold text-gray-600">
+      <h4
+        className={cn(
+          "font-semibold text-gray-600",
+          compact ? "mb-1 text-[9px]" : "mb-1.5 text-[10px]",
+        )}
+      >
         {label}
       </h4>
       <div
-        className="grid gap-[3px]"
+        className={cn("grid", compact ? "gap-[2px]" : "gap-[3px]")}
         style={{
-          gridTemplateColumns: `48px repeat(12, 1fr) 48px`,
+          gridTemplateColumns: `${colWidth} repeat(12, 1fr) ${colWidth}`,
         }}
       >
         {/* Header row */}
-        <div className="flex items-center justify-center rounded px-1 py-1.5 text-[9px] font-semibold text-gray-500">
-          Year
-        </div>
+        <div className={headerCls}>Year</div>
         {MONTHS.map((m) => (
-          <div
-            key={m}
-            className="flex items-center justify-center rounded px-1 py-1.5 text-[9px] font-semibold text-gray-500"
-          >
+          <div key={m} className={headerCls}>
             {m}
           </div>
         ))}
-        <div className="flex items-center justify-center rounded px-1 py-1.5 text-[9px] font-semibold text-gray-500">
-          YTD
-        </div>
+        <div className={headerCls}>YTD</div>
 
         {/* Data rows */}
         {rows.map((row, idx) => {
@@ -110,15 +133,13 @@ function HeatmapTable({
               key={row.year}
               className="contents"
             >
-              <div className="flex items-center justify-center rounded bg-gray-50 px-1 py-2 text-[10px] font-semibold text-gray-700">
-                {row.year}
-              </div>
+              <div className={yearCls}>{row.year}</div>
               {MONTHS.map((m) => {
                 const val = row[m] as number | null;
                 return (
                   <div
                     key={m}
-                    className="flex items-center justify-center px-1 py-2 text-[10px] font-medium"
+                    className={cellCls}
                     style={{
                       backgroundColor: getCellBg(val),
                       color: getCellText(val),
@@ -129,7 +150,7 @@ function HeatmapTable({
                 );
               })}
               <div
-                className="flex items-center justify-center px-1 py-2 text-[10px] font-semibold"
+                className={boldCellCls}
                 style={{
                   backgroundColor: getCellBg(ytd),
                   color: getCellText(ytd),
@@ -142,15 +163,13 @@ function HeatmapTable({
         })}
 
         {/* Mean row */}
-        <div className="flex items-center justify-center bg-gray-50 px-1 py-2 text-[10px] font-bold text-gray-700">
-          Mean
-        </div>
+        <div className={meanCls}>Mean</div>
         {MONTHS.map((m) => {
           const val = meanRow[m];
           return (
             <div
               key={m}
-              className="flex items-center justify-center px-1 py-2 text-[10px] font-semibold"
+              className={boldCellCls}
               style={{
                 backgroundColor: getCellBg(val),
                 color: getCellText(val),
@@ -160,7 +179,12 @@ function HeatmapTable({
             </div>
           );
         })}
-        <div className="border-t border-gray-300 px-1 py-2" />
+        <div
+          className={cn(
+            "border-t border-gray-300",
+            compact ? "px-0.5 py-1.5" : "px-1 py-2",
+          )}
+        />
       </div>
     </div>
   );
@@ -170,9 +194,11 @@ function HeatmapTable({
 export function MonthlyReturnsHeatmapTables({
   heatmap,
   className,
+  compact: compactProp = false,
 }: {
   heatmap: MonthlyReturnsHeatmapData;
   className?: string;
+  compact?: boolean;
 }) {
   if (!heatmap) return null;
 
@@ -185,22 +211,33 @@ export function MonthlyReturnsHeatmapTables({
 
   if (!hasPortfolio) return null;
 
+  // Use compact mode when explicitly set or when any table has more than 3 years of data
+  const maxYears = Math.max(
+    portfolio?.length ?? 0,
+    benchmark?.length ?? 0,
+    active?.length ?? 0,
+  );
+  const compact = compactProp ?? maxYears > 3;
+
   return (
-    <div className={className ?? "space-y-8 p-4"}>
+    <div className={className ?? cn(compact ? "space-y-4 p-3" : "space-y-8 p-4")}>
       <HeatmapTable
         label="Portfolio Returns (%)"
         rows={portfolio}
+        compact={compact}
       />
       {hasBenchmark && (
         <HeatmapTable
           label="Benchmark Returns (%) — Nifty 500"
           rows={benchmark}
+          compact={compact}
         />
       )}
       {hasActive && (
         <HeatmapTable
           label="Active Returns (%) — Portfolio vs Benchmark"
           rows={active}
+          compact={compact}
         />
       )}
     </div>
@@ -210,10 +247,11 @@ export function MonthlyReturnsHeatmapTables({
 type Props = {
   heatmap?: MonthlyReturnsHeatmapData;
   summary?: string;
+  compact?: boolean;
 };
 
 /** Full MonthlyReturnsHeatmap with ChartContainer — used in PDF report */
-export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
+export default function MonthlyReturnsHeatmap({ heatmap, summary, compact }: Props) {
   if (!heatmap && !summary) return null;
 
   return (
@@ -230,7 +268,7 @@ export default function MonthlyReturnsHeatmap({ heatmap, summary }: Props) {
         }
         context="Tracking monthly returns helps identify seasonal patterns and consistency in portfolio performance relative to the benchmark."
       >
-        <MonthlyReturnsHeatmapTables heatmap={heatmap ?? null} />
+        <MonthlyReturnsHeatmapTables heatmap={heatmap ?? null} compact={compact} />
       </ChartContainer>
     </div>
   );
