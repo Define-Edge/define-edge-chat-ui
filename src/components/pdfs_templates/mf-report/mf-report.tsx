@@ -401,9 +401,12 @@ export default function MfAnalysisReportMessageComponent({
           <span className="report-compact-table">
             {getAllSections(data)
               .filter(({ key, section }) => section && shouldRenderSection(key))
-              .map(({ section, key }, idx, arr) => (
+              .map(({ section, key, indexColumn }, idx, arr) => (
                 <div key={`${key}-${idx}`}>
-                  <FormatSectionSourcesAndInDepthAnalysis section={section} />
+                  <FormatSectionSourcesAndInDepthAnalysis
+                    section={section}
+                    indexColumn={indexColumn}
+                  />
                   {idx < arr.length - 1 && <hr className="my-4 border-t-2" />}
                 </div>
               ))}
@@ -417,7 +420,7 @@ export default function MfAnalysisReportMessageComponent({
 /** Extract all Section objects from the grouped data, with their parent group key for filtering. */
 function getAllSections(
   data: MFAnalysis["data"],
-): { section: Section; key: string }[] {
+): { section: Section; key: string; indexColumn?: string }[] {
   return [
     { section: data.fund_overview.scheme_overview, key: "fund_overview" },
     {
@@ -429,9 +432,21 @@ function getAllSections(
     { section: data.ratios.cost_analysis, key: "ratios" },
     { section: data.ratios.valuation_metrics as Section, key: "ratios" },
     { section: data.portfolio.asset_allocation, key: "portfolio" },
-    { section: data.portfolio.top_holdings, key: "portfolio" },
-    { section: data.portfolio.sector_distribution, key: "portfolio" },
-    { section: data.peer_comparison.analysis, key: "peer_comparison" },
+    {
+      section: data.portfolio.top_holdings,
+      key: "portfolio",
+      indexColumn: "compName",
+    },
+    {
+      section: data.portfolio.sector_distribution,
+      key: "portfolio",
+      indexColumn: "compName",
+    },
+    {
+      section: data.peer_comparison.analysis,
+      key: "peer_comparison",
+      indexColumn: "sname",
+    },
     {
       section: (data.finsharpe_analysis as any)?.analysis,
       key: "finsharpe_analysis",
@@ -441,8 +456,10 @@ function getAllSections(
 
 function FormatSectionSourcesAndInDepthAnalysis({
   section,
+  indexColumn,
 }: {
   section: Section;
+  indexColumn?: string;
 }) {
   if (!section) {
     return null;
@@ -475,7 +492,7 @@ function FormatSectionSourcesAndInDepthAnalysis({
         <MarkdownText>{`<details open><summary>In-depth Analysis</summary>\n\n${in_depth_analysis}\n</details>\n`}</MarkdownText>
       )}
       {sourcesMarkdown && (
-        <MarkdownText>{`<details open><summary>Sources</summary>\n\n${splitMarkdownTables(sourcesMarkdown)}\n</details>\n`}</MarkdownText>
+        <MarkdownText>{`<details open><summary>Sources</summary>\n\n${splitMarkdownTables(sourcesMarkdown, 8, indexColumn)}\n</details>\n`}</MarkdownText>
       )}
       {sources && typeof sources === "object" && !Array.isArray(sources) && (
         <SourcesDisplay sources={sources as Record<string, any>} />
