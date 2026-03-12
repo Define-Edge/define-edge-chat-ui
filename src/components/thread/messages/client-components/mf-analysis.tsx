@@ -35,6 +35,7 @@ const ACCENT_BORDER: Record<string, string> = {
 };
 
 export default function MfAnalysisComponent(analysis: MFAnalysis) {
+  console.log("Rendering MfAnalysisComponent with data:", analysis);
   const [threadId] = useQueryState("threadId");
   const { data } = analysis;
   const topRef = useRef<HTMLDivElement>(null);

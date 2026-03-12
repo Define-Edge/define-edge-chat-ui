@@ -58,31 +58,60 @@ function formatTable(
 
 /**
  * Splits a table with many columns into multiple tables.
+ * If `indexColumn` is provided, that column is repeated as the first column
+ * in every split part so rows remain identifiable.
  */
-function splitTable(table: TableParts, maxCols: number): string[] {
+function splitTable(
+  table: TableParts,
+  maxCols: number,
+  indexColumn?: string
+): string[] {
   const totalCols = table.headerRow.length;
 
   if (totalCols <= maxCols) {
     return [formatTable(table.headerRow, table.separatorRow, table.dataRows)];
   }
 
+  // Find the index column position (case-insensitive)
+  const indexColIdx =
+    indexColumn != null
+      ? table.headerRow.findIndex(
+          (h) => h.toLowerCase() === indexColumn.toLowerCase()
+        )
+      : -1;
+
+  // Build the list of non-index column indices
+  const dataCols = Array.from({ length: totalCols }, (_, i) => i).filter(
+    (i) => i !== indexColIdx
+  );
+
+  // How many data columns fit per part (reserve 1 slot for the index column)
+  const dataColsPerPart = indexColIdx >= 0 ? maxCols - 1 : maxCols;
+  const numParts = Math.ceil(dataCols.length / dataColsPerPart);
+
   const tables: string[] = [];
-  const numParts = Math.ceil(totalCols / maxCols);
 
   for (let part = 0; part < numParts; part++) {
-    const startCol = part * maxCols;
-    const endCol = Math.min(startCol + maxCols, totalCols);
+    const startCol = part * dataColsPerPart;
+    const endCol = Math.min(startCol + dataColsPerPart, dataCols.length);
+    const colIndices = dataCols.slice(startCol, endCol);
 
-    const partHeader = table.headerRow.slice(startCol, endCol);
-    const partSeparator = table.separatorRow.slice(startCol, endCol);
+    // Prepend the index column if it exists
+    const allIndices =
+      indexColIdx >= 0 ? [indexColIdx, ...colIndices] : colIndices;
+
+    const partHeader = allIndices.map((i) => table.headerRow[i]);
+    const partSeparator = allIndices.map((i) => table.separatorRow[i]);
     const partDataRows = table.dataRows.map((row) =>
-      row.slice(startCol, endCol)
+      allIndices.map((i) => row[i])
     );
 
-    // Add part label above the table
-    const partLabel = `**(Part ${part + 1}/${numParts})**`;
     const tableMarkdown = formatTable(partHeader, partSeparator, partDataRows);
-    tables.push(`${partLabel}\n\n${tableMarkdown}`);
+    if (indexColIdx >= 0) {
+      tables.push(tableMarkdown);
+    } else {
+      tables.push(`**(Part ${part + 1}/${numParts})**\n\n${tableMarkdown}`);
+    }
   }
 
   return tables;
@@ -125,11 +154,13 @@ function identifyTableBlocks(
  *
  * @param markdown - The markdown text containing tables
  * @param maxCols - Maximum number of columns per table (default: 8)
+ * @param indexColumn - Optional column name to repeat as first column in every split part
  * @returns Modified markdown with wide tables split into multiple tables
  */
 export function splitMarkdownTables(
   markdown: string,
-  maxCols: number = 8
+  maxCols: number = 8,
+  indexColumn?: string
 ): string {
   if (!markdown) return markdown;
 
@@ -150,7 +181,7 @@ export function splitMarkdownTables(
 
     if (!table) continue;
 
-    const splitTables = splitTable(table, maxCols);
+    const splitTables = splitTable(table, maxCols, indexColumn);
 
     if (splitTables.length > 1) {
       // Replace original table with split tables (joined by blank line)
