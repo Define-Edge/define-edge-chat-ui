@@ -7,6 +7,6 @@
  */
 
 /**
- * The quantity of the item. (must be greater than 0)
+ * The weight of the item in percentage. Positive for long positions, negative for short positions in long-short strategies.
  */
-export type PFItemQuantity = number | null;
+export type PFItemWithIdentifierWeight = number | null;

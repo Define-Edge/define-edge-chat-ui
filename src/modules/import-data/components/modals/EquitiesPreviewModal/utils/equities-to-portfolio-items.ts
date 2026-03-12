@@ -1,4 +1,4 @@
-import { PFItem } from "@/api/generated/portfolio-apis/models";
+import { PFItemWithIdentifier } from "@/api/generated/portfolio-apis/models";
 import { IdentifierType } from "@/api/generated/portfolio-apis/models/identifierType";
 import { EquityHoldingWithQuantity } from "@/modules/import-data/types/equities";
 
@@ -18,7 +18,7 @@ function isIsinFormat(value: string): boolean {
 }
 
 /**
- * Transform equity holdings to PFItem[] format for portfolio analysis API
+ * Transform equity holdings to PFItemWithIdentifier[] format for portfolio analysis API
  *
  * Holdings from MoneyOne have actual ISIN codes in the `isin` field.
  * Holdings added via search have ticker symbols in the `isin` field.
@@ -26,7 +26,7 @@ function isIsinFormat(value: string): boolean {
  */
 export function transformEquitiesToPortfolioItems(
   holdings: EquityHoldingWithQuantity[],
-): PFItem[] {
+): PFItemWithIdentifier[] {
   return holdings
     .filter((h) => h.quantity > 0) // Exclude zero-quantity holdings
     .map((holding) => ({

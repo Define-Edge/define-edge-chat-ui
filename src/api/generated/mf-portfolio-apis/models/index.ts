@@ -17,7 +17,6 @@ export * from "./distributionItem";
 export * from "./fundCategory";
 export * from "./fundCategoryName";
 export * from "./hTTPValidationError";
-export * from "./identifierType";
 export * from "./mFCostAnalysis";
 export * from "./mFMissingHolding";
 export * from "./mFPortfolioAnalytics";

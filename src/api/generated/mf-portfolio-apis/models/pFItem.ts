@@ -7,18 +7,15 @@
  */
 import type { PFItemWeight } from "./pFItemWeight";
 import type { PFItemQuantity } from "./pFItemQuantity";
-import type { IdentifierType } from "./identifierType";
 
 /**
  * Base class for selected stocks in a portfolio with either weight or quantity.
  */
 export interface PFItem {
-  /** The stock symbol or ISIN for equity portfolio, or scheme code for mutual fund portfolio. */
+  /** For stocks: ticker symbol (e.g., 'INFY', 'TCS'). For mutual funds: fund name (e.g., 'Quant Flexi Cap Fund'). Do NOT use fincodes, ISINs, or scheme codes. */
   symbol: string;
   /** The weight of the item in percentage. Positive for long positions, negative for short positions in long-short strategies. */
   weight?: PFItemWeight;
   /** The quantity of the item. (must be greater than 0) */
   quantity?: PFItemQuantity;
-  /** Type of identifier in the symbol field (symbol or isin) */
-  identifier_type?: IdentifierType;
 }

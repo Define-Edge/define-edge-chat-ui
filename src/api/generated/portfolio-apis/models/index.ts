@@ -7,10 +7,10 @@
  */
 
 export * from "./analysisInputUnit";
-export * from "./analyzePortfolioArgs";
-export * from "./analyzePortfolioArgsDuration";
-export * from "./analyzePortfolioArgsEndDate";
-export * from "./analyzePortfolioArgsStartDate";
+export * from "./analyzeEqPortfolioArgs";
+export * from "./analyzeEqPortfolioArgsDuration";
+export * from "./analyzeEqPortfolioArgsEndDate";
+export * from "./analyzeEqPortfolioArgsStartDate";
 export * from "./createCustomPortfolioRequest";
 export * from "./createCustomPortfolioRequestCustomMarketCapRange";
 export * from "./createCustomPortfolioRequestMarketCap";
@@ -21,9 +21,9 @@ export * from "./identifierType";
 export * from "./investmentStyle";
 export * from "./marketCap";
 export * from "./missingHolding";
-export * from "./pFItem";
-export * from "./pFItemQuantity";
-export * from "./pFItemWeight";
+export * from "./pFItemWithIdentifier";
+export * from "./pFItemWithIdentifierQuantity";
+export * from "./pFItemWithIdentifierWeight";
 export * from "./portfolioAllocation";
 export * from "./portfolioAnalytics";
 export * from "./portfolioAnalyticsHoldingsItem";

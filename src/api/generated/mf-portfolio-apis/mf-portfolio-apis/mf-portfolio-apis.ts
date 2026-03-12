@@ -483,9 +483,9 @@ Example:
     POST /api/mf-portfolios/analytics
     {
         "items": [
-            {"symbol": "INF204K01234", "weight": 30.0, "identifier_type": "isin"},
-            {"symbol": "INF205K05678", "weight": 25.0, "identifier_type": "isin"},
-            {"symbol": "INF206K09012", "weight": 45.0, "identifier_type": "isin"}
+            {"symbol": "INF204K01234", "weight": 30.0},
+            {"symbol": "INF205K05678", "weight": 25.0},
+            {"symbol": "INF206K09012", "weight": 45.0}
         ],
         "input_unit": "weight"
     }
