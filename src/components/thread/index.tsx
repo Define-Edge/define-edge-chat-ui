@@ -271,7 +271,11 @@ export function Thread() {
         },
         optimisticValues: (prev) => ({
           ...prev,
-          messages: [...(prev.messages ?? []), ...toolMessages, newHumanMessage],
+          messages: [
+            ...(prev.messages ?? []),
+            ...toolMessages,
+            newHumanMessage,
+          ],
         }),
       },
     );
@@ -299,24 +303,28 @@ export function Thread() {
           <StickyToBottomContent
             className={cn(
               "scrollbar-thin absolute inset-0 overflow-y-auto",
-              !chatStarted && !isKeyboardOpen && "mt-6 flex flex-col items-stretch",
+              !chatStarted &&
+                !isKeyboardOpen &&
+                "mt-6 flex flex-col items-stretch",
               (chatStarted || isKeyboardOpen) && "grid grid-rows-[1fr_auto]",
             )}
             contentClassName={cn(
               "chat-container mx-auto flex flex-col gap-4 w-full",
-              isKeyboardOpen ? "pb-4 justify-end" : "pt-8 pb-16",
+              isKeyboardOpen ? "pb-4 justify-end" : "pt-8 pb-10",
             )}
             content={
               <>
                 {!chatStarted && (
-                  <div className="flex flex-col items-center gap-6">
+                  <div className="flex items-center justify-center gap-2">
                     <Image
                       src="/logo.png"
                       alt="logo"
                       width={56}
                       height={56}
                     />
-                    <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
+                    <h1 className="text-4xl font-semibold text-gray-800">
+                      Welcome to FinSharpeGPT
+                    </h1>
                   </div>
                 )}
                 {messages
@@ -354,7 +362,9 @@ export function Thread() {
                       An error occurred
                     </p>
                     {typeof stream.error === "string" ? (
-                      <p className="mt-1 text-sm text-red-600">{stream.error}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {stream.error}
+                      </p>
                     ) : (
                       <pre className="mt-1 overflow-auto rounded bg-red-100 p-2 text-xs text-red-600">
                         {JSON.stringify(stream.error, null, 2)}
@@ -365,14 +375,19 @@ export function Thread() {
               </>
             }
             footer={
-              <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-gray-50">
+              <div
+                className={cn(
+                  "sticky bottom-0 flex flex-col items-center bg-gray-50",
+                  chatStarted ? "gap-8" : "gap-2",
+                )}
+              >
                 <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                 <div
                   ref={dropRef}
                   className={cn(
                     "chat-container relative z-10 mx-auto w-full rounded-2xl shadow-xs transition-all",
-                    isKeyboardOpen ? "mb-2" : "mb-8",
+                    isKeyboardOpen ? "mb-2" : chatStarted ? "mb-8" : "mb-3",
                     dragOver
                       ? "border-primary border-2 border-dotted"
                       : "border border-solid",
@@ -567,6 +582,11 @@ export function Thread() {
                     </div>
                   </form>
                 </div>
+                {!chatStarted && (
+                  <div className="chat-container mx-auto w-full">
+                    <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
+                  </div>
+                )}
               </div>
             }
           />
