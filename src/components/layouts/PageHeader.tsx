@@ -29,7 +29,7 @@ export function PageHeader({ title, children }: PageHeaderProps) {
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(true)}
-            className="hover:bg-gray-100"
+            className="hover:bg-gray-100 md:hidden"
           >
             <PanelRightClose className="size-5" />
           </Button>
