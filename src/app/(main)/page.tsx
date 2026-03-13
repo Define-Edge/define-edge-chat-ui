@@ -11,7 +11,7 @@ export default function ChatPage() {
   return (
     <div
       className={cn(
-        "md:h-[calc(100dvh-4rem)]",
+        "md:h-dvh",
         isKeyboardOpen
           ? "h-[calc(100dvh-4rem)]"
           : "h-[calc(100dvh-4rem-var(--bottom-navbar-height))]",
