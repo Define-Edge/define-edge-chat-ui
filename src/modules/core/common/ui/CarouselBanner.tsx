@@ -19,20 +19,47 @@ export function CarouselBanner({
   slides,
   autoPlayInterval = 5000,
 }: CarouselBannerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Internal index operates on extended array: [lastClone, ...slides, firstClone]
+  const [internalIndex, setInternalIndex] = useState(1);
+  const [isAnimating, setIsAnimating] = useState(true);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef(0);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const goToNext = useCallback(() => {
-    setCurrentIndex((prev) =>
-      prev === slides.length - 1 ? 0 : prev + 1,
-    );
-  }, [slides.length]);
+  // Extended slides: [last, ...original, first]
+  const extendedSlides = [
+    slides[slides.length - 1],
+    ...slides,
+    slides[0],
+  ];
 
-  // Pause auto-play while dragging
+  const goToNext = useCallback(() => {
+    setIsAnimating(true);
+    setInternalIndex((prev) => prev + 1);
+  }, []);
+
+  const goToPrev = useCallback(() => {
+    setIsAnimating(true);
+    setInternalIndex((prev) => prev - 1);
+  }, []);
+
+  // After transition to a clone, instantly jump to the real slide
+  const handleTransitionEnd = useCallback(() => {
+    if (internalIndex === 0) {
+      // Landed on last-clone → jump to real last
+      setIsAnimating(false);
+      setInternalIndex(slides.length);
+    } else if (internalIndex === slides.length + 1) {
+      // Landed on first-clone → jump to real first
+      setIsAnimating(false);
+      setInternalIndex(1);
+    }
+  }, [internalIndex, slides.length]);
+
+  // Reset auto-play
   const resetAutoPlay = useCallback(() => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     if (autoPlayInterval > 0) {
@@ -65,10 +92,10 @@ export function CarouselBanner({
     const width = containerRef.current?.offsetWidth ?? 1;
     const threshold = width * 0.2;
 
-    if (dragOffset < -threshold && currentIndex < slides.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else if (dragOffset > threshold && currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+    if (dragOffset < -threshold) {
+      goToNext();
+    } else if (dragOffset > threshold) {
+      goToPrev();
     }
 
     setDragOffset(0);
@@ -91,7 +118,7 @@ export function CarouselBanner({
   const onTouchEnd = () => handleDragEnd();
 
   const translateX =
-    -(currentIndex * 100) +
+    -(internalIndex * 100) +
     (dragOffset / (containerRef.current?.offsetWidth ?? 1)) * 100;
 
   return (
@@ -108,12 +135,14 @@ export function CarouselBanner({
     >
       {/* Slides */}
       <div
-        className={`flex h-full ${isDragging ? "" : "transition-transform duration-500 ease-out"}`}
+        ref={trackRef}
+        className={`flex h-full ${isDragging || !isAnimating ? "" : "transition-transform duration-500 ease-out"}`}
         style={{ transform: `translateX(${translateX}%)` }}
+        onTransitionEnd={handleTransitionEnd}
       >
-        {slides.map((slide) => (
+        {extendedSlides.map((slide, index) => (
           <div
-            key={slide.id}
+            key={`${slide.id}-${index}`}
             className="relative h-full min-w-full flex-shrink-0"
           >
             <Image

@@ -42,7 +42,7 @@ export default function SuggestedQueries({
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
         {suggestedQueriesCategories.map((category) => (
           <button
             key={category}
@@ -52,7 +52,7 @@ export default function SuggestedQueries({
               )
             }
             className={cn(
-              "flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-all duration-200",
+              "flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 text-xs font-medium transition-all duration-200 sm:gap-2 sm:px-4",
               activeCategory === category
                 ? "border-primary-main-dark bg-primary-main-dark text-white shadow-sm"
                 : "border-border-default bg-bg-card text-text-secondary hover:border-border-default hover:bg-bg-hover",

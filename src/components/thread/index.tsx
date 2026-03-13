@@ -1,10 +1,8 @@
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { PlannerModels } from "@/configs/models";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import useDetectKeyboardOpen from "@/hooks/useDetectKeyboardOpen";
@@ -21,8 +19,11 @@ import { startCase } from "lodash";
 import {
   ArrowDown,
   ArrowUp,
+  Check,
+  ChevronDown,
   LoaderCircle,
   Paperclip,
+  Sparkles,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -139,6 +140,7 @@ export function Thread() {
   } = useFileUpload();
   const [_firstTokenReceived, setFirstTokenReceived] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [modelOpen, setModelOpen] = useState(false);
 
   const stream = useStreamContext();
   const messages = stream.messages;
@@ -453,29 +455,90 @@ export function Thread() {
                         />
 
                         <div className="flex items-center gap-1.5 px-3 pb-3 pt-1">
-                          {/* Model chip */}
-                          <Select
-                            value={selectedModel}
-                            onValueChange={(value) =>
-                              setSelectedModel(value as PlannerModels)
-                            }
+                          {/* Model picker */}
+                          <Popover
+                            open={modelOpen}
+                            onOpenChange={setModelOpen}
                           >
-                            <SelectTrigger className="h-6 max-w-[120px] gap-1 rounded-full border-border-default bg-bg-subtle px-2.5 text-[11px] font-medium text-text-secondary transition-colors hover:bg-bg-hover">
-                              <SelectValue placeholder="Model" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(PlannerModels).map(
-                                ([key, value]) => (
-                                  <SelectItem
-                                    key={value}
-                                    value={value}
-                                  >
-                                    {getModelDisplayName(key)}
-                                  </SelectItem>
-                                ),
-                              )}
-                            </SelectContent>
-                          </Select>
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                className={cn(
+                                  "flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-all duration-200",
+                                  modelOpen
+                                    ? "border-primary-main-light/25 bg-primary-main-dark/8 text-primary-main-dark"
+                                    : "border-border-default/60 text-text-secondary hover:border-border-default hover:bg-bg-hover hover:text-text-primary",
+                                )}
+                              >
+                                <Sparkles className="size-3" />
+                                <span>
+                                  {getModelDisplayName(
+                                    Object.entries(PlannerModels).find(
+                                      ([, v]) => v === selectedModel,
+                                    )?.[0] || "",
+                                  )}
+                                </span>
+                                <ChevronDown
+                                  className={cn(
+                                    "size-3 opacity-50 transition-transform duration-200",
+                                    modelOpen && "rotate-180",
+                                  )}
+                                />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              align="start"
+                              sideOffset={8}
+                              className="w-48 overflow-hidden rounded-xl border-border-default bg-bg-card p-0 shadow-lg"
+                            >
+                              <div className="border-b border-border-default px-3 py-2">
+                                <p className="text-[10px] font-semibold tracking-widest text-text-muted uppercase">
+                                  Model
+                                </p>
+                              </div>
+                              <div className="py-1">
+                                {Object.entries(PlannerModels).map(
+                                  ([key, value]) => (
+                                    <button
+                                      key={value}
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedModel(
+                                          value as PlannerModels,
+                                        );
+                                        setModelOpen(false);
+                                      }}
+                                      className={cn(
+                                        "flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors duration-150",
+                                        selectedModel === value
+                                          ? "bg-primary-main-dark/5 text-primary-main-dark"
+                                          : "text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+                                      )}
+                                    >
+                                      <span
+                                        className={cn(
+                                          "flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
+                                          selectedModel === value
+                                            ? "border-brand-teal bg-brand-teal text-white"
+                                            : "border-border-default",
+                                        )}
+                                      >
+                                        {selectedModel === value && (
+                                          <Check
+                                            className="size-2.5"
+                                            strokeWidth={3}
+                                          />
+                                        )}
+                                      </span>
+                                      <span className="font-medium">
+                                        {getModelDisplayName(key)}
+                                      </span>
+                                    </button>
+                                  ),
+                                )}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
 
                           {/* Attach button */}
                           <Tooltip>
