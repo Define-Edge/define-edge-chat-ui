@@ -463,3 +463,19 @@ html {
 .animate-wave {
   animation: wave 1.2s infinite ease-in-out;
 }
+
+/* ==========================================================================
+   9. INPUT FORM STYLES
+   ========================================================================== */
+
+.input-form-glow {
+  box-shadow:
+    0 4px 20px rgba(6, 59, 170, 0.1),
+    0 0 40px rgba(66, 212, 163, 0.06);
+}
+
+.dark .input-form-glow {
+  box-shadow:
+    0 4px 20px rgba(59, 130, 246, 0.15),
+    0 0 40px rgba(66, 212, 163, 0.08);
+}
