@@ -3,8 +3,33 @@ import {
   suggestedQueries,
   suggestedQueriesCategories,
 } from "../constants/suggested-queries";
-import { ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import type { SuggestedPrompt } from "../constants/suggested-queries";
+import {
+  Activity,
+  BarChart3,
+  PieChart,
+  Shield,
+  Sparkles,
+  TrendingUp,
+  Wallet,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const categoryIcons: Record<string, React.ReactNode> = {
+  Stocks: <TrendingUp className="size-4" />,
+  "Mutual Funds": <PieChart className="size-4" />,
+  "Personal Finance": <Wallet className="size-4" />,
+};
+
+const promptIconMap: Record<SuggestedPrompt["icon"], React.ComponentType<{ className?: string }>> = {
+  TrendingUp,
+  BarChart3,
+  Sparkles,
+  Activity,
+  Shield,
+  Wallet,
+};
 
 interface SuggestedQueriesProps {
   onQuerySelect: (query: string) => void;
@@ -13,78 +38,67 @@ interface SuggestedQueriesProps {
 export default function SuggestedQueries({
   onQuerySelect,
 }: SuggestedQueriesProps) {
-  const [activeCategory, setActiveCategory] = useState("Stocks");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   return (
-    <div className="space-y-4 md:space-y-6 w-full">
-      <div className="flex justify-center space-x-2">
+    <div className="w-full space-y-4">
+      <div className="flex items-center justify-center gap-2">
         {suggestedQueriesCategories.map((category) => (
-          <CategoryButton
+          <button
             key={category}
-            label={category}
-            isActive={activeCategory === category}
-            onClick={() => setActiveCategory(category)}
-          />
+            onClick={() =>
+              setActiveCategory((prev) =>
+                prev === category ? null : category,
+              )
+            }
+            className={cn(
+              "flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-all duration-200",
+              activeCategory === category
+                ? "border-primary-main-dark bg-primary-main-dark text-white shadow-sm"
+                : "border-border-default bg-bg-card text-text-secondary hover:border-border-default hover:bg-bg-hover",
+            )}
+          >
+            {categoryIcons[category]}
+            {category}
+          </button>
         ))}
       </div>
-      <div className="flex flex-col items-center justify-center gap-3 md:gap-4">
-        {suggestedQueries[activeCategory as keyof typeof suggestedQueries].map(
-          (query, index) => (
-            <SuggestedQuery
-              key={index}
-              query={query}
-              onClick={() => onQuerySelect(query)}
-            />
-          ),
-        )}
-      </div>
+
+      {activeCategory && (
+        <div className="animate-fade-in-up overflow-hidden rounded-xl border border-border-default bg-bg-card shadow-sm">
+          <div className="flex items-center justify-between border-b border-border-default px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              {categoryIcons[activeCategory]}
+              {activeCategory}
+            </div>
+            <button
+              onClick={() => setActiveCategory(null)}
+              className="text-text-muted transition-colors hover:text-text-secondary"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+          <div className="scrollbar-thin max-h-48 overflow-y-auto">
+            {suggestedQueries[activeCategory].map((prompt, index, arr) => {
+              const Icon = promptIconMap[prompt.icon];
+              return (
+                <button
+                  key={`${activeCategory}-${prompt.id}`}
+                  onClick={() => onQuerySelect(prompt.text)}
+                  className={cn(
+                    "group flex w-full items-start gap-3 px-4 py-3 text-left text-xs text-text-secondary transition-colors duration-150 hover:bg-bg-hover hover:text-text-primary",
+                    index < arr.length - 1 &&
+                      "border-b border-border-default",
+                  )}
+                >
+                  <Icon className="mt-0.5 size-3.5 shrink-0 text-text-muted group-hover:text-accent-blue" />
+                  <span>{prompt.text}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
-  );
-}
-
-function SuggestedQuery({
-  query,
-  onClick,
-}: {
-  query: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="group w-full md:w-[calc(50%-0.5rem)] rounded-lg border border-border-default bg-bg-card p-2.5 text-left shadow-sm transition-all duration-200 hover:border-accent-blue hover:bg-gradient-to-r hover:from-brand-gradient-from hover:to-brand-gradient-to hover:shadow-md"
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-text-secondary group-hover:text-accent-blue">
-          {query}
-        </span>
-        <ArrowUpRight className="ml-2 h-3.5 w-3.5 flex-shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-blue" />
-      </div>
-    </button>
-  );
-}
-
-function CategoryButton({
-  label,
-  isActive = false,
-  onClick,
-}: {
-  label: string;
-  isActive?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <Button
-      variant={isActive ? "default" : "secondary"}
-      size="sm"
-      onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-xs shadow-sm transition-all ${
-        isActive
-          ? "bg-accent-blue text-primary-foreground shadow-md hover:bg-accent-indigo"
-          : "border border-border-default bg-bg-card text-text-secondary hover:border-border-default hover:bg-bg-hover"
-      }`}
-    >
-      {label}
-    </Button>
   );
 }

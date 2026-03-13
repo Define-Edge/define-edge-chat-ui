@@ -97,7 +97,7 @@ export function ImportDataPage() {
 
           {/* Security Notice */}
           <CollapsibleInstructions
-            title="RBI Approved & Bank-Level Security"
+            title="RBI Approved & Encrypted"
             description="All connections use 256-bit encryption and read-only access through RBI approved Accounts Aggregator framework. We never store your login credentials."
             icon={Shield}
             bgColor="bg-blue-50 border-blue-200"

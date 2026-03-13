@@ -1,10 +1,4 @@
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,9 +20,9 @@ import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { startCase } from "lodash";
 import {
   ArrowDown,
+  ArrowUp,
   LoaderCircle,
-  MoreVertical,
-  Plus,
+  Paperclip,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -37,8 +31,10 @@ import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { v4 as uuidv4 } from "uuid";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
   ArtifactContent,
@@ -142,6 +138,7 @@ export function Thread() {
     handlePaste,
   } = useFileUpload();
   const [_firstTokenReceived, setFirstTokenReceived] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const stream = useStreamContext();
   const messages = stream.messages;
@@ -271,7 +268,11 @@ export function Thread() {
         },
         optimisticValues: (prev) => ({
           ...prev,
-          messages: [...(prev.messages ?? []), ...toolMessages, newHumanMessage],
+          messages: [
+            ...(prev.messages ?? []),
+            ...toolMessages,
+            newHumanMessage,
+          ],
         }),
       },
     );
@@ -299,24 +300,41 @@ export function Thread() {
           <StickyToBottomContent
             className={cn(
               "scrollbar-thin absolute inset-0 overflow-y-auto",
-              !chatStarted && !isKeyboardOpen && "mt-6 flex flex-col items-stretch",
+              !chatStarted &&
+                !isKeyboardOpen &&
+                "flex flex-col items-stretch justify-center",
               (chatStarted || isKeyboardOpen) && "grid grid-rows-[1fr_auto]",
             )}
             contentClassName={cn(
               "chat-container mx-auto flex flex-col gap-4 w-full",
-              isKeyboardOpen ? "pb-4 justify-end" : "pt-8 pb-16",
+              isKeyboardOpen
+                ? "pb-4 justify-end"
+                : chatStarted
+                  ? "pt-8 pb-10"
+                  : "pb-6",
             )}
             content={
               <>
                 {!chatStarted && (
-                  <div className="flex flex-col items-center gap-6">
-                    <Image
-                      src="/logo.png"
-                      alt="logo"
-                      width={56}
-                      height={56}
-                    />
-                    <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative">
+                      <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary-main-light/10 to-brand-teal/10 blur-2xl" />
+                      <Image
+                        src="/logo.png"
+                        alt="FinSharpeGPT"
+                        width={64}
+                        height={64}
+                        className="relative drop-shadow-sm"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <h1 className="text-2xl font-semibold tracking-tight text-primary-main-dark md:text-4xl">
+                        Welcome to FinSharpeGPT
+                      </h1>
+                      <p className="mt-1.5 text-sm text-text-tertiary">
+                        Your AI-powered finance assistant
+                      </p>
+                    </div>
                   </div>
                 )}
                 {messages
@@ -354,7 +372,9 @@ export function Thread() {
                       An error occurred
                     </p>
                     {typeof stream.error === "string" ? (
-                      <p className="mt-1 text-sm text-red-600">{stream.error}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {stream.error}
+                      </p>
                     ) : (
                       <pre className="mt-1 overflow-auto rounded bg-red-100 p-2 text-xs text-red-600">
                         {JSON.stringify(stream.error, null, 2)}
@@ -365,208 +385,190 @@ export function Thread() {
               </>
             }
             footer={
-              <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-gray-50">
+              <div
+                className={cn(
+                  "sticky bottom-0 flex flex-col items-center bg-gray-50",
+                  chatStarted ? "gap-8" : "gap-6",
+                )}
+              >
                 <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                 <div
                   ref={dropRef}
                   className={cn(
-                    "chat-container relative z-10 mx-auto w-full rounded-2xl shadow-xs transition-all",
-                    isKeyboardOpen ? "mb-2" : "mb-8",
-                    dragOver
-                      ? "border-primary border-2 border-dotted"
-                      : "border border-solid",
+                    "chat-container relative z-10 mx-auto w-full transition-all duration-300",
+                    isKeyboardOpen ? "mb-2" : chatStarted ? "mb-8" : "mb-3",
                   )}
                 >
-                  <form
-                    onSubmit={handleSubmit}
-                    className="chat-container mx-auto grid grid-rows-[1fr_auto] gap-2"
+                  {/* Gradient border wrapper */}
+                  <div
+                    className={cn(
+                      "rounded-2xl p-px shadow-sm transition-all duration-500",
+                      isInputFocused
+                        ? "bg-gradient-to-r from-primary-main-light via-brand-teal/60 to-primary-main-light input-form-glow"
+                        : dragOver
+                          ? "bg-gradient-to-r from-brand-teal/80 to-primary-main-light/80"
+                          : "bg-border-default",
+                    )}
                   >
-                    <ContentBlocksPreview
-                      blocks={contentBlocks}
-                      onRemove={removeBlock}
-                    />
-                    <textarea
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onPaste={handlePaste}
-                      onClick={(e) => {
-                        // On mobile, scroll the input into view when keyboard appears
-                        const target = e.target as HTMLTextAreaElement;
-                        setTimeout(() => {
-                          target.scrollIntoView({
-                            behavior: "instant",
-                            block: "center",
-                          });
-                        }, 300);
-                      }}
-                      onKeyDown={(e) => {
-                        if (
-                          e.key === "Enter" &&
-                          !e.shiftKey &&
-                          !e.metaKey &&
-                          !e.nativeEvent.isComposing
-                        ) {
-                          e.preventDefault();
-                          const el = e.target as HTMLElement | undefined;
-                          const form = el?.closest("form");
-                          form?.requestSubmit();
-                        }
-                      }}
-                      placeholder="Type your message..."
-                      className="field-sizing-content resize-none border-none p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
-                    />
-
-                    <div className="flex items-center gap-6 p-2 pt-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          className="md:hidden"
-                          asChild
-                        >
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                          >
-                            <span className="sr-only">Open menu</span>
-                            <MoreVertical />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                          {/* <DropdownMenuItem asChild>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="render-tool-calls"
-                                  checked={hideToolCalls ?? false}
-                                  onCheckedChange={setHideToolCalls}
-                                />
-                                <Label
-                                  htmlFor="render-tool-calls"
-                                  className="text-sm text-gray-600"
-                                >
-                                  Hide Tool Calls
-                                </Label>
-                              </div>
-                            </DropdownMenuItem> */}
-                          <DropdownMenuItem
-                            asChild
-                            onSelect={(e) => e.preventDefault()}
-                          >
-                            <div className="flex flex-col gap-2 p-2">
-                              <Select
-                                value={selectedModel}
-                                onValueChange={(value) =>
-                                  setSelectedModel(value as PlannerModels)
-                                }
-                              >
-                                <SelectTrigger className="h-8 w-full text-sm">
-                                  <SelectValue placeholder="Select a model" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(PlannerModels).map(
-                                    ([key, value]) => (
-                                      <SelectItem
-                                        key={value}
-                                        value={value}
-                                      >
-                                        {getModelDisplayName(key)}
-                                      </SelectItem>
-                                    ),
-                                  )}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Label
-                              htmlFor="file-input"
-                              className="flex cursor-pointer items-center gap-2"
-                            >
-                              <Plus className="size-5 text-gray-600" />
-                              <span className="text-sm text-gray-600">
-                                Upload File
-                              </span>
-                            </Label>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      {/* <div className="hidden md:flex items-center space-x-2">
-                          <Switch
-                            id="render-tool-calls"
-                            checked={hideToolCalls ?? false}
-                            onCheckedChange={setHideToolCalls}
-                          />
-                          <Label
-                            htmlFor="render-tool-calls"
-                            className="text-sm text-gray-600"
-                          >
-                            Hide Tool Calls
-                          </Label>
-                        </div> */}
-                      <div className="hidden items-center gap-2 md:flex">
-                        <Select
-                          value={selectedModel}
-                          onValueChange={(value) =>
-                            setSelectedModel(value as PlannerModels)
-                          }
-                        >
-                          <SelectTrigger className="h-8 w-[200px] text-sm">
-                            <SelectValue placeholder="Select a model" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(PlannerModels).map(
-                              ([key, value]) => (
-                                <SelectItem
-                                  key={value}
-                                  value={value}
-                                >
-                                  {getModelDisplayName(key)}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Label
-                        htmlFor="file-input"
-                        className="hidden cursor-pointer items-center gap-2 md:flex"
+                    <div className="rounded-[calc(1rem-1px)] bg-background">
+                      <form
+                        onSubmit={handleSubmit}
+                        className="flex flex-col"
                       >
-                        <Plus className="size-5 text-gray-600" />
-                        <span className="text-sm text-gray-600">
-                          Upload File
-                        </span>
-                      </Label>
-                      <input
-                        id="file-input"
-                        type="file"
-                        onChange={handleFileUpload}
-                        multiple
-                        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,.csv,.xlsx"
-                        className="hidden"
-                      />
-                      {stream.isLoading ? (
-                        <Button
-                          key="stop"
-                          onClick={() => stream.stop()}
-                          className="ml-auto"
-                        >
-                          <LoaderCircle className="h-4 w-4 animate-spin" />
-                          Cancel
-                        </Button>
-                      ) : (
-                        <Button
-                          type="submit"
-                          className="ml-auto shadow-md transition-all"
-                          disabled={
-                            isLoading ||
-                            (!input.trim() && contentBlocks.length === 0)
-                          }
-                        >
-                          Send
-                        </Button>
-                      )}
+                        <ContentBlocksPreview
+                          blocks={contentBlocks}
+                          onRemove={removeBlock}
+                        />
+                        <textarea
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onPaste={handlePaste}
+                          onFocus={() => setIsInputFocused(true)}
+                          onBlur={() => setIsInputFocused(false)}
+                          onClick={(e) => {
+                            const target = e.target as HTMLTextAreaElement;
+                            setTimeout(() => {
+                              target.scrollIntoView({
+                                behavior: "instant",
+                                block: "center",
+                              });
+                            }, 300);
+                          }}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "Enter" &&
+                              !e.shiftKey &&
+                              !e.metaKey &&
+                              !e.nativeEvent.isComposing
+                            ) {
+                              e.preventDefault();
+                              const el = e.target as HTMLElement | undefined;
+                              const form = el?.closest("form");
+                              form?.requestSubmit();
+                            }
+                          }}
+                          placeholder="Ask anything about finance..."
+                          className="field-sizing-content min-h-[44px] resize-none border-none bg-transparent p-4 pb-2 text-foreground placeholder:text-text-muted shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        />
+
+                        <div className="flex items-center gap-1.5 px-3 pb-3 pt-1">
+                          {/* Model chip */}
+                          <Select
+                            value={selectedModel}
+                            onValueChange={(value) =>
+                              setSelectedModel(value as PlannerModels)
+                            }
+                          >
+                            <SelectTrigger className="h-6 max-w-[120px] gap-1 rounded-full border-border-default bg-bg-subtle px-2.5 text-[11px] font-medium text-text-secondary transition-colors hover:bg-bg-hover">
+                              <SelectValue placeholder="Model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(PlannerModels).map(
+                                ([key, value]) => (
+                                  <SelectItem
+                                    key={value}
+                                    value={value}
+                                  >
+                                    {getModelDisplayName(key)}
+                                  </SelectItem>
+                                ),
+                              )}
+                            </SelectContent>
+                          </Select>
+
+                          {/* Attach button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Label
+                                htmlFor="file-input"
+                                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-bg-hover hover:text-text-primary"
+                              >
+                                <Paperclip className="size-3" />
+                              </Label>
+                            </TooltipTrigger>
+                            <TooltipContent>Attach file</TooltipContent>
+                          </Tooltip>
+
+                          <input
+                            id="file-input"
+                            type="file"
+                            onChange={handleFileUpload}
+                            multiple
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,.csv,.xlsx"
+                            className="hidden"
+                          />
+
+                          <div className="flex-1" />
+
+                          {!isMobile &&
+                            input.trim().length > 0 &&
+                            !isLoading && (
+                              <span className="select-none text-[11px] text-text-muted">
+                                Enter to send
+                              </span>
+                            )}
+
+                          <AnimatePresence mode="wait">
+                            {stream.isLoading ? (
+                              <motion.div
+                                key="stop"
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                <Button
+                                  onClick={() => stream.stop()}
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 gap-1.5 rounded-full px-3 text-xs"
+                                >
+                                  <LoaderCircle className="size-3.5 animate-spin" />
+                                  <span>Stop</span>
+                                </Button>
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                key="send"
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                <Button
+                                  type="submit"
+                                  disabled={
+                                    isLoading ||
+                                    (!input.trim() &&
+                                      contentBlocks.length === 0)
+                                  }
+                                  className={cn(
+                                    "h-8 w-8 rounded-full p-0 transition-all duration-200",
+                                    input.trim() ||
+                                      contentBlocks.length > 0
+                                      ? "bg-primary-main-dark shadow-md hover:bg-primary-main-light"
+                                      : "bg-muted text-muted-foreground",
+                                  )}
+                                >
+                                  <ArrowUp
+                                    className="size-4"
+                                    strokeWidth={2.5}
+                                  />
+                                </Button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </form>
                     </div>
-                  </form>
+                  </div>
                 </div>
+                {!chatStarted && (
+                  <div className="chat-container mx-auto w-full pb-6">
+                    <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
+                  </div>
+                )}
               </div>
             }
           />
