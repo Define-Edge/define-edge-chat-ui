@@ -6,14 +6,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Compass, Database, History, Menu, Plus } from "lucide-react";
+import { Compass, History, Menu, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { parseAsBoolean, useQueryState } from "nuqs";
 
 const NAV_ITEMS = [
   { href: "/", icon: Plus, label: "New Chat", exact: true },
-  { href: "/import", icon: Database, label: "Import", exact: false },
+  { href: "/import", icon: Upload, label: "Import", exact: false },
   { href: "/discover", icon: Compass, label: "Discover", exact: false },
   { href: "/history", icon: History, label: "Memory", exact: false },
 ] as const;
@@ -26,15 +26,18 @@ export function SideNavStrip() {
   );
 
   return (
-    <div className="fixed left-0 top-0 z-10 hidden h-full w-10 flex-col items-center bg-slate-900 py-2 md:flex">
+    <div className="fixed left-0 top-0 z-10 hidden h-full w-[var(--side-navbar-width)] flex-col items-center gap-6 bg-primary-main-dark py-5 md:flex">
+      {/* Right-edge accent line */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-px bg-gradient-to-b from-blue-800/0 via-blue-500/40 to-blue-800/0" />
+
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setSidebarOpen(true)}
         aria-label="Open navigation"
-        className="mb-2 text-white hover:bg-slate-800 hover:text-white"
+        className="mb-2 text-white/80 hover:bg-white/10 hover:text-white"
       >
-        <Menu className="size-5" />
+        <Menu className="size-[22px]" />
       </Button>
 
       {NAV_ITEMS.map(({ href, icon: Icon, label, exact }) => {
@@ -50,13 +53,13 @@ export function SideNavStrip() {
                 aria-label={label}
                 className={
                   isActive
-                    ? "text-blue-400 hover:bg-slate-800 hover:text-blue-400"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    ? "bg-white/15 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.25)] backdrop-blur-sm hover:bg-white/20 hover:text-blue-300"
+                    : "text-white/60 hover:bg-white/10 hover:text-white"
                 }
                 asChild
               >
                 <Link href={href}>
-                  <Icon className="size-5" />
+                  <Icon className="size-[22px]" />
                 </Link>
               </Button>
             </TooltipTrigger>

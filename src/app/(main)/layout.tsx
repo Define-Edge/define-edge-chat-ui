@@ -15,7 +15,7 @@ export default function MainLayout({
       <ClientProviders>
         <NavigationShell>
           <SideNavStrip />
-          <div className="flex min-h-dvh flex-col md:pl-10">
+          <div className="flex min-h-dvh flex-col md:pl-[var(--side-navbar-width)]">
             <Navbar />
             {children}
             <BottomNavbar />

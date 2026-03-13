@@ -95,7 +95,7 @@ export function AdvisorStrategyDetailsPage({
         <PortfolioAnalyticsTabs analytics={strategy.analytics} />
 
         {/* Action Button */}
-        <div className="bg-bg-card border-border-default fixed right-0 bottom-[var(--bottom-navbar-height)] left-0 z-40 border-t shadow-lg md:bottom-0 md:left-10">
+        <div className="bg-bg-card border-border-default fixed right-0 bottom-[var(--bottom-navbar-height)] left-0 z-40 border-t shadow-lg md:bottom-0 md:left-[var(--side-navbar-width)]">
           <div className="mx-auto max-w-md px-6 py-4">
             <Button
               className="bg-accent-blue hover:bg-info-icon w-full py-3 text-white"

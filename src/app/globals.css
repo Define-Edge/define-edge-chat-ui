@@ -16,6 +16,7 @@
 
 :root {
   /* Layout */
+  --side-navbar-width: 56px;
   --bottom-navbar-height: 66.5px;
   --font-size: 14px;
   --font-weight-medium: 500;
