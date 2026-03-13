@@ -34,6 +34,38 @@ import { SipPreviewModal } from "./modals/SipPreviewModal";
 import { NetworthGraph } from "./NetworthGraph";
 import { QuickUpload } from "./QuickUpload";
 import { CollapsibleInstructions } from "../../core/common/ui/CollapsibleInstructions";
+import {
+  CarouselBanner,
+  type CarouselSlide,
+} from "@/modules/core/common/ui/CarouselBanner";
+
+const importSlides: CarouselSlide[] = [
+  {
+    id: 1,
+    title: "Import",
+    subtitle: "Connect your financial accounts for personalized insights",
+    image: "/banners/secured_reports.png",
+  },
+  {
+    id: 2,
+    title: "Import",
+    subtitle: "Securely sync your investment portfolio and track performance",
+    image: "/banners/aesthetic_tablet.png",
+  },
+  {
+    id: 3,
+    title: "Import",
+    subtitle: "Get comprehensive analysis across all your investments",
+    image: "/banners/futuristic_tablet.png",
+  },
+  {
+    id: 4,
+    title: "Import",
+    subtitle:
+      "RBI-approved secure connections to all major financial institutions",
+    image: "/banners/locker.png",
+  },
+];
 
 // Import with ssr: false to prevent hydration errors from localStorage usage
 const MoneyOneHoldingsCard = dynamic(
@@ -48,15 +80,8 @@ export function ImportDataPage() {
   return (
     <div className="mx-auto max-w-5xl pb-24">
       <div className="space-y-6 p-6">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            Import Data
-          </h2>
-          <p className="text-sm text-gray-600">
-            Connect your financial accounts for personalized insights
-          </p>
-        </div>
+        {/* Carousel Banner */}
+        <CarouselBanner slides={importSlides} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* What is Import Section */}
           <CollapsibleInstructions
