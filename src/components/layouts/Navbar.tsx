@@ -11,7 +11,7 @@ export default function Navbar() {
     parseAsBoolean.withDefault(false),
   );
   return (
-    <div className="sticky top-0 z-50 h-16 bg-gradient-to-r from-slate-900 via-blue-900 to-blue-700 md:px-4">
+    <div className="sticky top-0 z-50 h-16 bg-gradient-to-r from-slate-900 via-blue-900 to-blue-700 md:hidden">
       <div className="flex h-full items-center justify-between">
         <Button
           variant="ghost"
