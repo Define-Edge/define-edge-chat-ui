@@ -1,20 +1,46 @@
 "use client";
 
 import { CollapsibleInstructions } from "@/modules/core/common/ui/CollapsibleInstructions";
+import {
+  CarouselBanner,
+  type CarouselSlide,
+} from "@/modules/core/common/ui/CarouselBanner";
 import { Database } from "lucide-react";
 import ThreadHistoryList from "@/modules/history/components/ThreadHistoryList";
 import BookmarkedChatsSlider from "@/modules/history/components/BookmarkedChatsSlider";
 
+const memorySlides: CarouselSlide[] = [
+  {
+    id: 1,
+    title: "Memory",
+    subtitle: "Resume your previous conversations and access saved insights",
+    image: "/banners/records.png",
+  },
+  {
+    id: 2,
+    title: "Memory",
+    subtitle: "Your complete chat history with tags and smart organization",
+    image: "/banners/aesthetic_tablet_white.png",
+  },
+  {
+    id: 3,
+    title: "Memory",
+    subtitle: "Bookmark important conversations and find them instantly",
+    image: "/banners/locker.png",
+  },
+  {
+    id: 4,
+    title: "Memory",
+    subtitle: "All your research reports and portfolios securely stored",
+    image: "/banners/reports.png",
+  },
+];
+
 export default function page() {
   return (
     <div className="mx-auto max-w-4xl min-w-0 space-y-6 p-6 pb-24">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="mb-2 text-xl font-semibold text-gray-900">Memory</h2>
-        <p className="text-sm text-gray-600">
-          Resume your previous conversations
-        </p>
-      </div>
+      {/* Carousel Banner */}
+      <CarouselBanner slides={memorySlides} />
       {/* What is Memory Section */}
       <CollapsibleInstructions
         title="Long-term Chat Memory"

@@ -27,6 +27,37 @@ import { InvestorBasketCard } from "./cards/InvestorBasketCard";
 import { ThematicBasketCard } from "./cards/ThematicBasketCard";
 import { DropdownSection } from "./sections/DropdownSection";
 import { CollapsibleInfo } from "./shared/CollapsibleInfo";
+import {
+  CarouselBanner,
+  type CarouselSlide,
+} from "@/modules/core/common/ui/CarouselBanner";
+
+const discoverSlides: CarouselSlide[] = [
+  {
+    id: 1,
+    title: "Discover",
+    subtitle: "Explore curated investment portfolios tailored to your goals",
+    image: "/banners/futuristic_analyst.png",
+  },
+  {
+    id: 2,
+    title: "Discover",
+    subtitle: "Expert-curated investment baskets and thematic strategies",
+    image: "/banners/aesthetic_tablet.png",
+  },
+  {
+    id: 3,
+    title: "Discover",
+    subtitle: "Emerging market trends and investment opportunities",
+    image: "/banners/futuristic_tablet.png",
+  },
+  {
+    id: 4,
+    title: "Discover",
+    subtitle: "Proven strategies from legendary investors",
+    image: "/banners/reports.png",
+  },
+];
 
 /**
  * Main Discover page component
@@ -213,13 +244,8 @@ export function DiscoverPage() {
   return (
     <div className="mx-auto max-w-5xl pb-24">
       <div className="space-y-6 p-6">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">Discover</h2>
-          <p className="text-sm text-gray-600">
-            Explore curated investment opportunities
-          </p>
-        </div>
+        {/* Carousel Banner */}
+        <CarouselBanner slides={discoverSlides} />
 
         <CollapsibleInfo
           title="Investment Discovery"
