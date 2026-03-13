@@ -305,26 +305,39 @@ export function Thread() {
               "scrollbar-thin absolute inset-0 overflow-y-auto",
               !chatStarted &&
                 !isKeyboardOpen &&
-                "mt-6 flex flex-col items-stretch",
+                "flex flex-col items-stretch justify-center",
               (chatStarted || isKeyboardOpen) && "grid grid-rows-[1fr_auto]",
             )}
             contentClassName={cn(
               "chat-container mx-auto flex flex-col gap-4 w-full",
-              isKeyboardOpen ? "pb-4 justify-end" : "pt-8 pb-10",
+              isKeyboardOpen
+                ? "pb-4 justify-end"
+                : chatStarted
+                  ? "pt-8 pb-10"
+                  : "pb-6",
             )}
             content={
               <>
                 {!chatStarted && (
-                  <div className="flex items-center justify-center gap-2">
-                    <Image
-                      src="/logo.png"
-                      alt="logo"
-                      width={56}
-                      height={56}
-                    />
-                    <h1 className="text-4xl font-semibold text-gray-800">
-                      Welcome to FinSharpeGPT
-                    </h1>
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative">
+                      <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary-main-light/10 to-brand-teal/10 blur-2xl" />
+                      <Image
+                        src="/logo.png"
+                        alt="FinSharpeGPT"
+                        width={64}
+                        height={64}
+                        className="relative drop-shadow-sm"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <h1 className="text-2xl font-semibold tracking-tight text-primary-main-dark md:text-4xl">
+                        Welcome to FinSharpeGPT
+                      </h1>
+                      <p className="mt-1.5 text-sm text-text-tertiary">
+                        Your AI-powered finance assistant
+                      </p>
+                    </div>
                   </div>
                 )}
                 {messages
@@ -378,7 +391,7 @@ export function Thread() {
               <div
                 className={cn(
                   "sticky bottom-0 flex flex-col items-center bg-gray-50",
-                  chatStarted ? "gap-8" : "gap-2",
+                  chatStarted ? "gap-8" : "gap-6",
                 )}
               >
                 <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
@@ -583,7 +596,7 @@ export function Thread() {
                   </form>
                 </div>
                 {!chatStarted && (
-                  <div className="chat-container mx-auto w-full">
+                  <div className="chat-container mx-auto w-full pb-6">
                     <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
                   </div>
                 )}
