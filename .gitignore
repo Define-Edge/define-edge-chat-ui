@@ -40,3 +40,4 @@ props.json
 
 # VS Code (keep extensions.json tracked)
 .vscode/settings.json
+.superpowers
