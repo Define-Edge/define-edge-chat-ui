@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { Button } from "../ui/button";
+import { UserMenu } from "./UserMenu";
 
 export default function Navbar() {
   const [, setSidebarOpen] = useQueryState(
@@ -32,7 +33,9 @@ export default function Navbar() {
             {appConfig.appName}
           </h1>
         </Link>
-        <div className="w-9" />
+        <div className="pr-2">
+          <UserMenu size="sm" />
+        </div>
       </div>
     </div>
   );
