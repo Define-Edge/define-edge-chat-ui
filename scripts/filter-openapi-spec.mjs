@@ -30,6 +30,11 @@ const API_GROUPS = [
     tags: ["Report APIs"],
     outputPath: path.join(__dirname, "../openapi-report.json"),
   },
+  {
+    name: "Auth APIs",
+    tags: ["auth"],
+    outputPath: path.join(__dirname, "../openapi-auth.json"),
+  },
 ];
 
 async function fetchOpenAPISpec() {

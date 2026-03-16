@@ -9,23 +9,23 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import type { UserResponse } from "@/api/generated/auth-apis/models";
 
-interface User {
-  id: string;
-  name: string | null;
-  email?: string;
-  image?: string | null;
-  roles: string[];
-  institutionId?: string | null;
-}
+/**
+ * Minimal user data available from the user_info cookie.
+ * Derived from UserResponse — cookie only has id, name, roles (PII stripped).
+ * Full fields (email, institutionId, image) are populated after /api/auth/me call.
+ */
+export type CookieUser = Partial<UserResponse> &
+  Pick<UserResponse, "id" | "roles" | "name">;
 
 interface AuthContextType {
-  user: User | null;
+  user: CookieUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<boolean>;
-  updateUser: (user: User) => void;
+  updateUser: (user: CookieUser) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -36,7 +36,7 @@ export function useAuth() {
   return ctx;
 }
 
-function getUserFromCookie(): User | null {
+function getUserFromCookie(): CookieUser | null {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(/(?:^|;\s*)user_info=([^;]*)/);
   if (!match) return null;
@@ -48,7 +48,7 @@ function getUserFromCookie(): User | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CookieUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 

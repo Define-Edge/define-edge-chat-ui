@@ -77,4 +77,23 @@ export default defineConfig({
       },
     },
   },
+  'auth-apis': {
+    input: {
+      target: './openapi-auth.json',
+    },
+    output: {
+      mode: 'tags-split',
+      target: './src/api/generated/auth-apis',
+      schemas: './src/api/generated/auth-apis/models',
+      client: 'react-query',
+      httpClient: 'fetch',
+      mock: false,
+      clean: true,
+      prettier: true,
+      baseUrl: '/api',
+      override: {
+        useDates: false,
+      },
+    },
+  },
 });
