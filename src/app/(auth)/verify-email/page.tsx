@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/providers/AuthProvider";
 import { useVerifyEmailMutation, useResendOtpMutation } from "@/modules/auth";
 import {
   verifyEmailSchema,
@@ -24,6 +25,7 @@ const RESEND_COOLDOWN = 60;
 
 function VerifyEmailForm() {
   const router = useRouter();
+  const { updateUser } = useAuth();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
 
@@ -63,7 +65,10 @@ function VerifyEmailForm() {
 
   const onSubmit = (values: VerifyEmailFormValues) => {
     verifyMutation.mutate(values, {
-      onSuccess: () => router.push("/"),
+      onSuccess: (data) => {
+        if (data.user) updateUser(data.user);
+        router.push("/");
+      },
     });
   };
 

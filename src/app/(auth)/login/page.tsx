@@ -16,11 +16,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/providers/AuthProvider";
 import { useLoginMutation } from "@/modules/auth";
 import { loginSchema, type LoginFormValues } from "@/modules/auth/types/auth.types";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { updateUser } = useAuth();
   const mutation = useLoginMutation();
 
   const {
@@ -40,6 +42,7 @@ export default function LoginPage() {
           router.push(`/verify-email?email=${encodeURIComponent(getValues("email"))}`);
           return;
         }
+        if (data.user) updateUser(data.user);
         router.push("/");
       },
     });
