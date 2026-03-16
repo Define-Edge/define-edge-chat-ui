@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,41 +16,35 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRegisterMutation } from "@/modules/auth";
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from "@/modules/auth/types/auth.types";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const mutation = useRegisterMutation();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { name: "", email: "", password: "" },
+  });
 
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.detail || data.error || "Registration failed");
-        return;
-      }
-
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  const onSubmit = (values: RegisterFormValues) => {
+    mutation.mutate(values, {
+      onSuccess: () => {
+        router.push(
+          `/verify-email?email=${encodeURIComponent(getValues("email"))}`,
+        );
+      },
+    });
+  };
 
   return (
     <Card>
@@ -60,11 +55,11 @@ export default function RegisterPage() {
         </CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="flex flex-col gap-4">
-          {error && (
+          {mutation.error && (
             <div className="rounded-md bg-error-bg px-3 py-2 text-sm text-error-fg">
-              {error}
+              {mutation.error.message}
             </div>
           )}
 
@@ -74,12 +69,13 @@ export default function RegisterPage() {
               id="name"
               type="text"
               placeholder="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
               autoComplete="name"
               autoFocus
+              {...register("name")}
             />
+            {errors.name && (
+              <p className="text-xs text-error-fg">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -88,11 +84,12 @@ export default function RegisterPage() {
               id="email"
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
               autoComplete="email"
+              {...register("email")}
             />
+            {errors.email && (
+              <p className="text-xs text-error-fg">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -100,21 +97,23 @@ export default function RegisterPage() {
             <PasswordInput
               id="password"
               placeholder="Choose a strong password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
               autoComplete="new-password"
-              minLength={8}
+              {...register("password")}
             />
+            {errors.password && (
+              <p className="text-xs text-error-fg">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           <Button
             type="submit"
             variant="brand"
             className="w-full"
-            disabled={isSubmitting}
+            disabled={mutation.isPending}
           >
-            {isSubmitting ? "Creating account..." : "Create account"}
+            {mutation.isPending ? "Creating account..." : "Create account"}
           </Button>
         </CardContent>
       </form>

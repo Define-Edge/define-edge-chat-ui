@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +14,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useVerifyEmailMutation, useRegisterMutation } from "@/modules/auth";
+import {
+  verifyEmailSchema,
+  type VerifyEmailFormValues,
+} from "@/modules/auth/types/auth.types";
 
 const RESEND_COOLDOWN = 60;
 
@@ -20,12 +27,31 @@ function VerifyEmailForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
 
-  const [token, setToken] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const verifyMutation = useVerifyEmailMutation();
+  const resendMutation = useRegisterMutation();
+
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<VerifyEmailFormValues>({
+    resolver: zodResolver(verifyEmailSchema),
+    defaultValues: { email, token: "" },
+  });
+
+  const tokenValue = watch("token");
+
+  // Keep email in sync with search params
+  useEffect(() => {
+    if (email) setValue("email", email);
+  }, [email, setValue]);
+
+  // Resend countdown timer
   useEffect(() => {
     if (resendCountdown <= 0) return;
     const timer = setTimeout(
@@ -35,55 +61,26 @@ function VerifyEmailForm() {
     return () => clearTimeout(timer);
   }, [resendCountdown]);
 
-  const handleResend = useCallback(async () => {
+  const onSubmit = (values: VerifyEmailFormValues) => {
+    verifyMutation.mutate(values, {
+      onSuccess: () => router.push("/"),
+    });
+  };
+
+  const handleResend = useCallback(() => {
     if (resendCountdown > 0 || !email) return;
     setResendMessage(null);
 
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      if (res.ok) {
-        setResendMessage("Verification code sent!");
-        setResendCountdown(RESEND_COOLDOWN);
-      } else {
-        const data = await res.json();
-        setError(data.detail || data.error || "Failed to resend code");
-      }
-    } catch {
-      setError("Failed to resend code. Please try again.");
-    }
-  }, [email, resendCountdown]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("/api/auth/verify-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, token }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.detail || data.error || "Verification failed");
-        return;
-      }
-
-      router.push("/");
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+    resendMutation.mutate(
+      { name: "", email, password: "" },
+      {
+        onSuccess: () => {
+          setResendMessage("Verification code sent!");
+          setResendCountdown(RESEND_COOLDOWN);
+        },
+      },
+    );
+  }, [email, resendCountdown, resendMutation]);
 
   return (
     <Card>
@@ -101,16 +98,22 @@ function VerifyEmailForm() {
         </CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="flex flex-col gap-4">
-          {error && (
+          {verifyMutation.error && (
             <div className="rounded-md bg-error-bg px-3 py-2 text-sm text-error-fg">
-              {error}
+              {verifyMutation.error.message}
+            </div>
+          )}
+
+          {resendMutation.error && (
+            <div className="rounded-md bg-error-bg px-3 py-2 text-sm text-error-fg">
+              {resendMutation.error.message}
             </div>
           )}
 
           {resendMessage && (
-            <div className="rounded-md bg-success-bg px-3 py-2 text-sm text-success-fg">
+            <div className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
               {resendMessage}
             </div>
           )}
@@ -121,33 +124,35 @@ function VerifyEmailForm() {
               id="token"
               type="text"
               inputMode="numeric"
-              pattern="[0-9]{6}"
               maxLength={6}
               placeholder="000000"
-              value={token}
-              onChange={(e) =>
-                setToken(e.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-              required
               autoFocus
               className="text-center text-lg tracking-[0.3em]"
+              {...register("token")}
+              onChange={(e) => {
+                const cleaned = e.target.value.replace(/\D/g, "").slice(0, 6);
+                setValue("token", cleaned, { shouldValidate: true });
+              }}
             />
+            {errors.token && (
+              <p className="text-xs text-error-fg">{errors.token.message}</p>
+            )}
           </div>
 
           <Button
             type="submit"
             variant="brand"
             className="w-full"
-            disabled={isSubmitting || token.length !== 6}
+            disabled={verifyMutation.isPending || tokenValue.length !== 6}
           >
-            {isSubmitting ? "Verifying..." : "Verify email"}
+            {verifyMutation.isPending ? "Verifying..." : "Verify email"}
           </Button>
 
           <div className="text-center">
             <Button
               type="button"
               variant="link"
-              disabled={resendCountdown > 0}
+              disabled={resendCountdown > 0 || resendMutation.isPending}
               onClick={handleResend}
               className="text-sm"
             >
