@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useVerifyEmailMutation, useRegisterMutation } from "@/modules/auth";
+import { useVerifyEmailMutation, useResendOtpMutation } from "@/modules/auth";
 import {
   verifyEmailSchema,
   type VerifyEmailFormValues,
@@ -28,7 +28,7 @@ function VerifyEmailForm() {
   const email = searchParams.get("email") || "";
 
   const verifyMutation = useVerifyEmailMutation();
-  const resendMutation = useRegisterMutation();
+  const resendMutation = useResendOtpMutation();
 
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
@@ -71,15 +71,12 @@ function VerifyEmailForm() {
     if (resendCountdown > 0 || !email) return;
     setResendMessage(null);
 
-    resendMutation.mutate(
-      { name: "", email, password: "" },
-      {
-        onSuccess: () => {
-          setResendMessage("Verification code sent!");
-          setResendCountdown(RESEND_COOLDOWN);
-        },
+    resendMutation.mutate(email, {
+      onSuccess: () => {
+        setResendMessage("Verification code sent!");
+        setResendCountdown(RESEND_COOLDOWN);
       },
-    );
+    });
   }, [email, resendCountdown, resendMutation]);
 
   return (
