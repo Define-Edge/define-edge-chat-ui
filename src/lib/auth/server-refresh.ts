@@ -36,7 +36,7 @@ function buildRefreshSetCookieHeaders(tokens: RefreshTokens): string[] {
   );
 
   headers.push(
-    `refresh_token=${tokens.refresh_token}; HttpOnly; Path=/api/; Max-Age=604800; SameSite=Strict${secure}`,
+    `refresh_token=${tokens.refresh_token}; HttpOnly; Path=/; Max-Age=604800; SameSite=Strict${secure}`,
   );
 
   headers.push(
@@ -68,7 +68,9 @@ async function refreshTokens(refreshToken: string): Promise<RefreshTokens | null
     },
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    return null;
+  }
 
   const data = await res.json();
   return {
@@ -113,7 +115,9 @@ export async function fetchWithRefresh(
   let refreshSetCookieHeaders: string[] | undefined;
 
   // If no access token or token is expired, try refreshing first
-  if (!accessToken || isTokenExpired(accessToken)) {
+  const needsRefresh = !accessToken || isTokenExpired(accessToken);
+
+  if (needsRefresh) {
     const refreshToken = request.cookies.get("refresh_token")?.value;
     if (!refreshToken) {
       return {
@@ -140,7 +144,9 @@ export async function fetchWithRefresh(
   }
 
   // Make the original call once with valid (or freshly refreshed) tokens
-  const response = await fetchFn(accessToken, fingerprint);
+  // accessToken is guaranteed defined: either needsRefresh was false (cookie existed)
+  // or the refresh block assigned a new one (line 154) or returned early (line 145)
+  const response = await fetchFn(accessToken!, fingerprint);
 
   return { response, refreshSetCookieHeaders };
 }

@@ -26,7 +26,7 @@ export function setAuthCookies(
       httpOnly: true,
       secure: IS_PRODUCTION,
       sameSite: "strict",
-      path: "/api/",
+      path: "/",
       maxAge: 604800,
     });
   }
@@ -52,7 +52,7 @@ export function setAuthCookies(
 
 export function clearAuthCookies(response: NextResponse): void {
   for (const name of ["access_token", "refresh_token", FGP_COOKIE_NAME, "user_info"]) {
-    response.cookies.set(name, "", { maxAge: 0, path: name === "refresh_token" ? "/api/" : "/" });
+    response.cookies.set(name, "", { maxAge: 0, path: "/" });
   }
 }
 

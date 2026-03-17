@@ -5,6 +5,7 @@ import {
   useContext,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -59,29 +60,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Global 401 interceptor — redirect to /login when any /api/* call
-  // (except /api/auth/*) returns 401. At this point the server-side
+  // returns 401, except auth endpoints where 401 is an expected input
+  // error (wrong password, bad OTP, etc.). At this point the server-side
   // fetchWithRefresh has already attempted a token refresh, so 401
   // means the session is truly dead.
-  useEffect(() => {
+  //
+  // useLayoutEffect so the patch is installed synchronously before
+  // children's useEffect callbacks (which may already fire API calls).
+  useLayoutEffect(() => {
     const originalFetch = window.fetch;
     let isRedirecting = false;
 
     window.fetch = async (...args: Parameters<typeof fetch>) => {
       const response = await originalFetch(...args);
       const input = args[0];
-      const url =
-        typeof input === "string"
-          ? input
-          : input instanceof Request
-            ? input.url
-            : input instanceof URL
-              ? input.pathname
-              : "";
+      // Resolve to a pathname so both relative ("/api/info") and
+      // absolute ("http://localhost:3000/api/info") URLs are matched.
+      let pathname = "";
+      try {
+        if (typeof input === "string" || input instanceof URL) {
+          pathname = new URL(input, window.location.origin).pathname;
+        } else if (input instanceof Request) {
+          pathname = new URL(input.url).pathname;
+        }
+      } catch {
+        // Malformed URL — leave pathname empty, skip redirect logic.
+      }
+      // Auth endpoints where 401 means bad input, not dead session.
+      const AUTH_401_PASSTHROUGH = [
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/verify-email",
+        "/api/auth/refresh",
+        "/api/auth/resend-otp",
+      ];
+      const onAuthPage = ["/login", "/register", "/verify-email"].includes(
+        window.location.pathname,
+      );
       if (
         !isRedirecting &&
+        !onAuthPage &&
         response.status === 401 &&
-        url.startsWith("/api/") &&
-        !url.startsWith("/api/auth/")
+        pathname.startsWith("/api/") &&
+        !AUTH_401_PASSTHROUGH.includes(pathname)
       ) {
         isRedirecting = true;
         window.location.href = "/login";
