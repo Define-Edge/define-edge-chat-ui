@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import type { UserResponse } from "@/api/generated/auth-apis/models";
 
 /**
@@ -58,8 +57,38 @@ function getUserFromCookie(): CookieUser | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<CookieUser | UserResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
+  // Global 401 interceptor — redirect to /login when any /api/* call
+  // (except /api/auth/*) returns 401. At this point the server-side
+  // fetchWithRefresh has already attempted a token refresh, so 401
+  // means the session is truly dead.
+  useEffect(() => {
+    const originalFetch = window.fetch;
+
+    window.fetch = async (...args: Parameters<typeof fetch>) => {
+      const response = await originalFetch(...args);
+      const url =
+        typeof args[0] === "string"
+          ? args[0]
+          : args[0] instanceof Request
+            ? args[0].url
+            : "";
+      if (
+        response.status === 401 &&
+        url.startsWith("/api/") &&
+        !url.startsWith("/api/auth/")
+      ) {
+        window.location.href = "/login";
+      }
+      return response;
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+
+  // Hydrate user from cookie, then from /api/auth/me
   useEffect(() => {
     const cookieUser = getUserFromCookie();
     if (cookieUser) setUser(cookieUser);
@@ -89,12 +118,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
-    router.push("/login");
-  }, [router]);
+    window.location.href = "/login";
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, logout, refreshAuth, updateUser: setUser }}
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        logout,
+        refreshAuth,
+        updateUser: setUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
