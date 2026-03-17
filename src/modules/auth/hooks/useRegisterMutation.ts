@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { extractApiError } from "../utils/extract-api-error";
-import type { AuthResponse, RegisterFormValues } from "../types/auth.types";
+import type { AuthLoginResponse, RegisterFormValues } from "../types/auth.types";
 
 export function useRegisterMutation() {
   return useMutation({
-    mutationFn: async (values: RegisterFormValues): Promise<AuthResponse> => {
+    mutationFn: async (values: RegisterFormValues): Promise<AuthLoginResponse> => {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
