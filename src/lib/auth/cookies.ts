@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import type { AuthTokenResponse, GracePeriodTokenResponse } from "@/api/generated/auth-apis/models";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
@@ -8,19 +9,10 @@ const FGP_COOKIE_NAME = IS_PRODUCTION ? "__Secure-Fgp" : "fgp";
 
 export { FGP_COOKIE_NAME };
 
-interface AuthTokens {
-  access_token: string;
-  refresh_token?: string;
-  fingerprint: string;
-  user: {
-    id: string;
-    name: string | null;
-    roles: string[];
-    [key: string]: unknown;
-  };
-}
-
-export function setAuthCookies(response: NextResponse, tokens: AuthTokens): void {
+export function setAuthCookies(
+  response: NextResponse,
+  tokens: AuthTokenResponse | GracePeriodTokenResponse
+): void {
   response.cookies.set("access_token", tokens.access_token, {
     httpOnly: true,
     secure: IS_PRODUCTION,
@@ -29,7 +21,7 @@ export function setAuthCookies(response: NextResponse, tokens: AuthTokens): void
     maxAge: 900,
   });
 
-  if (tokens.refresh_token) {
+  if ("refresh_token" in tokens && tokens.refresh_token) {
     response.cookies.set("refresh_token", tokens.refresh_token, {
       httpOnly: true,
       secure: IS_PRODUCTION,
