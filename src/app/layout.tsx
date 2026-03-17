@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/providers/AuthProvider";
 import { QueryProvider } from "@/providers/QueryProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -25,9 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-gray-50`}>
-        <QueryProvider>
-          <NuqsAdapter>{children}</NuqsAdapter>
-        </QueryProvider>
+        <AuthProvider>
+          <QueryProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

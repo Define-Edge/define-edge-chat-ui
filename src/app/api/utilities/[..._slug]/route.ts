@@ -39,13 +39,21 @@ async function handleRequest(
     });
 
     // Create headers for the proxy request
-    const headers = new Headers();
-    headers.set("apiKey", apiKey);
-    headers.set("Accept", "application/json");
+    const headers: Record<string, string> = {};
+    headers["apiKey"] = apiKey;
+    headers["Accept"] = "application/json";
+
+    // Forward auth cookies as headers
+    const IS_PROD = process.env.NODE_ENV === "production";
+    const fgpName = IS_PROD ? "__Secure-Fgp" : "fgp";
+    const accessToken = request.cookies.get("access_token")?.value;
+    const fingerprint = request.cookies.get(fgpName)?.value;
+    if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+    if (fingerprint) headers["X-Fgp"] = fingerprint;
 
     // Copy relevant headers from original request
     if (request.headers.get("content-type")) {
-      headers.set("Content-Type", request.headers.get("content-type")!);
+      headers["Content-Type"] = request.headers.get("content-type")!;
     }
 
     // Forward the request to the backend
