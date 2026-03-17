@@ -86,13 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         // Malformed URL — leave pathname empty, skip redirect logic.
       }
-      // Auth endpoints where 401 means bad input, not dead session.
+      // Auth endpoints where 401 is expected (bad input or own error handling).
       const AUTH_401_PASSTHROUGH = [
         "/api/auth/login",
         "/api/auth/register",
         "/api/auth/verify-email",
         "/api/auth/refresh",
         "/api/auth/resend-otp",
+        "/api/auth/logout",
+        "/api/auth/logout-all",
       ];
       const onAuthPage = ["/login", "/register", "/verify-email"].includes(
         window.location.pathname,
@@ -115,18 +117,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Hydrate user from cookie, then from /api/auth/me
+  // Hydrate user from cookie, then enrich from /api/auth/me.
+  // On auth failure (401) clear user; on server errors keep cookie user
+  // so the avatar and logout button remain accessible.
   useEffect(() => {
     const cookieUser = getUserFromCookie();
     if (cookieUser) setUser(cookieUser);
 
     fetch("/api/auth/me")
-      .then((res) => (res.ok ? res.json() : null))
+      .then((res) => {
+        if (res.ok) return res.json();
+        if (res.status === 401) setUser(null);
+        // On non-401 errors (e.g. 500), keep cookieUser as-is
+        return null;
+      })
       .then((data) => {
         if (data) setUser(data);
-        else setUser(null);
       })
-      .catch(() => setUser(null))
+      .catch(() => {
+        // Network error — keep cookieUser so logout remains available
+      })
       .finally(() => setIsLoading(false));
   }, []);
 

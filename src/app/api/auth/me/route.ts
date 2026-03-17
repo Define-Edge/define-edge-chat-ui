@@ -18,11 +18,7 @@ export async function GET(request: NextRequest) {
     },
   );
 
-  if (!response.ok) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  const data = await response.json();
-  const jsonResponse = NextResponse.json(data);
+  const data = await response.json().catch(() => null);
+  const jsonResponse = NextResponse.json(data, { status: response.status });
   return mergeSetCookieHeaders(jsonResponse, refreshSetCookieHeaders);
 }
