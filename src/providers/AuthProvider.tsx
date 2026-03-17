@@ -64,20 +64,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // means the session is truly dead.
   useEffect(() => {
     const originalFetch = window.fetch;
+    let isRedirecting = false;
 
     window.fetch = async (...args: Parameters<typeof fetch>) => {
       const response = await originalFetch(...args);
+      const input = args[0];
       const url =
-        typeof args[0] === "string"
-          ? args[0]
-          : args[0] instanceof Request
-            ? args[0].url
-            : "";
+        typeof input === "string"
+          ? input
+          : input instanceof Request
+            ? input.url
+            : input instanceof URL
+              ? input.pathname
+              : "";
       if (
+        !isRedirecting &&
         response.status === 401 &&
         url.startsWith("/api/") &&
         !url.startsWith("/api/auth/")
       ) {
+        isRedirecting = true;
         window.location.href = "/login";
       }
       return response;

@@ -55,7 +55,9 @@ function buildRefreshSetCookieHeaders(tokens: RefreshTokens): string[] {
   return headers;
 }
 
-let inflightRefresh: Promise<RefreshTokens | null> | null = null;
+// Keyed by refresh token to prevent cross-user token leakage.
+// Each unique refresh token gets its own in-flight promise.
+const inflightRefreshes = new Map<string, Promise<RefreshTokens | null>>();
 
 async function refreshTokens(refreshToken: string): Promise<RefreshTokens | null> {
   const res = await fetch(`${BACKEND_URL}/auth/refresh`, {
@@ -78,13 +80,15 @@ async function refreshTokens(refreshToken: string): Promise<RefreshTokens | null
 }
 
 async function deduplicatedRefresh(refreshToken: string): Promise<RefreshTokens | null> {
-  if (inflightRefresh) return inflightRefresh;
+  const existing = inflightRefreshes.get(refreshToken);
+  if (existing) return existing;
 
-  inflightRefresh = refreshTokens(refreshToken).finally(() => {
-    inflightRefresh = null;
+  const promise = refreshTokens(refreshToken).finally(() => {
+    inflightRefreshes.delete(refreshToken);
   });
+  inflightRefreshes.set(refreshToken, promise);
 
-  return inflightRefresh;
+  return promise;
 }
 
 function isTokenExpired(token: string): boolean {
