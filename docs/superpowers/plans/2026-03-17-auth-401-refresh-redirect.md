@@ -179,52 +179,73 @@ async function deduplicatedRefresh(refreshToken: string): Promise<RefreshTokens 
 }
 ```
 
-- [ ] **Step 4: Add the main `fetchWithRefresh` function**
+- [ ] **Step 4: Add JWT expiry check helper**
+
+Decode the JWT payload (base64, no signature verification needed) and check the `exp` claim. This avoids a wasted backend RTT when the token is expired — we refresh first, then make the original call once.
+
+```typescript
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    if (!payload.exp) return false;
+    // Consider expired if within 30s of expiry (clock skew buffer)
+    return payload.exp * 1000 <= Date.now() + 30_000;
+  } catch {
+    return true;
+  }
+}
+```
+
+- [ ] **Step 5: Add the main `fetchWithRefresh` function**
+
+The flow: check if the access token is expired → if so, try refresh before making the backend call → make the original call once with valid tokens. If the call still returns 401 (rare — token revoked), return 401 as-is (client interceptor handles redirect).
 
 ```typescript
 export async function fetchWithRefresh(
   request: NextRequest,
   fetchFn: BackendFetchFn,
 ): Promise<FetchWithRefreshResult> {
-  const accessToken = request.cookies.get("access_token")?.value;
-  const fingerprint = request.cookies.get(FGP_COOKIE_NAME)?.value;
+  let accessToken = request.cookies.get("access_token")?.value;
+  let fingerprint: string | undefined = request.cookies.get(FGP_COOKIE_NAME)?.value;
+  let refreshSetCookieHeaders: string[] | undefined;
 
-  if (!accessToken) {
-    return {
-      response: new Response(JSON.stringify({ error: "Not authenticated" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      }),
-    };
+  // If no access token or token is expired, try refreshing first
+  if (!accessToken || isTokenExpired(accessToken)) {
+    const refreshToken = request.cookies.get("refresh_token")?.value;
+    if (!refreshToken) {
+      return {
+        response: new Response(JSON.stringify({ error: "Not authenticated" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+      };
+    }
+
+    const tokens = await deduplicatedRefresh(refreshToken);
+    if (!tokens) {
+      return {
+        response: new Response(JSON.stringify({ error: "Session expired" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+      };
+    }
+
+    accessToken = tokens.access_token;
+    fingerprint = tokens.fingerprint;
+    refreshSetCookieHeaders = buildRefreshSetCookieHeaders(tokens);
   }
 
+  // Make the original call once with valid (or freshly refreshed) tokens
   const response = await fetchFn(accessToken, fingerprint);
 
-  if (response.status !== 401) {
-    return { response };
-  }
-
-  // Attempt refresh
-  const refreshToken = request.cookies.get("refresh_token")?.value;
-  if (!refreshToken) {
-    return { response };
-  }
-
-  const tokens = await deduplicatedRefresh(refreshToken);
-  if (!tokens) {
-    return { response };
-  }
-
-  // Retry with new tokens
-  const retryResponse = await fetchFn(tokens.access_token, tokens.fingerprint);
-  return {
-    response: retryResponse,
-    refreshSetCookieHeaders: buildRefreshSetCookieHeaders(tokens),
-  };
+  return { response, refreshSetCookieHeaders };
 }
 ```
 
-- [ ] **Step 5: Add a utility to merge Set-Cookie headers into a Response**
+- [ ] **Step 6: Add a utility to merge Set-Cookie headers into a Response**
 
 This is used by all three proxy routes to attach refresh cookies to their response.
 
@@ -248,7 +269,7 @@ export function mergeSetCookieHeaders(
 }
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/lib/auth/server-refresh.ts

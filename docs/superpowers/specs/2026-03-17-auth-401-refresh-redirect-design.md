@@ -26,12 +26,15 @@ async function fetchWithRefresh(
 **Flow:**
 
 1. Read `access_token` and `fingerprint` cookies from the incoming request.
-2. If no access token, return 401 immediately.
-3. Call `fetchFn(accessToken, fingerprint)` to hit the backend.
-4. If response is not 401, return it as-is.
-5. If 401, read `refresh_token` from request cookies and call backend `POST /auth/refresh`.
-6. If refresh fails, return the original 401.
-7. If refresh succeeds, retry `fetchFn` with the new tokens, build `Set-Cookie` headers for the new tokens (matching the cookie parameters in `cookies.ts`), and return both.
+2. Decode the JWT payload (base64, no signature verification) and check the `exp` claim.
+3. If the token is missing or expired, read `refresh_token` from request cookies.
+4. If no refresh token, return 401 immediately.
+5. If refresh token exists, call backend `POST /auth/refresh`. If refresh fails, return 401.
+6. If refresh succeeds, use the new tokens and build `Set-Cookie` headers.
+7. Make the original backend call once with valid (or freshly refreshed) tokens.
+8. Return the response (and any `Set-Cookie` headers from step 6).
+
+This avoids a wasted backend RTT when the access token is expired — the helper refreshes proactively before making the original call. If the token is not expired but the backend still returns 401 (rare — token revoked), the 401 is returned as-is and the client-side interceptor handles the redirect.
 
 The helper constructs `Set-Cookie` headers directly rather than depending on `NextResponse.cookies`, since the proxy routes return raw `Response` objects. The headers must include all four cookies that `setAuthCookies` sets: `access_token`, `refresh_token`, fingerprint, and `user_info` (with user data from the refresh response). This ensures the client-side `getUserFromCookie()` in AuthProvider continues to work after a transparent refresh.
 
