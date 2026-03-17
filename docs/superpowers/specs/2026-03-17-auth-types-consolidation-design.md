@@ -220,7 +220,7 @@ const resendMutation = useMutation<VerificationRequiredResponse, Error, string>(
 | `src/app/(auth)/login/page.tsx` | MODIFY | Inline `useMutation` replacing `useLoginMutation` |
 | `src/app/(auth)/register/page.tsx` | MODIFY | Inline `useMutation` replacing `useRegisterMutation` |
 | `src/app/(auth)/verify-email/page.tsx` | MODIFY | Inline `useMutation` replacing `useVerifyEmailMutation` and `useResendOtpMutation` |
-| `src/components/layouts/UserMenu.tsx` | NO CHANGE | Already guards optional fields |
+| `src/components/layouts/UserMenu.tsx` | MODIFY | Use `isHydratedUser` to narrow before accessing `email`/`image` (no longer on `CookieUser` after Pick-only change) |
 | `src/app/api/auth/*/route.ts` | OPTIONAL | Routes can simplify `setAuthCookies(response, data)` instead of manual destructuring now that `tokens` param accepts generated types |
 
 ## Not In Scope
