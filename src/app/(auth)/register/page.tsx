@@ -16,15 +16,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRegisterMutation } from "@/modules/auth";
+import { useMutation } from "@tanstack/react-query";
+import type { VerificationRequiredResponse } from "@/api/generated/auth-apis/models";
 import {
+  extractApiError,
   registerSchema,
   type RegisterFormValues,
-} from "@/modules/auth/types/auth.types";
+} from "@/modules/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const mutation = useRegisterMutation();
+  const mutation = useMutation<VerificationRequiredResponse, Error, RegisterFormValues>({
+    mutationFn: async (body) => {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(extractApiError(data, "Registration failed"));
+      return data;
+    },
+  });
 
   const {
     register,
