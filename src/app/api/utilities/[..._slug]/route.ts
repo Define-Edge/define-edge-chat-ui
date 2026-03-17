@@ -1,35 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  fetchWithRefresh,
+  mergeSetCookieHeaders,
+} from "@/lib/auth/server-refresh";
 
 export const runtime = "edge";
 
 async function handleRequest(
   request: NextRequest,
-  params: { _slug: string[] }
+  params: { _slug: string[] },
 ) {
   try {
-    // Use LANGGRAPH_API_URL as the backend
     const backendUrl = process.env.LANGGRAPH_API_URL;
     const apiKey = process.env.LANGSMITH_API_KEY;
 
     if (!backendUrl) {
       return NextResponse.json(
         { error: "Backend API URL not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (!apiKey) {
       return NextResponse.json(
         { error: "API key not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    // Reconstruct the path from the slug
     const path = params._slug.join("/");
     const targetUrl = `${backendUrl.replace(/\/$/, "")}/api/${path}`;
 
-    // Copy query parameters from the original request
     const searchParams = new URL(request.url).searchParams;
     const url = new URL(targetUrl);
     searchParams.forEach((value, key) => {
@@ -38,51 +39,51 @@ async function handleRequest(
       }
     });
 
-    // Create headers for the proxy request
-    const headers: Record<string, string> = {};
-    headers["apiKey"] = apiKey;
-    headers["Accept"] = "application/json";
+    const { response, refreshSetCookieHeaders } = await fetchWithRefresh(
+      request,
+      (accessToken, fingerprint) => {
+        const headers: Record<string, string> = {};
+        headers["apiKey"] = apiKey;
+        headers["Accept"] = "application/json";
+        headers["Authorization"] = `Bearer ${accessToken}`;
+        if (fingerprint) headers["X-Fgp"] = fingerprint;
 
-    // Forward auth cookies as headers
-    const IS_PROD = process.env.NODE_ENV === "production";
-    const fgpName = IS_PROD ? "__Secure-Fgp" : "fgp";
-    const accessToken = request.cookies.get("access_token")?.value;
-    const fingerprint = request.cookies.get(fgpName)?.value;
-    if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
-    if (fingerprint) headers["X-Fgp"] = fingerprint;
+        if (request.headers.get("content-type")) {
+          headers["Content-Type"] = request.headers.get("content-type")!;
+        }
 
-    // Copy relevant headers from original request
-    if (request.headers.get("content-type")) {
-      headers["Content-Type"] = request.headers.get("content-type")!;
-    }
+        return fetch(url.toString(), {
+          method: request.method,
+          headers,
+          body:
+            request.method !== "GET" && request.method !== "HEAD"
+              ? request.body
+              : undefined,
+        });
+      },
+    );
 
-    // Forward the request to the backend
-    const response = await fetch(url.toString(), {
-      method: request.method,
-      headers,
-      body:
-        request.method !== "GET" && request.method !== "HEAD"
-          ? request.body
-          : undefined,
-    });
-
-    // Get response text
     const text = await response.text();
 
-    // Return empty response if no content
     if (!text.trim()) {
-      return NextResponse.json({ data: null }, { status: response.status });
+      return mergeSetCookieHeaders(
+        NextResponse.json({ data: null }, { status: response.status }),
+        refreshSetCookieHeaders,
+      );
     }
 
-    // Return the response
-    return new Response(text, {
-      status: response.status,
-      headers: {
-        "Content-Type":
-          response.headers.get("Content-Type") || "application/json",
-        "Cache-Control": response.headers.get("Cache-Control") || "no-cache",
-      },
-    });
+    return mergeSetCookieHeaders(
+      new Response(text, {
+        status: response.status,
+        headers: {
+          "Content-Type":
+            response.headers.get("Content-Type") || "application/json",
+          "Cache-Control":
+            response.headers.get("Cache-Control") || "no-cache",
+        },
+      }),
+      refreshSetCookieHeaders,
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unexpected exception";
