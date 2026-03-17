@@ -16,14 +16,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/providers/AuthProvider";
-import { useLoginMutation } from "@/modules/auth";
-import { loginSchema, type LoginFormValues } from "@/modules/auth/types/auth.types";
+import {
+  extractApiError,
+  loginSchema,
+  type LoginFormValues,
+  type AuthLoginResponse,
+} from "@/modules/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const { updateUser } = useAuth();
-  const mutation = useLoginMutation();
+  const mutation = useMutation<AuthLoginResponse, Error, LoginFormValues>({
+    mutationFn: async (body) => {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(extractApiError(data, "Login failed"));
+      return data;
+    },
+  });
 
   const {
     register,
