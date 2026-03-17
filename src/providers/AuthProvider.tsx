@@ -13,7 +13,7 @@ import type { UserResponse } from "@/api/generated/auth-apis/models";
 
 /**
  * Minimal user data available from the user_info cookie.
- * Cookie only has id, name, roles (PII stripped in setAuthCookies — see cookies.ts line 51).
+ * Cookie only has id, name, roles (PII stripped in setAuthCookies — see cookies.ts line 43).
  * IMPORTANT: this must stay in sync with the fields written to user_info cookie.
  * If email is ever added to the cookie, isHydratedUser must be updated.
  */

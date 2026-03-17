@@ -21,6 +21,8 @@ export interface AnalyzePortfolioArgs {
   end_date?: AnalyzePortfolioArgsEndDate;
   /** Rolling lookback window for deriving metrics (e.g., '15d', '3m', '1y', '3y') */
   duration?: AnalyzePortfolioArgsDuration;
+  /** Calendar days of closing data to fetch when from_date is not specified */
+  days?: number;
   /** The list of item in the portfolio */
   items: PFItem[];
   /** The unit of the input (weight or quantity) */
