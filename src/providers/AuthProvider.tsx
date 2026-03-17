@@ -13,19 +13,27 @@ import type { UserResponse } from "@/api/generated/auth-apis/models";
 
 /**
  * Minimal user data available from the user_info cookie.
- * Derived from UserResponse — cookie only has id, name, roles (PII stripped).
- * Full fields (email, institutionId, image) are populated after /api/auth/me call.
+ * Cookie only has id, name, roles (PII stripped in setAuthCookies — see cookies.ts line 51).
+ * IMPORTANT: this must stay in sync with the fields written to user_info cookie.
+ * If email is ever added to the cookie, isHydratedUser must be updated.
  */
-export type CookieUser = Partial<UserResponse> &
-  Pick<UserResponse, "id" | "roles" | "name">;
+export type CookieUser = Pick<UserResponse, "id" | "name" | "roles">;
+
+/**
+ * Type guard: narrows CookieUser | UserResponse to UserResponse.
+ * Works because email is required in UserResponse but absent from CookieUser (Pick excludes it).
+ */
+export function isHydratedUser(user: CookieUser | UserResponse): user is UserResponse {
+  return "email" in user;
+}
 
 interface AuthContextType {
-  user: CookieUser | null;
+  user: CookieUser | UserResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<boolean>;
-  updateUser: (user: CookieUser) => void;
+  updateUser: (user: CookieUser | UserResponse) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -48,7 +56,7 @@ function getUserFromCookie(): CookieUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<CookieUser | null>(null);
+  const [user, setUser] = useState<CookieUser | UserResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
