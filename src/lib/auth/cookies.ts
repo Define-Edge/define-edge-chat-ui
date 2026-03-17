@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { AuthTokenResponse, GracePeriodTokenResponse } from "@/api/generated/auth-apis/models";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const REFRESH_TOKEN_MAX_AGE = Number(process.env.REFRESH_TOKEN_MAX_AGE) || 604800;
 
 // __Secure- prefix requires Secure flag (HTTPS). In dev (HTTP), use plain name.
 const FGP_COOKIE_NAME = IS_PRODUCTION ? "__Secure-Fgp" : "fgp";
@@ -27,7 +28,7 @@ export function setAuthCookies(
       secure: IS_PRODUCTION,
       sameSite: "strict",
       path: "/",
-      maxAge: 604800,
+      maxAge: REFRESH_TOKEN_MAX_AGE,
     });
   }
 
@@ -36,7 +37,7 @@ export function setAuthCookies(
     secure: IS_PRODUCTION,
     sameSite: "strict",
     path: "/",
-    maxAge: 604800,
+    maxAge: REFRESH_TOKEN_MAX_AGE,
   });
 
   // Non-httpOnly cookie for frontend hydration — strip PII (email, institutionId)

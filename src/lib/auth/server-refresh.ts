@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 
 const BACKEND_URL = process.env.LANGGRAPH_API_URL || "http://localhost:2024";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const REFRESH_TOKEN_MAX_AGE = Number(process.env.REFRESH_TOKEN_MAX_AGE) || 604800;
 const FGP_COOKIE_NAME = IS_PRODUCTION ? "__Secure-Fgp" : "fgp";
 
 /**
@@ -36,11 +37,11 @@ function buildRefreshSetCookieHeaders(tokens: RefreshTokens): string[] {
   );
 
   headers.push(
-    `refresh_token=${tokens.refresh_token}; HttpOnly; Path=/; Max-Age=604800; SameSite=Strict${secure}`,
+    `refresh_token=${tokens.refresh_token}; HttpOnly; Path=/; Max-Age=${REFRESH_TOKEN_MAX_AGE}; SameSite=Strict${secure}`,
   );
 
   headers.push(
-    `${FGP_COOKIE_NAME}=${tokens.fingerprint}; HttpOnly; Path=/; Max-Age=604800; SameSite=Strict${secure}`,
+    `${FGP_COOKIE_NAME}=${tokens.fingerprint}; HttpOnly; Path=/; Max-Age=${REFRESH_TOKEN_MAX_AGE}; SameSite=Strict${secure}`,
   );
 
   const userInfo = JSON.stringify({
