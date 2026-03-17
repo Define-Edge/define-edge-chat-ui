@@ -5,10 +5,10 @@ import {
   useContext,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import type { UserResponse } from "@/api/generated/auth-apis/models";
 
 /**
@@ -58,19 +58,85 @@ function getUserFromCookie(): CookieUser | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<CookieUser | UserResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
+  // Global 401 interceptor — redirect to /login when any /api/* call
+  // returns 401, except auth endpoints where 401 is an expected input
+  // error (wrong password, bad OTP, etc.). At this point the server-side
+  // fetchWithRefresh has already attempted a token refresh, so 401
+  // means the session is truly dead.
+  //
+  // useLayoutEffect so the patch is installed synchronously before
+  // children's useEffect callbacks (which may already fire API calls).
+  useLayoutEffect(() => {
+    const originalFetch = window.fetch;
+    let isRedirecting = false;
+
+    window.fetch = async (...args: Parameters<typeof fetch>) => {
+      const response = await originalFetch(...args);
+      const input = args[0];
+      // Resolve to a pathname so both relative ("/api/info") and
+      // absolute ("http://localhost:3000/api/info") URLs are matched.
+      let pathname = "";
+      try {
+        if (typeof input === "string" || input instanceof URL) {
+          pathname = new URL(input, window.location.origin).pathname;
+        } else if (input instanceof Request) {
+          pathname = new URL(input.url).pathname;
+        }
+      } catch {
+        // Malformed URL — leave pathname empty, skip redirect logic.
+      }
+      // Auth endpoints where 401 is expected (bad input or own error handling).
+      const AUTH_401_PASSTHROUGH = [
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/verify-email",
+        "/api/auth/refresh",
+        "/api/auth/resend-otp",
+        "/api/auth/logout",
+        "/api/auth/logout-all",
+      ];
+      const onAuthPage = ["/login", "/register", "/verify-email"].includes(
+        window.location.pathname,
+      );
+      if (
+        !isRedirecting &&
+        !onAuthPage &&
+        response.status === 401 &&
+        pathname.startsWith("/api/") &&
+        !AUTH_401_PASSTHROUGH.includes(pathname)
+      ) {
+        isRedirecting = true;
+        window.location.href = "/login";
+      }
+      return response;
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+
+  // Hydrate user from cookie, then enrich from /api/auth/me.
+  // On auth failure (401) clear user; on server errors keep cookie user
+  // so the avatar and logout button remain accessible.
   useEffect(() => {
     const cookieUser = getUserFromCookie();
     if (cookieUser) setUser(cookieUser);
 
     fetch("/api/auth/me")
-      .then((res) => (res.ok ? res.json() : null))
+      .then((res) => {
+        if (res.ok) return res.json();
+        if (res.status === 401) setUser(null);
+        // On non-401 errors (e.g. 500), keep cookieUser as-is
+        return null;
+      })
       .then((data) => {
         if (data) setUser(data);
-        else setUser(null);
       })
-      .catch(() => setUser(null))
+      .catch(() => {
+        // Network error — keep cookieUser so logout remains available
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -89,12 +155,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
-    router.push("/login");
-  }, [router]);
+    window.location.href = "/login";
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, logout, refreshAuth, updateUser: setUser }}
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        logout,
+        refreshAuth,
+        updateUser: setUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

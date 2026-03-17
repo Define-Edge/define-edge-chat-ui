@@ -57,7 +57,6 @@
     "framer-motion": "^12.4.9",
     "http-status-codes": "^2.3.0",
     "idb-keyval": "^6.2.2",
-    "jose": "^6.2.1",
     "katex": "^0.16.22",
     "langgraph-nextjs-api-passthrough": "^0.0.4",
     "lodash": "^4.17.21",
