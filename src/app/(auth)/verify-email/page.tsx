@@ -14,12 +14,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useMutation } from "@tanstack/react-query";
+import type { VerificationRequiredResponse } from "@/api/generated/auth-apis/models";
 import { useAuth } from "@/providers/AuthProvider";
-import { useVerifyEmailMutation, useResendOtpMutation } from "@/modules/auth";
 import {
+  extractApiError,
   verifyEmailSchema,
   type VerifyEmailFormValues,
-} from "@/modules/auth/types/auth.types";
+  type AuthUserResponse,
+} from "@/modules/auth";
 
 const RESEND_COOLDOWN = 60;
 
@@ -29,8 +32,30 @@ function VerifyEmailForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
 
-  const verifyMutation = useVerifyEmailMutation();
-  const resendMutation = useResendOtpMutation();
+  const verifyMutation = useMutation<AuthUserResponse, Error, VerifyEmailFormValues>({
+    mutationFn: async (body) => {
+      const res = await fetch("/api/auth/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(extractApiError(data, "Verification failed"));
+      return data;
+    },
+  });
+  const resendMutation = useMutation<VerificationRequiredResponse, Error, string>({
+    mutationFn: async (email) => {
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(extractApiError(data, "Failed to resend code"));
+      return data;
+    },
+  });
 
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
@@ -66,7 +91,7 @@ function VerifyEmailForm() {
   const onSubmit = (values: VerifyEmailFormValues) => {
     verifyMutation.mutate(values, {
       onSuccess: (data) => {
-        if (data.user) updateUser(data.user);
+        updateUser(data.user);
         router.push("/");
       },
     });
