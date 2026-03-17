@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/providers/AuthProvider";
+import { useAuth, isHydratedUser } from "@/providers/AuthProvider";
 import { LogOut } from "lucide-react";
 
 function getInitials(name: string | null | undefined): string {
@@ -33,7 +33,9 @@ export function UserMenu({ size = "default" }: { size?: "default" | "sm" }) {
           aria-label="User menu"
         >
           <Avatar className={avatarSize}>
-            {user.image && <AvatarImage src={user.image} alt={user.name || ""} />}
+            {isHydratedUser(user) && user.image && (
+              <AvatarImage src={user.image} alt={user.name || ""} />
+            )}
             <AvatarFallback className={`bg-[#2F6868] text-white ${textSize} font-medium`}>
               {getInitials(user.name)}
             </AvatarFallback>
@@ -49,7 +51,7 @@ export function UserMenu({ size = "default" }: { size?: "default" | "sm" }) {
           {user.name && (
             <p className="text-sm font-medium leading-none">{user.name}</p>
           )}
-          {user.email && (
+          {isHydratedUser(user) && user.email && (
             <p className="text-muted-foreground mt-1 text-xs">{user.email}</p>
           )}
         </div>
