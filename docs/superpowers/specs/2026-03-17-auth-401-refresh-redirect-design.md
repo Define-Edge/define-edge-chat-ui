@@ -56,7 +56,7 @@ All three proxy route handlers adopt the same pattern: delegate to `fetchWithRef
 **`src/app/api/auth/me/route.ts`**
 
 - Replace the manual access token check and backend fetch with `fetchWithRefresh`.
-- The factory function calls `BACKEND_URL/auth/me` with the provided access token via `Authorization` header. The fingerprint (`X-Fgp`) is not forwarded here since the current implementation does not send it and the backend does not require it for this endpoint.
+- The factory function calls `BACKEND_URL/auth/me` with the provided access token via `Authorization` header and fingerprint via `X-Fgp` header. This is a bug fix — the current implementation does not forward the fingerprint, but all authenticated endpoints should receive it.
 - If refresh happened, merge `Set-Cookie` headers into the JSON response.
 
 **`src/app/api/[..._path]/route.ts`**
