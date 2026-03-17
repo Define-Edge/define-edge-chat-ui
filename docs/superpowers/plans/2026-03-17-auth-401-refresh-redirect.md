@@ -342,8 +342,6 @@ git commit -m "feat(auth): use fetchWithRefresh in /api/auth/me, forward fingerp
 
 The handler currently reads cookies directly (lines 18-19) and builds the fetch. Refactor so the factory function receives tokens from the helper.
 
-**Important:** `request.body` is a `ReadableStream` that can only be consumed once. Since `fetchWithRefresh` may call the factory function twice (first attempt + retry after refresh), we must buffer the body as `ArrayBuffer` before the first call. This also removes the need for `duplex: "half"`.
-
 Replace the entire file with:
 
 ```typescript
@@ -362,13 +360,6 @@ async function handler(request: NextRequest) {
   const url = new URL(path, LANGGRAPH_API_URL);
   url.search = request.nextUrl.search;
 
-  // Buffer the body so it can be re-sent on refresh retry.
-  // ReadableStream can only be consumed once.
-  const body =
-    request.method !== "GET" && request.method !== "HEAD"
-      ? await request.arrayBuffer()
-      : undefined;
-
   const { response, refreshSetCookieHeaders } = await fetchWithRefresh(
     request,
     (accessToken, fingerprint) => {
@@ -380,7 +371,12 @@ async function handler(request: NextRequest) {
       return fetch(url, {
         method: request.method,
         headers,
-        body,
+        body:
+          request.method !== "GET" && request.method !== "HEAD"
+            ? request.body
+            : undefined,
+        // @ts-expect-error - duplex is needed for streaming request bodies
+        duplex: "half",
       });
     },
   );
@@ -403,7 +399,7 @@ export const DELETE = handler;
 export const OPTIONS = handler;
 ```
 
-Note: the `IS_PROD` and `FGP_NAME` constants are removed — token reading is now delegated to `fetchWithRefresh`. The `duplex: "half"` workaround is no longer needed since we buffer the body as `ArrayBuffer`.
+Note: the `IS_PROD` and `FGP_NAME` constants are removed — token reading is now delegated to `fetchWithRefresh`.
 
 - [ ] **Step 2: Verify the dev server starts without errors**
 
@@ -426,8 +422,6 @@ git commit -m "feat(auth): use fetchWithRefresh in LangGraph passthrough proxy"
 - [ ] **Step 1: Refactor `handleRequest` to use `fetchWithRefresh`**
 
 Replace the auth header construction (lines 41-67) and response handling (lines 69-85) with `fetchWithRefresh`. The `runtime = "edge"` export stays.
-
-**Important:** Same as Task 4 — buffer `request.body` as `ArrayBuffer` before passing to `fetchWithRefresh` so it can be re-sent on retry.
 
 Replace the entire file with (keeping the exported handlers at the bottom unchanged):
 
@@ -473,12 +467,6 @@ async function handleRequest(
       }
     });
 
-    // Buffer the body so it can be re-sent on refresh retry.
-    const body =
-      request.method !== "GET" && request.method !== "HEAD"
-        ? await request.arrayBuffer()
-        : undefined;
-
     const { response, refreshSetCookieHeaders } = await fetchWithRefresh(
       request,
       (accessToken, fingerprint) => {
@@ -495,7 +483,10 @@ async function handleRequest(
         return fetch(url.toString(), {
           method: request.method,
           headers,
-          body,
+          body:
+            request.method !== "GET" && request.method !== "HEAD"
+              ? request.body
+              : undefined,
         });
       },
     );
