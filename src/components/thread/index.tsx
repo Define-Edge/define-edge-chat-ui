@@ -14,6 +14,7 @@ import {
 import appConfig from "@/configs/app.config";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { useHideToolCalls } from "@/hooks/useDefaultApiValues";
+import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   DO_NOT_RENDER_ID_PREFIX,
@@ -139,8 +140,12 @@ export function Thread() {
   );
   const [hideToolCalls, setHideToolCalls] = useHideToolCalls()
   const [input, setInput] = useState("");
-  const [selectedModel, setSelectedModel] = useState<PlannerModels>(
-    PlannerModels.SONNET_4_5
+  const [selectedModel, setSelectedModel] = useLocalStorageState<PlannerModels>(
+    "lg:chat:selectedModel",
+    PlannerModels.GEMINI_FLASH,
+    (value): value is PlannerModels =>
+      typeof value === "string" &&
+      (Object.values(PlannerModels) as string[]).includes(value),
   );
   const {
     contentBlocks,
@@ -236,7 +241,7 @@ export function Thread() {
         streamMode: ["values"],
         config: {
           configurable: {
-            planner_agent_model: selectedModel
+            tradekit_agent_model: selectedModel
           }
         },
         optimisticValues: (prev) => ({

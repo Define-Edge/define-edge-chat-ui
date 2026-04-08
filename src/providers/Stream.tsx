@@ -40,7 +40,7 @@ const useTypedStream = useStream<
     };
     CustomEventType: UIMessage | RemoveUIMessage;
     ConfigurableType: {
-      planner_agent_model: PlannerModels;
+      tradekit_agent_model: PlannerModels;
     };
   }
 >;
